@@ -1,12 +1,22 @@
 
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './my-map.scss';
 import L from 'leaflet';
+import fetchPolygons from "../services/PolygonListService";
 
 function MyMap() {
   const mapContainer = useRef(null);
   const mapInstance = useRef(null);
+  const [polygons, setPolygons] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await fetchPolygons();
+      setPolygons(data);
+    };
+    fetchData();
+  }, []);
 
   useEffect(() => {
     const initialState = {
@@ -30,19 +40,25 @@ function MyMap() {
         maxZoom: 20,
         id: 'osm-bright',
       }).addTo(mapInstance.current);
-      var polygon = L.polygon(latlngs, {color: 'red'}).addTo(mapInstance.current);
-      
+
     }
+    var polygon = L.polygon(latlngs, {color: 'red'}).addTo(mapInstance.current);
+    if (polygons){
+    var polylist=polygons.map(polygon => {
+      const latlngs = polygon.cords.map(coord => [coord.lat, coord.lng]);
+      return L.polygon(latlngs, { color: 'red' }).addTo(mapInstance.current);
+    });
+  };
 
     // Clean up the map instance when the component unmounts
     return () => {
       if (mapInstance.current) {
         mapInstance.current.remove();
-        polygon.remove()
+        //polygon.remove()
         mapInstance.current = null;
       }
     };
-  }, []);
+  }, [polygons]);
 
   return (
     <div className="map-container" ref={mapContainer} style={{ height: '500px' }}></div>

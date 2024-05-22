@@ -1,16 +1,28 @@
-import logo from './logo.svg';
+import React, { useState } from "react";
 import MyMap from './components/my-map';
+import { handleViewSidebar } from "./services/sidebarService";
+import SideBar from "./components/SideBar";
+import Header from "./components/Header";
+import CreatePolygon from "./components/CreatePolygon";
 import './App.css';
 
 function App() {
+  const [sidebarOpen, setSideBarOpen] = useState(false);
 
+  const toggleSidebar = () => {
+    handleViewSidebar(sidebarOpen, setSideBarOpen);
+  };
   return (
     <div className="App">
-        <p>
-          Routing front.
-        </p>
-        
-        <MyMap />
+      
+      <span>
+        <Header onClick={toggleSidebar} />
+        <SideBar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+      </span>
+    <div className="MapAndForm"></div>
+      <MyMap />
+
+      <CreatePolygon />
         
 
     </div>

@@ -1,0 +1,22 @@
+{
+  "polygonlistobj": [
+    {
+      "name": "Polygon 1",
+      "type": "Type A",
+      "cords": [
+        { "lat": 40.712, "lng": -74.006 },
+        { "lat": 34.052, "lng": -118.243 },
+        { "lat": 41.878, "lng": -87.629 }
+      ]
+    },
+    {
+      "name": "Polygon 2",
+      "type": "Type B",
+      "cords": [
+        { "lat": 51.507, "lng": -0.127 },
+        { "lat": 48.856, "lng": 2.352 },
+        { "lat": 52.52, "lng": 13.405 }
+      ]
+    }
+  ]
+}

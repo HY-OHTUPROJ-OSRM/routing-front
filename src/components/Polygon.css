@@ -1,0 +1,19 @@
+.polygon {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .polygon h2 {
+    margin-top: 0;
+  }
+  
+  .polygon ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .polygon li {
+    margin-bottom: 5px;
+  }
