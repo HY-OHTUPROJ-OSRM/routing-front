@@ -1,5 +1,8 @@
+
+
 export const addPolygon = (formData) => {
-    const newPolygon = {
+
+    let newPolygon = {
       name: formData.name,
       type: formData.type,
       coordinates: formData.coordinates
@@ -10,7 +13,7 @@ export const addPolygon = (formData) => {
       .then(response => response.json())
       .then(data => {
         // Push the new polygon to the existing data
-        data.polygonlistobj.push(newPolygon.name);
+        data.polygonlistobj.push(newPolygon);
     console.log(data)
         // Write the updated data back to the JSON file
         // This part depends on how you want to handle writing data back to the file
@@ -18,3 +21,4 @@ export const addPolygon = (formData) => {
       })
       .catch(error => console.error('Error adding polygon:', error));
   };
+ 

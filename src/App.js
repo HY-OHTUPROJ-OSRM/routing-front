@@ -13,18 +13,20 @@ function App() {
     handleViewSidebar(sidebarOpen, setSideBarOpen);
   };
   return (
+    <div>
     <div className="App">
       
       <span>
         <Header onClick={toggleSidebar} />
         <SideBar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
       </span>
-    <div className="MapAndForm"></div>
-      <MyMap />
+    </div>
+    <div className="MapAndForm">
 
-      <CreatePolygon />
+      <div className="first"> <MyMap /> </div>
+      <div className="second"> <CreatePolygon /> </div>
         
-
+      </div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 .App {
-  text-align: center;
+
 }
 
 .App-logo {
@@ -85,10 +85,19 @@ header {
 }
 
 .MapAndForm > * {
-  flex: 1;
+  flex: l;
   margin-right: 10px; /* Adjust spacing between components */
 }
 
 .MapAndForm > *:last-child {
   margin-right: 0; /* Remove margin from last child */
+}
+.first{
+  padding: auto;
+  margin-right: 100px;
+}
+.sedond{
+  padding: auto;
+  margin-top: 0;
+  margin-right: -100;
 }

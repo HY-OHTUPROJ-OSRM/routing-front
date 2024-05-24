@@ -2,7 +2,7 @@
   "polygonlistobj": [
     {
       "name": "Polygon 1",
-      "type": "Type A",
+      "type": "Roadblock",
       "cords": [
         { "lat": 40.712, "lng": -74.006 },
         { "lat": 34.052, "lng": -118.243 },
@@ -11,7 +11,7 @@
     },
     {
       "name": "Polygon 2",
-      "type": "Type B",
+      "type": "Roadblock",
       "cords": [
         { "lat": 51.507, "lng": -0.127 },
         { "lat": 48.856, "lng": 2.352 },
