@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
-jest.doMock('./components/my-map.jsx', () => {
-  const MyMap = () => <div />;
-  return MyMap;
+
+// Mock the MyMap component
+jest.mock('./components/my-map.jsx', () => {
+  return () => <div>Mocked MyMap</div>;
 });
 
 test('renders Routing app', () => {
