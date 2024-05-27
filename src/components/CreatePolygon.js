@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import './CreatePolygon.css';
-import { addPolygon } from '../services/PolygonAddService';
+import { CreatePolygon } from '../services/PolygonService';
 
-function CreatePolygon() {
+function CreatePolygons() { //??
   const [formData, setFormData] = useState({
     name: '',
     type: 'roadblock',
@@ -25,7 +25,7 @@ function CreatePolygon() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    addPolygon(formData); // Service to write form data to data.json
+    CreatePolygon(formData); // Service to write form data to data.json
     // Optionally, you can reset the form after submission
     setFormData({
       name: '',
@@ -34,8 +34,8 @@ function CreatePolygon() {
     });
   };
 
-  return (
-    <div className="create-polygon">
+  return ( // ??
+    <div className="create-polygons">
       <h2>Create Polygon</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">

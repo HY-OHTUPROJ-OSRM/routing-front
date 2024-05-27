@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import "./Polygon.css"; // Import the CSS file
+import { DeletePolygon, UpdatePolygon }  from "../services/PolygonService";
 
 const PolygonDisplay = ({ name, type, cords }) => {
         const [isExpanded, setIsExpanded] = useState(false);
       
         const toggleExpansion = () => {
           setIsExpanded(!isExpanded);
-        };
-      
+        }
+       
+        const { editMode, post } = this.state;
         return (
           <div className="polygon">
             <h2>Name: {name}</h2>
@@ -26,6 +28,7 @@ const PolygonDisplay = ({ name, type, cords }) => {
             )}
           </div>
         );
-      };
+      }
+      
 
 export default PolygonDisplay;

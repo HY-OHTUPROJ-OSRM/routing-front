@@ -1,8 +1,14 @@
 import axios from 'axios'
-const baseUrl = '/api/refs'
+const baseUrl = 'http://127.0.0.1:3000/polygons'
 
 const getPolygons = async () => {
-  const request = axios.get(baseUrl)
+  const request = axios.get(`${baseUrl}/all`)
+  const response = await request
+  return response.data
+}
+
+const UpdatePolygon= async (object) => {
+  const request = axios.put(`${baseUrl}/${object.id}`)
   const response = await request
   return response.data
 }
@@ -10,7 +16,7 @@ const getPolygons = async () => {
 const CreatePolygon = async (object) => {
   try{
     const response = await axios({
-      url: baseUrl, 
+      url: `${baseUrl}/new`, 
       method: "post",
       data: object,
       headers: {"content-type": "application/json"},
@@ -36,4 +42,4 @@ const DeletePolygon = async (PolygonId) => {
 }
 
 
-export default {getPolygons, CreatePolygon, DeletePolygon}
+export {getPolygons, CreatePolygon, DeletePolygon, UpdatePolygon}
