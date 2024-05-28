@@ -1,6 +1,4 @@
-.App {
 
-}
 
 .App-logo {
   height: 40vmin;
@@ -22,6 +20,10 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+  position: fixed;
+  top: 0;          
+  width: 100%;     
+  z-index: 1000;   /* Add this line to ensure it stays above other content */
 }
 
 .App-link {
@@ -56,7 +58,7 @@ header {
   position: absolute;
   top: 60px;
   right: -30vw;
-  height: 100%;
+  height: 120%;
   width: 30vw;
   transition: right 0.5s ease-in-out;
   background-color: rgb(104, 126, 158);
@@ -96,8 +98,34 @@ header {
   padding: auto;
   margin-right: 100px;
 }
-.sedond{
+.second{
   padding: auto;
   margin-top: 0;
   margin-right: -100;
+}
+html,
+body {
+	padding: 0;
+	margin: 0;
+	height: 100%;
+}
+.leaflet-container {
+	position: absolute;
+
+	height: 100%;
+	width: 100%;
+}
+#root {
+	width: 100%;
+	height: 100%;
+}
+.map-wrapper {
+  margin-top: 100px;
+	position: relative;
+	width: 60%;
+	height: 100%;
+}
+#map {
+  width: 60%;
+  height: 100%;
 }

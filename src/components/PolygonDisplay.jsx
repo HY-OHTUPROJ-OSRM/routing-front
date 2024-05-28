@@ -8,15 +8,19 @@ const PolygonDisplay = ({ name, type, cords }) => {
         const toggleExpansion = () => {
           setIsExpanded(!isExpanded);
         }
-       
-        const { editMode, post } = this.state;
+
+       const HandleDelete = () => {
+          DeletePolygon(name);
+       }
+        //const { editMode, post } = this.state;
         return (
           <div className="polygon">
-            <h2>Name: {name}</h2>
-            <p>Type: {type}</p>
+            <h2>{name}</h2>
+            <p>{type}</p>
             <button onClick={toggleExpansion}>
               {isExpanded ? "Collapse" : "Expand"} Coordinates
             </button>
+            <img src="/trash.png" alt="Delete" onClick={HandleDelete} className="Delete icon" style={{height: '30px', width: '30px'}} />
             {isExpanded && (
               <ul>
                 {cords.map((cord, index) => (
@@ -26,6 +30,7 @@ const PolygonDisplay = ({ name, type, cords }) => {
                 ))}
               </ul>
             )}
+
           </div>
         );
       }

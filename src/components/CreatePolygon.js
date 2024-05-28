@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import './CreatePolygon.css';
-import { CreatePolygon } from '../services/PolygonService';
+import { addPolygon } from '../services/PolygonAddService';
+import { CoordinatesContext } from './CoordinatesContext';
 
-function CreatePolygons() { //??
+function CreatePolygons() {
   const [formData, setFormData] = useState({
     name: '',
     type: 'roadblock',
     coordinates: [{ lat: '', long: '' }]
   });
+  const [showCoordinatesForm, setShowCoordinatesForm] = useState(true);
+  const { coordinates, setCoordinates } = useContext(CoordinatesContext);
 
   const handleChange = (index, e) => {
     const { name, value } = e.target;
@@ -25,8 +28,7 @@ function CreatePolygons() { //??
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    CreatePolygon(formData); // Service to write form data to data.json
-    // Optionally, you can reset the form after submission
+    addPolygon(formData); // set to CreatePolygon on backend connection
     setFormData({
       name: '',
       type: 'roadblock',
@@ -34,30 +36,68 @@ function CreatePolygons() { //??
     });
   };
 
-  return ( // ??
+  useEffect(() => {
+    if (coordinates.length > 0) {
+      setFormData({ ...formData, coordinates: coordinates });
+      setCoordinates([]); // Reset coordinates after updating formData
+    }
+  }, [coordinates, setCoordinates]);
+
+
+
+  return (
     <div className="create-polygons">
       <h2>Create Polygon</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="name">Name:</label>
-          <input type="text" id="name" name="name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          />
         </div>
         <div className="form-group">
           <label htmlFor="type">Type:</label>
-          <select id="type" name="type" value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })}>
+          <select
+            id="type"
+            name="type"
+            value={formData.type}
+            onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+          >
             <option value="roadblock">Roadblock</option>
             <option value="traffic">Traffic</option>
           </select>
         </div>
         <div className="form-group">
-          <label>Coordinates:</label>
-          {formData.coordinates.map((coordinate, index) => (
-            <div key={index}>
-              <input type="text" name="lat" value={coordinate.lat} onChange={(e) => handleChange(index, e)} placeholder="Latitude" />
-              <input type="text" name="long" value={coordinate.long} onChange={(e) => handleChange(index, e)} placeholder="Longitude" />
-            </div>
-          ))}
-          <button type="button" onClick={handleAddField}>Add Coordinate</button>
+          {showCoordinatesForm && (
+            <>
+              <label>Coordinates:</label>
+              {formData.coordinates.map((coordinate, index) => (
+                <div key={index}>
+                  <input
+                    type="text"
+                    name="lat"
+                    value={coordinate.lat}
+                    onChange={(e) => handleChange(index, e)}
+                    placeholder="Latitude"
+                  />
+                  <input
+                    type="text"
+                    name="long"
+                    value={coordinate.long}
+                    onChange={(e) => handleChange(index, e)}
+                    placeholder="Longitude"
+                  />
+                </div>
+              ))}
+              <button type="button" onClick={handleAddField}>
+                Add Coordinate
+              </button>
+            </>
+          )}
         </div>
         <button type="submit">Submit</button>
       </form>
@@ -65,4 +105,4 @@ function CreatePolygons() { //??
   );
 }
 
-export default CreatePolygon;
+export default CreatePolygons;
