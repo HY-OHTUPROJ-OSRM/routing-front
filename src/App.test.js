@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-// Mock the MyMap component
-jest.mock('./components/my-map.jsx', () => {
+// Mock the Map_Displayer component
+jest.mock('./components/Map_Displayer.js', () => {
   return () => <div>Mocked MyMap</div>;
 });
 

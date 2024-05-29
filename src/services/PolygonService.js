@@ -1,39 +1,69 @@
-import axios from 'axios'
-const baseUrl = '/api/refs'
 
+const axios = require('axios');
+//import TimedAlert from '../components/TimedAlert';
+//import { useState } from 'react';
+const baseUrl = 'http://127.0.0.1:3000/polygons';
 const getPolygons = async () => {
-  const request = axios.get(baseUrl)
-  const response = await request
-  return response.data
-}
+  try {
+    const request = axios.get(`${baseUrl}/all`);
+    const response = await request;
+    console.log(response)
+    
+    return response.data;
+  } catch (error) {
+    
+    return []
+  }
+};
+
+const UpdatePolygon = async (object) => {
+  try {
+    const request = axios.put(`${baseUrl}/${object.id}`, object);
+    const response = await request;
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
 
 const CreatePolygon = async (object) => {
-  try{
+  console.log(object)
+  try {
     const response = await axios({
-      url: baseUrl, 
+      url: `${baseUrl}/new`,
       method: "post",
       data: object,
-      headers: {"content-type": "application/json"},
-    })
+      headers: { "content-type": "application/json" },
+    });
 
-    console.log(response.data)
+    console.log(response.data);
 
     if (response.status === 201) {
-      return response.data
+      return response.data;
     }
-  } catch(error){
-    if (error.response) {
-      throw new Error(error.response.data.message)
-    } else if (error.request) {
-      throw new Error("Failed to connect to server")
-    }
+  } catch (error) {
+    handleAxiosError(error);
   }
-}
+};
 
 const DeletePolygon = async (PolygonId) => {
-  const response = await axios.delete(`${baseUrl}/${PolygonId}`)
-  return response
-}
+  try {
+    const response = await axios.delete(`${baseUrl}/${PolygonId}`);
+    return response;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
 
+// Helper function to handle errors
+const handleAxiosError = (error) => {
+  if (error.response) {
+    throw new Error(error.response.data.message);
+  } else if (error.request) {
+    throw new Error("Failed to connect to server");
+  } else {
+    throw new Error(error.message);
+  }
+};
 
-export default {getPolygons, CreatePolygon, DeletePolygon}
+export { getPolygons, CreatePolygon, DeletePolygon, UpdatePolygon };
