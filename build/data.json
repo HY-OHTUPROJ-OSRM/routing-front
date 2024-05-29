@@ -1,0 +1,52 @@
+{
+  "polygonlistobj": [
+    {
+      "name": "Polygon 1",
+      "type": "Roadblock",
+      "cords": [
+        { "lat": 40.712, "lng": -74.006 },
+        { "lat": 34.052, "lng": -118.243 },
+        { "lat": 41.878, "lng": -87.629 }
+      ]
+    },
+    {
+      "name": "Polygon 2",
+      "type": "Roadblock",
+      "cords": [
+        { "lat": 51.507, "lng": -0.127 },
+        { "lat": 48.856, "lng": 2.352 },
+        { "lat": 52.52, "lng": 13.405 }
+      ]
+    },
+    {
+      "name": "Polygon 3",
+      "type": "Roadblock",
+      "cords": [
+        { "lat": 60.1695, "lng": 24.9354 },
+        { "lat": 60.1705, "lng": 24.9410 },
+        { "lat": 60.1687, "lng": 24.9437 }
+      ]
+    },
+    {
+      "name": "Polygon 4",
+      "type": "Roadblock",
+      "cords": [
+        { "lat": 60.1710, "lng": 24.9520 },
+        { "lat": 60.1720, "lng": 24.9570 },
+        { "lat": 60.1700, "lng": 24.9600 }
+      ]
+    },
+    {
+      "name": "Polygon 5",
+      "type": "Traffic",
+      "cords": [
+        { "lat": 60.1650, "lng": 24.9200 },
+        { "lat": 60.1660, "lng": 24.9250 },
+        { "lat": 60.1670, "lng": 24.9300 },
+        { "lat": 60.1665, "lng": 24.9350 },
+        { "lat": 60.1655, "lng": 24.9400 },
+        { "lat": 60.1645, "lng": 24.9350 }
+      ]
+    }
+  ]
+}

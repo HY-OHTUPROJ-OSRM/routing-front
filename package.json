@@ -24,7 +24,7 @@
   "scripts": {
     "start": "PORT=3006 react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --watchAll=false",
+    "test": "react-scripts test --transformIgnorePatterns \"node_modules/(?!axios)/\"",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -51,6 +51,7 @@
     "resolve-url-loader": "^5.0.0",
     "sass": "^1.77.2",
     "sass-loader": "^14.2.1",
-    "style-loader": "^4.0.0"
+    "style-loader": "^4.0.0",
+    "@babel/plugin-proposal-private-property-in-object": "^7.16.7"
   }
 }

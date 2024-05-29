@@ -1,4 +1,5 @@
-import axios from 'axios';
+
+const axios = require('axios');
 //import TimedAlert from '../components/TimedAlert';
 //import { useState } from 'react';
 const baseUrl = 'http://127.0.0.1:3000/polygons';
