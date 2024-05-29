@@ -6,8 +6,9 @@ import Header from "./components/Header";
 import './App.css';
 import CopeSideBar from "./components/CopeSideBar";
 import Map_displayer from "./components/Map_Displayer";
-import { CoordinatesProvider } from "./components/CoordinatesContext";
-
+import { AppProviders } from "./components/CoordinatesContext";
+import Routing_form from "./components/RouteField";
+import 'leaflet-draw/dist/leaflet.draw.css';
 function App() {
   const [sidebarOpenP, setSidebarOpenP] = useState(false);
   const [sidebarOpenA, setSidebarOpenA] = useState(false);
@@ -27,7 +28,7 @@ function App() {
 
   return (
     <div>
-      <CoordinatesProvider>
+      <AppProviders>
       <div className="App">
         <span>
           <Header onClickP={toggleSidebarp} onClickA={toggleSidebara} className="App-header" />
@@ -36,10 +37,12 @@ function App() {
           <CopeSideBar isOpen={sidebarOpenA} toggleSidebar={setSidebarOpenA} />
         </span>
       </div>
-      <div className="Map">
+      <div className="box">
         <Map_displayer/>
+        
       </div>
-      </CoordinatesProvider>
+      <Routing_form/>
+      </AppProviders>
     </div>
   );
 }

@@ -1,25 +1,28 @@
-
-const axios = require('axios');
-//import TimedAlert from '../components/TimedAlert';
-//import { useState } from 'react';
-const baseUrl = 'http://127.0.0.1:3000/polygons';
+import ins from '../api/api';
+import convertToGeoJSON from './JSONToGeoJSON';
 const getPolygons = async () => {
   try {
-    const request = axios.get(`${baseUrl}/all`);
-    const response = await request;
-    console.log(response)
-    
+    const response = await ins({
+      url: 'polygons/all',
+      method: "get",
+      headers: { "content-type": "application/json" },
+    });
+    console.log(response);
     return response.data;
   } catch (error) {
-    
-    return []
+    handleAxiosError(error);
+    return [];
   }
 };
 
 const UpdatePolygon = async (object) => {
   try {
-    const request = axios.put(`${baseUrl}/${object.id}`, object);
-    const response = await request;
+    const response = await ins({
+      url: `polygons/${object.name}`,
+      method: "put",
+      data: object,
+      headers: { "content-type": "application/json" },
+    });
     return response.data;
   } catch (error) {
     handleAxiosError(error);
@@ -27,17 +30,17 @@ const UpdatePolygon = async (object) => {
 };
 
 const CreatePolygon = async (object) => {
-  console.log(object)
+  console.log(object);
   try {
-    const response = await axios({
-      url: `${baseUrl}/new`,
+    const GEOJSON= convertToGeoJSON(object);
+    console.log(GEOJSON)
+    const response = await ins({
+      url: 'polygons/new',
       method: "post",
-      data: object,
+      data: GEOJSON,
       headers: { "content-type": "application/json" },
     });
-
     console.log(response.data);
-
     if (response.status === 201) {
       return response.data;
     }
@@ -46,9 +49,13 @@ const CreatePolygon = async (object) => {
   }
 };
 
-const DeletePolygon = async (PolygonId) => {
+const DeletePolygon = async (Name) => {
   try {
-    const response = await axios.delete(`${baseUrl}/${PolygonId}`);
+    const response = await ins({
+      url: `polygons/${Name}`,
+      method: "delete",
+      headers: { "content-type": "application/json" },
+    });
     return response;
   } catch (error) {
     handleAxiosError(error);
@@ -60,6 +67,7 @@ const handleAxiosError = (error) => {
   if (error.response) {
     throw new Error(error.response.data.message);
   } else if (error.request) {
+    console.log('no connection');
     throw new Error("Failed to connect to server");
   } else {
     throw new Error(error.message);

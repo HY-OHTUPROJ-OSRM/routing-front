@@ -2,7 +2,8 @@ import { MapContainer, TileLayer, FeatureGroup, Polygon, Tooltip } from 'react-l
 import React, { useRef, useEffect, useState, useContext } from 'react';
 import { EditControl } from 'react-leaflet-draw';
 import fetchPolygons from '../services/PolygonListService';
-import { CoordinatesContext } from './CoordinatesContext';
+import { CoordinatesContext, RouteContext } from './CoordinatesContext';
+
 
 function Map_Displayer() {
     const initialState = {
@@ -15,6 +16,7 @@ function Map_Displayer() {
     const mapRef = useRef(null);
     const featureGroupRef = useRef(null);
     const { setCoordinates } = useContext(CoordinatesContext);
+    const { setRoute } = useContext(RouteContext);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -34,6 +36,11 @@ function Map_Displayer() {
             if (featureGroupRef.current) {
                 featureGroupRef.current.removeLayer(layer);
             }
+        }
+        if (layerType === 'marker') {
+            const latLng = layer.getLatLng();
+            console.log(latLng);
+            setRoute([{ lat: latLng.lat, long: latLng.lng }]);
         }
     };
 
@@ -58,7 +65,7 @@ function Map_Displayer() {
             center={position}
             zoom={initialState.zoom}
             scrollWheelZoom={true}
-            style={{ flex: 1, width: '70%', marginTop: "70px" }}
+            style={{ flex: 1, width: '70%', marginTop: "0px" }}
             whenCreated={(map) => { mapRef.current = map; }}
         >
             <TileLayer
@@ -92,7 +99,7 @@ function Map_Displayer() {
                         polyline: false,
                         circle: false,
                         circlemarker: false,
-                        marker: false
+                        marker: true
                     }}
                 />
             </FeatureGroup>

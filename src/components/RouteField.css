@@ -1,0 +1,38 @@
+.new-component {
+    width: 30%;
+    margin: 0 auto;
+    margin-left: 70%;
+    margin-top: 100px;
+  }
+  
+  .new-component h2 {
+    text-align: center;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .error {
+    color: rgb(27, 25, 25);
+    font-size: 12px;
+  }
+  
+  .input-error {
+    border: 1px solid red;
+  }
+  
+  .coordinate-group {
+    margin-bottom: 10px;
+  }
+  
+  .new-component button {
+    display: block;
+    margin: 20px auto;
+  }
+  
+  .btn-disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+  }
