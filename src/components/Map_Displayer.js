@@ -3,9 +3,11 @@ import React, { useRef, useEffect, useState, useContext } from 'react';
 import { EditControl } from 'react-leaflet-draw';
 import fetchPolygons from '../services/PolygonListService';
 import { CoordinatesContext, RouteContext } from './CoordinatesContext';
+import { getPolygons } from '../services/PolygonService';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 function Map_Displayer() {
     const initialState = {
         lng: 24.955,
@@ -27,22 +29,22 @@ function Map_Displayer() {
     var markercount=0;
 
     const start_icon = new L.Icon({
-        iconUrl: 'start.png',
-        iconSize: [50, 50],
+        iconUrl: icon,
+        //iconSize: [50, 50],
         iconAnchor: [25, 50],
         popupAnchor: [0, -50],
     });
 
     const destination_icon = new L.Icon({
-        iconUrl: 'destination.png',
-        iconSize: [50, 50],
+        iconUrl: icon,
+        //iconSize: [50, 50],
         iconAnchor: [25, 50],
         popupAnchor: [0, -50],
     });
 
     useEffect(() => {
         const fetchData = async () => {
-            const data = await fetchPolygons();
+            const data = await getPolygons();
             setPolygons(data);
         };
         fetchData();
@@ -139,11 +141,11 @@ function Map_Displayer() {
             />
             <FeatureGroup ref={featureGroupRef}>
                 {polygons.map((polygon, index) => {
-                    const color = polygon.type === 'Roadblock' ? 'red' : 'orange';
+                    const color = polygon.type === 'roadblock' ? 'red' : 'orange';
                     return (
                         <Polygon
                             key={index}
-                            positions={polygon.cords.map(coord => [coord.lat, coord.lng])}
+                            positions={polygon.coordinates.map(coord => [coord.lat, coord.long])}
                             color={color}
                             fillOpacity={0.5}
                             eventHandlers={{

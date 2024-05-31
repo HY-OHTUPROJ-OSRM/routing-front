@@ -1,14 +1,14 @@
 import ins from '../api/api';
-import convertToGeoJSON from './JSONToGeoJSON';
+import {convertToGeoJSON,convertToJSON} from './JSONToGeoJSON';
 const getPolygons = async () => {
   try {
     const response = await ins({
-      url: 'polygons/all',
+      url: 'zones',
       method: "get",
       headers: { "content-type": "application/json" },
     });
     console.log(response);
-    return response.data;
+    return convertToJSON(response.data);
   } catch (error) {
     handleAxiosError(error);
     return [];
@@ -35,7 +35,7 @@ const CreatePolygon = async (object) => {
     const GEOJSON= convertToGeoJSON(object);
     console.log(GEOJSON)
     const response = await ins({
-      url: 'polygons/new',
+      url: 'zones',
       method: "post",
       data: GEOJSON,
       headers: { "content-type": "application/json" },

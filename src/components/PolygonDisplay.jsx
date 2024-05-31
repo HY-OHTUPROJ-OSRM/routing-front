@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./Polygon.css"; // Import the CSS file
 import { DeletePolygon, UpdatePolygon }  from "../services/PolygonService";
 
-const PolygonDisplay = ({ name, type, cords }) => {
+const PolygonDisplay = ({ name, type, coordinates }) => {
         const [isExpanded, setIsExpanded] = useState(false);
       
         const toggleExpansion = () => {
@@ -23,9 +23,9 @@ const PolygonDisplay = ({ name, type, cords }) => {
             <img src="/trash.png" alt="Delete" onClick={HandleDelete} className="Delete icon" style={{height: '30px', width: '30px'}} />
             {isExpanded && (
               <ul>
-                {cords.map((cord, index) => (
+                {coordinates.map((cord, index) => (
                   <li key={index}>
-                    Latitude: {cord.lat.toFixed(3)}, Longitude: {cord.lng.toFixed(3)}
+                    Latitude: {cord.lat.toFixed(3)}, Longitude: {cord.long.toFixed(3)}
                   </li>
                 ))}
               </ul>

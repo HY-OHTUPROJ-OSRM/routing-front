@@ -3,7 +3,7 @@ import './CreatePolygon.css';
 import { addPolygon } from '../services/PolygonAddService';
 import { CoordinatesContext } from './CoordinatesContext';
 import { validateName, validateType, validateCoordinate, validateSeverity } from '../services/FormValidationService';
-
+import { CreatePolygon } from '../services/PolygonService';
 function CreatePolygons() {
   const [formData, setFormData] = useState({
     name: '',
@@ -29,10 +29,10 @@ function CreatePolygons() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      addPolygon(formData); // set to CreatePolygon on backend connection
+      CreatePolygon(formData); // set to CreatePolygon on backend connection
       setFormData({
         name: '',
         type: 'roadblock',

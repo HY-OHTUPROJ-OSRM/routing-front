@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const ins = axios.create({
-  baseURL: 'http://127.0.0.1:3000/'
+  baseURL: 'https://routing-api-ohtuprojekti-staging.apps.ocp-test-0.k8s.it.helsinki.fi/'
 });
 
 export default ins;
