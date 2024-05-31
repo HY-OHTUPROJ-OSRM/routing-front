@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./Polygon.css"; // Import the CSS file
 import { DeletePolygon, UpdatePolygon }  from "../services/PolygonService";
 
-const PolygonDisplay = ({ name, type, coordinates }) => {
+const PolygonDisplay = ({ name, type, coordinates, id }) => {
         const [isExpanded, setIsExpanded] = useState(false);
       
         const toggleExpansion = () => {
@@ -10,7 +10,7 @@ const PolygonDisplay = ({ name, type, coordinates }) => {
         }
 
        const HandleDelete = () => {
-          DeletePolygon(name);
+          DeletePolygon(id);
        }
         //const { editMode, post } = this.state;
         return (

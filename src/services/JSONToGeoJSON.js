@@ -8,7 +8,8 @@ function convertToGeoJSON(dataList) {
             type: "Feature",
             properties: {
                 name: data.name,
-                type: data.type
+                type: data.type,
+                id: data.id
             },
             geometry: {
                 type: "Polygon",

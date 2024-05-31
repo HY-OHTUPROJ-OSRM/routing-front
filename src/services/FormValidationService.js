@@ -1,5 +1,5 @@
 export const validateName = (name) => {
-    const regex = /^[a-zA-Z0-9]{3,30}$/;
+    const regex = /^[a-zA-Z0-9 ]{3,30}$/;
     //console.log('namedval', regex.test(name));
     return regex.test(name);
   };
