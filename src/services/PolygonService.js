@@ -7,6 +7,11 @@ const getPolygons = async () => {
       method: "get",
       headers: { "content-type": "application/json" },
     });
+
+    if (response.data.features === null) {
+      return []
+    }
+
     console.log(response);
     return convertToJSON(response.data);
   } catch (error) {
