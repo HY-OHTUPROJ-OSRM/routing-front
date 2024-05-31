@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, FeatureGroup, Polygon, Tooltip, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, FeatureGroup, Polygon, Tooltip, useMap, Polyline } from 'react-leaflet';
 import React, { useRef, useEffect, useState, useContext } from 'react';
 import { EditControl } from 'react-leaflet-draw';
 import fetchPolygons from '../services/PolygonListService';
@@ -23,6 +23,16 @@ function Map_Displayer() {
     const featureGroupRef = useRef(null);
     const { setCoordinates } = useContext(CoordinatesContext);
     const { route, setRoute } = useContext(RouteContext);
+    const routedata = [
+        [60.166623, 24.943873],
+        [60.166685, 24.943877],
+        [60.167213, 24.949522],
+        [60.172733, 24.948691],
+        [60.173842, 24.950136],
+        [60.175803, 24.950303],
+        [60.176888, 24.950199],
+        [60.178422, 24.950647]
+    ]
     var startposition=null;
     //{lat: '', lng: ''}
     var destinationposition=null;
@@ -139,6 +149,7 @@ function Map_Displayer() {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
+            <Polyline positions={routedata} color="blue" />
             <FeatureGroup ref={featureGroupRef}>
                 {polygons.map((polygon, index) => {
                     const color = polygon.type === 'roadblock' ? 'red' : 'orange';

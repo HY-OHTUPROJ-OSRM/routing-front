@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import './RouteField.css';
 import { validateCoordinate } from '../services/FormValidationService';
 import { RouteContext } from './CoordinatesContext';
+import {getRoute} from '../services/RouteService';
 function Routing_form() {
   const [formData, setFormData] = useState({
     coordinates: [
@@ -38,6 +39,7 @@ function Routing_form() {
     e.preventDefault();
     if (validateForm()) {
       console.log('Form submitted successfully:', formData);
+      getRoute(formData.coordinates);
       setFormData({
         coordinates: [
             { lat: '', long: '', name: 'Starting Position' },
