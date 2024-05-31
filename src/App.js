@@ -9,6 +9,7 @@ import Map_displayer from "./components/Map_Displayer";
 import { AppProviders } from "./components/CoordinatesContext";
 import Routing_form from "./components/RouteField";
 import 'leaflet-draw/dist/leaflet.draw.css';
+import 'leaflet/dist/leaflet.css';
 function App() {
   const [sidebarOpenP, setSidebarOpenP] = useState(false);
   const [sidebarOpenA, setSidebarOpenA] = useState(false);

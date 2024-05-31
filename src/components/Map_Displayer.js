@@ -1,9 +1,10 @@
-import { MapContainer, TileLayer, FeatureGroup, Polygon, Tooltip } from 'react-leaflet';
+import { MapContainer, TileLayer, FeatureGroup, Polygon, Tooltip, useMap } from 'react-leaflet';
 import React, { useRef, useEffect, useState, useContext } from 'react';
 import { EditControl } from 'react-leaflet-draw';
 import fetchPolygons from '../services/PolygonListService';
 import { CoordinatesContext, RouteContext } from './CoordinatesContext';
-
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 
 function Map_Displayer() {
     const initialState = {
@@ -12,11 +13,32 @@ function Map_Displayer() {
         zoom: 15
     };
     const [polygons, setPolygons] = useState([]);
+    const [markerCount, setMarkerCount] = useState(0);
+    const [startPosition, setStartPosition] = useState(null);
+    const [destinationPosition, setDestinationPosition] = useState(null);
     const position = [initialState.lat, initialState.lng];
-    const mapRef = useRef(null);
+    const mapRef = useRef();
     const featureGroupRef = useRef(null);
     const { setCoordinates } = useContext(CoordinatesContext);
-    const { setRoute } = useContext(RouteContext);
+    const { route, setRoute } = useContext(RouteContext);
+    var startposition=null;
+    //{lat: '', lng: ''}
+    var destinationposition=null;
+    var markercount=0;
+
+    const start_icon = new L.Icon({
+        iconUrl: 'start.png',
+        iconSize: [50, 50],
+        iconAnchor: [25, 50],
+        popupAnchor: [0, -50],
+    });
+
+    const destination_icon = new L.Icon({
+        iconUrl: 'destination.png',
+        iconSize: [50, 50],
+        iconAnchor: [25, 50],
+        popupAnchor: [0, -50],
+    });
 
     useEffect(() => {
         const fetchData = async () => {
@@ -26,7 +48,22 @@ function Map_Displayer() {
         fetchData();
     }, []);
 
-    const onDrawCreated = (e) => {
+    const onMarkerDragEnd = (e, type) => {
+        const { lat, lng } = e.target.getLatLng();
+        if (type === 'start') {
+            startposition={ lat, lng };
+        } else if (type === 'destination') {
+            destinationposition={ lat, lng };
+        }
+        console.log(startPosition, destinationPosition)
+        const newRoute = [
+            { lat: startposition?.lat ?? lat, lng: startposition?.lng ?? lng },
+            { lat: destinationposition?.lat ?? lat, lng: destinationposition?.lng ?? lng }
+        ];
+        setRoute(newRoute);
+    };
+
+    const onDrawCreated = async (e) => {
         const { layerType, layer } = e;
         if (layerType === 'polygon') {
             const latLngs = layer.getLatLngs()[0].map(latlng => ({ lat: latlng.lat, long: latlng.lng }));
@@ -39,8 +76,35 @@ function Map_Displayer() {
         }
         if (layerType === 'marker') {
             const latLng = layer.getLatLng();
-            console.log(latLng);
-            setRoute([{ lat: latLng.lat, long: latLng.lng }]);
+            //console.log(latLng, markerCount, markercount);
+            if (featureGroupRef.current) {
+                featureGroupRef.current.removeLayer(layer);
+                const map = mapRef.current;
+
+                if (markercount === 0) {
+                    setMarkerCount(prevCount =>prevCount + 1);
+                    markercount++;
+                    const startMarker = L.marker([latLng.lat, latLng.lng], { icon: start_icon, draggable: true })
+                        .addTo(map)
+                        .bindPopup("Start")
+                        .on('dragend', (e) => onMarkerDragEnd(e, 'start'));
+                    setStartPosition({ lat: latLng.lat, lng: latLng.lng });
+                    startposition={ lat: latLng.lat, lng: latLng.lng }
+                    setRoute([{ lat: latLng.lat, lng: latLng.lng }, destinationposition]);
+                    console.log(startPosition, destinationPosition)
+                } else if (markercount === 1) {
+                    markercount++;
+                    setMarkerCount(prevCount => prevCount + 1);
+                    const destinationMarker = L.marker([latLng.lat, latLng.lng], { icon: destination_icon, draggable: true })
+                        .addTo(map)
+                        .bindPopup("Destination")
+                        .on('dragend', (e) => onMarkerDragEnd(e, 'destination'));
+                    console.log(startPosition, destinationPosition)
+                    setDestinationPosition({ lat: latLng.lat, lng: latLng.lng });
+                    destinationposition={ lat: latLng.lat, lng: latLng.lng }
+                    setRoute([startposition, { lat: latLng.lat, lng: latLng.lng }]);
+                }
+            }
         }
     };
 
@@ -67,6 +131,7 @@ function Map_Displayer() {
             scrollWheelZoom={true}
             style={{ flex: 1, width: '70%', marginTop: "0px" }}
             whenCreated={(map) => { mapRef.current = map; }}
+            ref={mapRef}
         >
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -99,7 +164,7 @@ function Map_Displayer() {
                         polyline: false,
                         circle: false,
                         circlemarker: false,
-                        marker: true
+                        marker: markerCount < 2 // Allow drawing markers only if there are less than 2 markers
                     }}
                 />
             </FeatureGroup>

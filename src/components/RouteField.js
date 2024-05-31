@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import './RouteField.css';
 import { validateCoordinate } from '../services/FormValidationService';
 import { RouteContext } from './CoordinatesContext';
@@ -10,7 +10,20 @@ function Routing_form() {
     ]
   });
   const [errors, setErrors] = useState({});
-  const { coordinates, setCoordinates } = useContext(RouteContext);
+  const { route, setRoute } = useContext(RouteContext);
+
+  useEffect(() => {
+    console.log(route)
+    if (route && route.length === 2 && route[1]!==null && route[0]!==null) {
+      setFormData({
+        coordinates: [
+          { lat: route[0].lat, long: route[0].lng, name: 'Starting Position' },
+          { lat: route[1].lat, long: route[1].lng, name: 'Destination' }
+        ]
+      });
+    }
+  }, [route]);
+
 
   const handleChange = (index, e) => {
     const { name, value } = e.target;
@@ -18,6 +31,7 @@ function Routing_form() {
     newCoordinates[index][name] = value;
     setFormData({ ...formData, coordinates: newCoordinates });
     validateField(name, value, index);
+    setRoute(newCoordinates.map(coord => ({ lat: coord.lat, lng: coord.long })));
   };
 
   const handleSubmit = (e) => {
@@ -31,6 +45,7 @@ function Routing_form() {
         ]
       });
       setErrors({});
+      setRoute([]);
     }
   };
 
@@ -69,7 +84,7 @@ function Routing_form() {
   };
 
   const can_click = () => {
-    console.log("can_click");
+    //console.log("can_click");
     for (let i = 0; i < formData.coordinates.length; i++) {
       const coordinate = formData.coordinates[i];
       if (!validateCoordinate(coordinate.lat) || !validateCoordinate(coordinate.long)) {
@@ -77,7 +92,7 @@ function Routing_form() {
       }
     }
     
-    console.log('now can click');
+    //console.log('now can click');
     return 1;
   };
 

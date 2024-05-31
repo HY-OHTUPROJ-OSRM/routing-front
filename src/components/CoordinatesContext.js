@@ -17,7 +17,7 @@ export const CoordinatesProvider = ({ children }) => {
 export const RouteContext = createContext();
 
 export const RouteProvider = ({ children }) => {
-  const [route, setRoute] = useState(null);
+  const [route, setRoute] = useState([{},{}]);
 
   return (
     <RouteContext.Provider value={{ route, setRoute }}>

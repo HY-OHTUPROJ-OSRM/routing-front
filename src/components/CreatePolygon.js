@@ -111,7 +111,7 @@ function CreatePolygons() {
   };
 
   const can_click = () => {
-    console.log("can_click");
+    //console.log("can_click");
     
     if (!validateName(formData.name)) {
       return 0;
@@ -127,7 +127,7 @@ function CreatePolygons() {
       }
     }
     
-    console.log('now can click');
+    //console.log('now can click');
     return 1;
   };
 
