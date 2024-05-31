@@ -31,15 +31,15 @@ function Map_Displayer() {
     const start_icon = new L.Icon({
         iconUrl: icon,
         //iconSize: [50, 50],
-        iconAnchor: [25, 50],
-        popupAnchor: [0, -50],
+        iconAnchor: [13, 40],
+        popupAnchor: [0, -30],
     });
 
     const destination_icon = new L.Icon({
         iconUrl: icon,
         //iconSize: [50, 50],
-        iconAnchor: [25, 50],
-        popupAnchor: [0, -50],
+        iconAnchor: [13, 40],
+        popupAnchor: [0, -30],
     });
 
     useEffect(() => {
@@ -166,7 +166,9 @@ function Map_Displayer() {
                         polyline: false,
                         circle: false,
                         circlemarker: false,
-                        marker: markerCount < 2 // Allow drawing markers only if there are less than 2 markers
+                        marker: markerCount < 2 ? {
+                            icon: start_icon
+                        } : false // Allow drawing markers only if there are less than 2 markers
                     }}
                 />
             </FeatureGroup>
