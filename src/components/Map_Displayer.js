@@ -79,7 +79,7 @@ function Map_Displayer() {
     const onDrawCreated = async (e) => {
         const { layerType, layer } = e;
         if (layerType === 'polygon') {
-            const latLngs = layer.getLatLngs()[0].map(latlng => ({ lat: latlng.lat, long: latlng.long }));
+            const latLngs = layer.getLatLngs()[0].map(latlng => ({ lat: latlng.lat, long: latlng.lng }));
             console.log(latLngs);
             setCoordinates(latLngs);
 
