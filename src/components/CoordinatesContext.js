@@ -1,11 +1,11 @@
 import React, { createContext, useState } from 'react';
-
+import { useDispatch } from 'react-redux';
+import { fetchRouteline } from '../features/routes/routeSlice';
 // Coordinates Context
 export const CoordinatesContext = createContext();
 
 export const CoordinatesProvider = ({ children }) => {
   const [coordinates, setCoordinates] = useState([]);
-
   return (
     <CoordinatesContext.Provider value={{ coordinates, setCoordinates }}>
       {children}

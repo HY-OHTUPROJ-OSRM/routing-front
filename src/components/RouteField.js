@@ -17,12 +17,12 @@ function Routing_form() {
   const { route, setRoute } = useContext(RouteContext);
 
   useEffect(() => {
-    console.log(route)
+    //console.log(route)
     if (route && route.length === 2 && route[1]!==null && route[0]!==null) {
       setFormData({
         coordinates: [
-          { lat: route[0].lat, long: route[0].lng, name: 'Starting Position' },
-          { lat: route[1].lat, long: route[1].lng, name: 'Destination' }
+          { lat: route[0].lat, long: route[0].long, name: 'Starting Position' },
+          { lat: route[1].lat, long: route[1].long, name: 'Destination' }
         ]
       });
     }
@@ -35,7 +35,7 @@ function Routing_form() {
     newCoordinates[index][name] = value;
     setFormData({ ...formData, coordinates: newCoordinates });
     validateField(name, value, index);
-    setRoute(newCoordinates.map(coord => ({ lat: coord.lat, lng: coord.long })));
+    setRoute(newCoordinates.map(coord => ({ lat: coord.lat, long: coord.long })));
   };
 
   const handleSubmit = (e) => {

@@ -25,7 +25,7 @@ const PolygonDisplay = ({ name, type, coordinates, id }) => {
             <h2>{name}</h2>
             <p>{type}</p>
             <button onClick={toggleExpansion}>
-              {isExpanded ? "Collapse" : "Expand"} Coordinates
+              {isExpanded ? "Hide" : "Show"} Coordinates
             </button>
             <img src="/trash.png" alt="Delete" onClick={HandleDelete} className="Delete icon" style={{height: '30px', width: '30px'}} />
             {isExpanded && (
