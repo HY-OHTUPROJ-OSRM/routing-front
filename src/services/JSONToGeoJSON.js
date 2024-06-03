@@ -29,7 +29,8 @@ function convertToJSON(geoJSON) {
         coordinates: feature.geometry.coordinates[0].map(coord => ({
             long: coord[0],
             lat: coord[1]
-        }))
+        })),
+        id: feature.properties.id
     }));
     console.log('jaa', [data])
     return data;

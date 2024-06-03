@@ -1,17 +1,24 @@
 import React, { useState } from "react";
 import "./Polygon.css"; // Import the CSS file
 import { DeletePolygon, UpdatePolygon }  from "../services/PolygonService";
+import { useDispatch } from "react-redux";
+import { fetchPolygons } from "../features/polygons/polygonsSlice"
 
 const PolygonDisplay = ({ name, type, coordinates, id }) => {
+        const dispatch = useDispatch()
+
         const [isExpanded, setIsExpanded] = useState(false);
       
         const toggleExpansion = () => {
           setIsExpanded(!isExpanded);
         }
 
-       const HandleDelete = () => {
-          DeletePolygon(id);
+       const HandleDelete = async () => {
+          await DeletePolygon(id);
+
+          dispatch(fetchPolygons());
        }
+
         //const { editMode, post } = this.state;
         return (
           <div className="polygon">

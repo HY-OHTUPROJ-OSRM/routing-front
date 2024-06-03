@@ -8,7 +8,7 @@ function PolygonList() {
   return (
     <div>
       {polygons.map((polygon, index) => (
-        <PolygonDisplay key={index} {...polygon} />
+        <PolygonDisplay key={polygon.id} {...polygon} />
       ))}
     </div>
   );

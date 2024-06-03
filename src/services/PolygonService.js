@@ -57,7 +57,7 @@ const CreatePolygon = async (object) => {
 const DeletePolygon = async (id) => {
   try {
     const response = await ins({
-      url: `polygons/${id}`,
+      url: `zones/${id}`,
       method: "delete",
       headers: { "content-type": "application/json" },
     });
