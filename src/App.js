@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { handleViewSidebar } from "./services/sidebarService";
 import SideBar from "./components/SideBar";
@@ -10,9 +10,18 @@ import { AppProviders } from "./components/CoordinatesContext";
 import Routing_form from "./components/RouteField";
 import 'leaflet-draw/dist/leaflet.draw.css';
 import 'leaflet/dist/leaflet.css';
+import { useDispatch } from "react-redux";
+import { fetchPolygons } from "./features/polygons/polygonsSlice";
+
 function App() {
+  const dispatch = useDispatch()
   const [sidebarOpenP, setSidebarOpenP] = useState(false);
   const [sidebarOpenA, setSidebarOpenA] = useState(false);
+
+  useEffect(() => {
+    dispatch(fetchPolygons())
+  }, [dispatch])
+
   const toggleSidebarp = () => {
     if (sidebarOpenA) {
       setSidebarOpenA(false);

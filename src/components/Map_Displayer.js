@@ -1,20 +1,20 @@
 import { MapContainer, TileLayer, FeatureGroup, Polygon, Tooltip, useMap, Polyline } from 'react-leaflet';
 import React, { useRef, useEffect, useState, useContext } from 'react';
 import { EditControl } from 'react-leaflet-draw';
-import fetchPolygons from '../services/PolygonListService';
 import { CoordinatesContext, RouteContext } from './CoordinatesContext';
-import { getPolygons } from '../services/PolygonService';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+import { useSelector } from 'react-redux';
+
 function Map_Displayer() {
     const initialState = {
         lng: 24.955,
         lat: 60.205,
         zoom: 15
     };
-    const [polygons, setPolygons] = useState([]);
+    const polygons = useSelector((state) => state.polygons)
     const [markerCount, setMarkerCount] = useState(0);
     const [startPosition, setStartPosition] = useState(null);
     const [destinationPosition, setDestinationPosition] = useState(null);
@@ -51,14 +51,6 @@ function Map_Displayer() {
         iconAnchor: [13, 40],
         popupAnchor: [0, -30],
     });
-
-    useEffect(() => {
-        const fetchData = async () => {
-            const data = await getPolygons();
-            setPolygons(data);
-        };
-        fetchData();
-    }, []);
 
     const onMarkerDragEnd = (e, type) => {
         const { lat, lng } = e.target.getLatLng();

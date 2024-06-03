@@ -1,21 +1,9 @@
 import React, { useState, useEffect } from "react";
 import PolygonDisplay from "./PolygonDisplay";
-import fetchPolygons from "../services/PolygonListService";
-import { getPolygons } from '../services/PolygonService';
+import { useSelector } from 'react-redux';
 
 function PolygonList() {
-  const [polygons, setPolygons] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await getPolygons(); //with backend
-      console.log(data)
-      //const data = await fetchPolygons();// with frontend only
-      setPolygons(data);
-    };
-
-    fetchData();
-  }, []);
+  const polygons = useSelector((state) => state.polygons)
 
   return (
     <div>

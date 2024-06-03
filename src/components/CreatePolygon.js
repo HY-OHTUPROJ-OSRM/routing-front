@@ -4,7 +4,11 @@ import { addPolygon } from '../services/PolygonAddService';
 import { CoordinatesContext } from './CoordinatesContext';
 import { validateName, validateType, validateCoordinate, validateSeverity } from '../services/FormValidationService';
 import { CreatePolygon } from '../services/PolygonService';
+import { useDispatch } from 'react-redux';
+import { fetchPolygons } from '../features/polygons/polygonsSlice';
+
 function CreatePolygons() {
+  const dispatch = useDispatch()
   const [formData, setFormData] = useState({
     name: '',
     type: 'roadblock',
@@ -32,7 +36,7 @@ function CreatePolygons() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      CreatePolygon(formData); // set to CreatePolygon on backend connection
+      await CreatePolygon(formData); // set to CreatePolygon on backend connection
       setFormData({
         name: '',
         type: 'roadblock',
@@ -40,6 +44,7 @@ function CreatePolygons() {
         coordinates: [{ lat: '', long: '' }]
       });
       setErrors({});
+      dispatch(fetchPolygons())
     }
   };
 
