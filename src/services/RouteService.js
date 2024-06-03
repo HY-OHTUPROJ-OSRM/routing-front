@@ -7,7 +7,7 @@ const getRoute = async (coords) => {
     console.log(proper,"cords",coords);
     try {
       const response = await ins({
-        url: `route/v1/driving/${proper}?overview=false&alternatives=true&steps=true`,
+        url: `route/v1/driving/${proper}?overview=false&alternatives=true&steps=true&geometries=geojson`,
         method: "get",
         headers: { "content-type": "application/json" },
       });

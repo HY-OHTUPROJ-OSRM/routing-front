@@ -20,9 +20,11 @@ const fetchroute = async () => {
         
         route.legs.forEach(leg => {
             leg.steps.forEach(step => {
-                let location = step.maneuver.location;
+              step.geometry.coordinates.forEach(geom => {
+                let location = geom;
                 locations.push(location);
             });
+          });
         });
         
         routes.push({
