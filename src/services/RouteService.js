@@ -1,5 +1,5 @@
 import ins from '../api/api';
-import { routeTransformer, routeGiver, fetchroute } from './RouteTransformer';
+import { routeTransformer, routeGiver, fetchroute, routeFlip } from './RouteTransformer';
 
 
 const getRoute = async (coords) => {
@@ -12,9 +12,9 @@ const getRoute = async (coords) => {
         headers: { "content-type": "application/json" },
       });
       //let response=await fetchroute()
-      console.log(response);
+      console.log("route response:", response);
       const proper_route=routeTransformer(response.data);
-      console.log(proper_route);
+      console.log("proper_route",proper_route);
       return proper_route;
     } catch (error) {
       handleAxiosError(error);

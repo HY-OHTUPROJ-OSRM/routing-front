@@ -14,7 +14,8 @@ function Map_Displayer() {
         lat: 60.205,
         zoom: 15
     };
-    const polygons = useSelector((state) => state.polygons)
+    const polygons = useSelector((state) => state.polygons);
+    const routedata = useSelector((state) => state.routeLine);
     const [markerCount, setMarkerCount] = useState(0);
     const [startPosition, setStartPosition] = useState(null);
     const [destinationPosition, setDestinationPosition] = useState(null);
@@ -23,7 +24,7 @@ function Map_Displayer() {
     const featureGroupRef = useRef(null);
     const { setCoordinates } = useContext(CoordinatesContext);
     const { route, setRoute } = useContext(RouteContext);
-    const routedata = [
+    const droutedata = [
         [60.166623, 24.943873],
         [60.166685, 24.943877],
         [60.167213, 24.949522],
@@ -141,13 +142,15 @@ function Map_Displayer() {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            <Polyline positions={routedata} color="blue" />
+            {routedata.map((route, index) => (
+                <Polyline key={index} positions={route.route} color={route.color} />
+            ))}
             <FeatureGroup ref={featureGroupRef}>
                 {polygons.map((polygon, index) => {
                     const color = polygon.type === 'roadblock' ? 'red' : 'orange';
                     return (
                         <Polygon
-                            key={index}
+                            key={polygon.id}
                             positions={polygon.coordinates.map(coord => [coord.lat, coord.long])}
                             color={color}
                             fillOpacity={0.5}

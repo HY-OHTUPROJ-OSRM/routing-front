@@ -3,7 +3,10 @@ import './RouteField.css';
 import { validateCoordinate } from '../services/FormValidationService';
 import { RouteContext } from './CoordinatesContext';
 import {getRoute} from '../services/RouteService';
+import { useDispatch } from 'react-redux';
+import { fetchRouteline } from '../features/routes/routeSlice';
 function Routing_form() {
+  const dispatch = useDispatch()
   const [formData, setFormData] = useState({
     coordinates: [
       { lat: '', long: '', name: 'Starting Position' },
@@ -39,7 +42,7 @@ function Routing_form() {
     e.preventDefault();
     if (validateForm()) {
       console.log('Form submitted successfully:', formData);
-      getRoute(formData.coordinates);
+      dispatch(fetchRouteline(formData.coordinates));
       setFormData({
         coordinates: [
             { lat: '', long: '', name: 'Starting Position' },

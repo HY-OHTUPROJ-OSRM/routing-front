@@ -13,22 +13,35 @@ const fetchroute = async () => {
 
   function routeTransformer(jsonData) {
     console.log("received route data:", jsonData);
-    let locations = [];
+    let routes = [];
     
-    jsonData.routes.forEach(route => {
+    jsonData.routes.forEach((route, routeIndex) => {
+        let locations = [];
+        
         route.legs.forEach(leg => {
             leg.steps.forEach(step => {
                 let location = step.maneuver.location;
                 locations.push(location);
             });
         });
+        
+        routes.push({
+            route: routeFlip(locations),
+            color: routeIndex === 0 ? "blue" : "grey"
+        });
     });
-    console.log(locations)
-    return locations;
+    
+    console.log(routes);
+    return routes;
+}
+
+
+function routeFlip(arr) {
+  return arr.map(item => [item[1], item[0]]);
 }
 
 function routeGiver(coords) {
     return `${coords[0].long},${coords[0].lat};${coords[1].long},${coords[1].lat}`;
 }
-export {fetchroute, routeTransformer, routeGiver};
+export {fetchroute, routeTransformer, routeGiver, routeFlip};
 
