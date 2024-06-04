@@ -24,6 +24,7 @@ function convertToGeoJSON(dataList) {
 
 function convertToJSON(geoJSON) {
     const data = geoJSON.features.map(feature => ({
+        id: feature.properties.id,
         name: feature.properties.name,
         type: feature.properties.type,
         coordinates: feature.geometry.coordinates[0].map(coord => ({

@@ -6,24 +6,31 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-import { useSelector, useDispatch } from 'react-redux';
 import { fetchRouteline } from '../features/routes/routeSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import 'leaflet-editable';
+import ReactLeafletEditable from 'react-leaflet-editable';
+import { setModifiedPolygons, addPolygon } from '../features/polygons/modifiedPolygonsSlice';
 
 function Map_Displayer() {
+    const dispatch = useDispatch()
     const initialState = {
         long: 24.955,
         lat: 60.205,
         zoom: 15
     };
-    const dispatch = useDispatch()
-    const polygons = useSelector((state) => state.polygons);
     const routedata = useSelector((state) => state.routeLine);
+    const position = [initialState.lat, initialState.long];
+    const [editing, setEditing] = useState(false)
+    const polygons = useSelector((state) => state.polygons)
+    const modifiedPolygons = useSelector((state) => state.modifiedPolygons)
     const [markerCount, setMarkerCount] = useState(0);
     const [startPosition, setStartPosition] = useState(null);
     const [destinationPosition, setDestinationPosition] = useState(null);
-    const position = [initialState.lat, initialState.long];
+    const editRef = useRef();
     const mapRef = useRef();
-    const featureGroupRef = useRef(null);
+    const zonesRef = useRef(null);
+    const editingZonesRef = useRef(null);
     const { setCoordinates } = useContext(CoordinatesContext);
     const { route, setRoute } = useContext(RouteContext);
     const droutedata = [
@@ -83,15 +90,15 @@ function Map_Displayer() {
             console.log(latLngs);
             setCoordinates(latLngs);
 
-            if (featureGroupRef.current) {
-                featureGroupRef.current.removeLayer(layer);
+            if (zonesRef.current) {
+                zonesRef.current.removeLayer(layer);
             }
         }
         if (layerType === 'marker') {
             const {lat, lng} = layer.getLatLng();
             console.log(lat, lng, markerCount, markercount);
-            if (featureGroupRef.current) {
-                featureGroupRef.current.removeLayer(layer);
+            if (zonesRef.current) {
+                zonesRef.current.removeLayer(layer);
                 const map = mapRef.current;
 
                 if (markercount === 0) {
@@ -144,15 +151,73 @@ function Map_Displayer() {
         });
     };
 
+    const enableEditMode = () => {
+        setEditing(true)
+        dispatch(setModifiedPolygons(polygons))
+        editRef.current.startPolygon()
+    }
+
+    const cancelEdits = () => {
+        setEditing(false)
+        editRef.current.props.map.editTools.stopDrawing()
+    }
+
+    const onDrawingCommit = (shape) => {
+        const polygon = {
+            name: "",
+            type: "",
+            coordinates: shape.layer.getLatLngs()[0].map(latlng => ({ lat: latlng.lat, long: latlng.lng }))
+        }
+        shape.layer.remove()
+        dispatch(addPolygon(polygon))
+    }
+
+    const enableLayerEdits = () => {
+        if (editingZonesRef.current != null) {
+            editingZonesRef.current.getLayers().forEach((layer) => {
+                layer.disableEdit()
+                layer.enableEdit()
+                layer.on("editable:vertex:dragend", (e) => {
+                    console.log(e)
+                })
+            })
+        }
+        if (editing && editRef.current != null) {
+            if (!editRef.current.props.map?.editTools?.drawing()) {
+                editRef.current.startPolygon()
+            }
+        }
+    }
+
+    useEffect(enableLayerEdits)
+
     return (
+        <ReactLeafletEditable
+            ref={editRef}
+            map={mapRef.current}
+            onDrawingCommit={onDrawingCommit}
+        >
         <MapContainer
+            editable={true}
             center={position}
             zoom={initialState.zoom}
             scrollWheelZoom={true}
             style={{ flex: 1, width: '70%', height: "95%", marginTop: "-40px", zIndex: 0}}
             whenCreated={(map) => { mapRef.current = map; }}
             ref={mapRef}
-        >
+        >   
+            <div className="edit-pane">
+                <button
+                    hidden={editing}
+                    onClick={enableEditMode}
+                    className="edit-button"
+                >Edit</button>
+                <button
+                    hidden={!editing}
+                    onClick={cancelEdits}
+                    className="edit-button"
+                >Cancel</button>
+            </div>
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -160,8 +225,31 @@ function Map_Displayer() {
             {routedata.slice().reverse().map((route, index) => (
                 <Polyline key={index} positions={route.route} color={route.color} />
             ))}
-            <FeatureGroup ref={featureGroupRef}>
-                {polygons.map((polygon, index) => {
+            {editing 
+            ?
+            <FeatureGroup ref={editingZonesRef}>
+                {(modifiedPolygons.map((polygon, index) => {
+                    const color = 'orangeRed';
+                    return (
+                        <Polygon
+                            key={index}
+                            positions={polygon.coordinates.map(coord => [coord.lat, coord.long])}
+                            color={color}
+                            fillOpacity={0.5}
+                            eventHandlers={{
+                                mouseover: handleMouseOver,
+                                mouseout: handleMouseOut,
+                            }}
+                            originalColor={color} // Store original color for mouseout event
+                        >
+                            <Tooltip>{polygon.name}</Tooltip>
+                        </Polygon>
+                    )
+                }))}
+            </FeatureGroup>
+            :
+            <FeatureGroup ref={zonesRef}>
+                {(polygons.map((polygon, index) => {
                     const color = polygon.type === 'roadblock' ? 'red' : 'orange';
                     return (
                         <Polygon
@@ -178,7 +266,7 @@ function Map_Displayer() {
                             <Tooltip>{polygon.name}</Tooltip>
                         </Polygon>
                     );
-                })}
+                }))}
                 <EditControl
                     position="topright"
                     onCreated={onDrawCreated}
@@ -192,8 +280,9 @@ function Map_Displayer() {
                         } : false // Allow drawing markers only if there are less than 2 markers
                     }}
                 />
-            </FeatureGroup>
+            </FeatureGroup>}
         </MapContainer>
+        </ReactLeafletEditable>
     );
 }
 

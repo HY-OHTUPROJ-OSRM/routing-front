@@ -133,3 +133,10 @@ body {
   width: 60%;
   height: 100%;
 }
+
+.edit-pane {
+  z-index: 9999;
+  position: absolute;
+  right: 60px;
+  top: 12px;
+}
