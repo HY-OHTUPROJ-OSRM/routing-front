@@ -33,16 +33,6 @@ function Map_Displayer() {
     const editingZonesRef = useRef(null);
     const { setCoordinates } = useContext(CoordinatesContext);
     const { route, setRoute } = useContext(RouteContext);
-    const droutedata = [
-        [60.166623, 24.943873],
-        [60.166685, 24.943877],
-        [60.167213, 24.949522],
-        [60.172733, 24.948691],
-        [60.173842, 24.950136],
-        [60.175803, 24.950303],
-        [60.176888, 24.950199],
-        [60.178422, 24.950647]
-    ]
     let startposition=null;
     //{lat: '', lng: ''}
     let destinationposition=null;
@@ -172,6 +162,10 @@ function Map_Displayer() {
         dispatch(addPolygon(polygon))
     }
 
+    const onCancelDrawing = (e) => {
+        e.layer.remove()
+    }
+
     const enableLayerEdits = () => {
         if (editingZonesRef.current != null) {
             editingZonesRef.current.getLayers().forEach((layer) => {
@@ -196,6 +190,7 @@ function Map_Displayer() {
             ref={editRef}
             map={mapRef.current}
             onDrawingCommit={onDrawingCommit}
+            onCancelDrawing={onCancelDrawing}
         >
         <MapContainer
             editable={true}
