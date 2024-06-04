@@ -5,7 +5,7 @@ const SideBar = props => {
   const sidebarClass = props.isOpen ? "sidebar open" : "sidebar";
   const componentToDisplay=props.toBeDisplayed;
   return (
-    <div className={sidebarClass}>
+    <div className={sidebarClass} style={{overflow: "auto"}}>
       <PolygonList />
     </div>
   );

@@ -1,13 +1,17 @@
 import ins from '../api/api';
 import {convertToGeoJSON,convertToJSON} from './JSONToGeoJSON';
+import { showTimedAlert, clearTimedAlert } from '../Utils/dispatchUtility';
+import handleAxiosError from './handleAxiosError';
 const getPolygons = async () => {
+  const alertId = `loading-${Date.now()}`;
   try {
+    showTimedAlert({ text: 'Loading polygons...', variant: 'info', id: alertId });
     const response = await ins({
       url: 'zones',
       method: "get",
       headers: { "content-type": "application/json" },
     });
-
+    clearTimedAlert(alertId);
     if (response.data.features === null) {
       return []
     }
@@ -15,6 +19,7 @@ const getPolygons = async () => {
     console.log(response);
     return convertToJSON(response.data);
   } catch (error) {
+    clearTimedAlert(alertId);
     handleAxiosError(error);
     return [];
   }
@@ -47,8 +52,10 @@ const CreatePolygon = async (object) => {
     });
     console.log(response.data);
     if (response.status === 201) {
+      showTimedAlert({ text: 'Polygon created successfully', variant: 'success' });
       return response.data;
     }
+    showTimedAlert({ text: 'something unexpected happened', variant: 'failure' });
   } catch (error) {
     handleAxiosError(error);
   }
@@ -61,22 +68,12 @@ const DeletePolygon = async (id) => {
       method: "delete",
       headers: { "content-type": "application/json" },
     });
+    showTimedAlert({ text: 'Polygon deleted successfully', variant: 'success' });
     return response;
   } catch (error) {
     handleAxiosError(error);
   }
 };
 
-// Helper function to handle errors
-const handleAxiosError = (error) => {
-  if (error.response) {
-    throw new Error(error.response.data.message);
-  } else if (error.request) {
-    console.log('no connection');
-    throw new Error("Failed to connect to server");
-  } else {
-    throw new Error(error.message);
-  }
-};
 
 export { getPolygons, CreatePolygon, DeletePolygon, UpdatePolygon };

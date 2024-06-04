@@ -149,7 +149,7 @@ function Map_Displayer() {
             center={position}
             zoom={initialState.zoom}
             scrollWheelZoom={true}
-            style={{ flex: 1, width: '70%', marginTop: "0px" }}
+            style={{ flex: 1, width: '70%', height: "95%", marginTop: "-40px", zIndex: 0}}
             whenCreated={(map) => { mapRef.current = map; }}
             ref={mapRef}
         >

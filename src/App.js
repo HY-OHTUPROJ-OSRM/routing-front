@@ -12,7 +12,10 @@ import 'leaflet-draw/dist/leaflet.draw.css';
 import 'leaflet/dist/leaflet.css';
 import { useDispatch } from "react-redux";
 import { fetchPolygons } from "./features/polygons/polygonsSlice";
-
+import TimedAlert from "./components/TimedAlert";
+import { Provider } from 'react-redux';
+import { configureStore } from "@reduxjs/toolkit";
+import tempButton from "./components/tempButton";
 function App() {
   const dispatch = useDispatch()
   const [sidebarOpenP, setSidebarOpenP] = useState(false);
@@ -37,23 +40,28 @@ function App() {
   };
 
   return (
+    
     <div>
       <AppProviders>
       <div className="App">
-        <span>
+      
+        <span style={{zIndex: "10"}}>
+          <TimedAlert />
           <Header onClickP={toggleSidebarp} onClickA={toggleSidebara} className="App-header" />
           
           <SideBar isOpen={sidebarOpenP} toggleSidebar={setSidebarOpenP} />
           <CopeSideBar isOpen={sidebarOpenA} toggleSidebar={setSidebarOpenA} />
         </span>
+        
       </div>
-      <div className="box">
+      <div className="box" style={{zIndex: "0"}}>
         <Map_displayer/>
         
       </div>
       <Routing_form/>
       </AppProviders>
     </div>
+    
   );
 }
 
