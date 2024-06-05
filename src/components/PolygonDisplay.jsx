@@ -4,7 +4,8 @@ import { DeletePolygon, UpdatePolygon }  from "../services/PolygonService";
 import { useDispatch } from "react-redux";
 import { fetchPolygons } from "../features/polygons/polygonsSlice"
 
-const PolygonDisplay = ({ name, type, coordinates, id }) => {
+const PolygonDisplay = ({ type, geometry, properties }) => {
+        console.log(type, geometry, properties)
         const dispatch = useDispatch()
 
         const [isExpanded, setIsExpanded] = useState(false);
@@ -14,7 +15,7 @@ const PolygonDisplay = ({ name, type, coordinates, id }) => {
         }
 
        const HandleDelete = async () => {
-          await DeletePolygon(id);
+          await DeletePolygon(properties.id);
 
           dispatch(fetchPolygons());
        }
@@ -22,17 +23,18 @@ const PolygonDisplay = ({ name, type, coordinates, id }) => {
         //const { editMode, post } = this.state;
         return (
           <div className="polygon">
-            <h2>{name}</h2>
-            <p>{type}</p>
+            <h2>{properties.name}</h2>
+            <p>{properties.type}</p>
             <button onClick={toggleExpansion}>
               {isExpanded ? "Hide" : "Show"} Coordinates
             </button>
             <img src="/trash.png" alt="Delete" onClick={HandleDelete} className="Delete icon" style={{height: '30px', width: '30px'}} />
             {isExpanded && (
               <ul>
-                {coordinates.map((cord, index) => (
+                {geometry.coordinates[0].map((cord, index) => (
+                  console.log(cord),
                   <li key={index}>
-                    Latitude: {cord.lat.toFixed(3)}, Longitude: {cord.long.toFixed(3)}
+                    Latitude: {cord[1].toFixed(3)}, Longitude: {cord[0].toFixed(3)}
                   </li>
                 ))}
               </ul>

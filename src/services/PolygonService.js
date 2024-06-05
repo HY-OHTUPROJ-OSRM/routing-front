@@ -16,8 +16,9 @@ const getPolygons = async () => {
       return []
     }
 
-    console.log(response);
-    return convertToJSON(response.data);
+    console.log(response.data.features);
+    return response.data.features;
+    //return convertToJSON(response.data);
   } catch (error) {
     clearTimedAlert(alertId);
     handleAxiosError(error);
@@ -42,7 +43,8 @@ const UpdatePolygon = async (object) => {
 const CreatePolygon = async (object) => {
   console.log(object);
   try {
-    const GEOJSON= convertToGeoJSON(object);
+    //const GEOJSON= convertToGeoJSON(object);
+    const GEOJSON=object
     console.log(GEOJSON)
     const response = await ins({
       url: 'zones',

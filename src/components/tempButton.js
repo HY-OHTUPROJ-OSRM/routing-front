@@ -11,12 +11,6 @@ function SomeComponent() {
     return (
         <div style={{marginTop: "100%", margin: "100%"}}>
         <button onClick={showAlert} style={{marginTop: "100%", margin: "100%"}}>Show Timed Alert</button>
-        <button onClick={showAlert}>Show Timed Alert</button>
-        <button onClick={showAlert}>Show Timed Alert</button>
-        <button onClick={showAlert}>Show Timed Alert</button>
-        <button onClick={showAlert}>Show Timed Alert</button>
-        <button onClick={showAlert}>Show Timed Alert</button>
-        <button onClick={showAlert}>Show Timed Alert</button>
         </div>
     );
 }

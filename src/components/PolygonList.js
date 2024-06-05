@@ -4,11 +4,11 @@ import { useSelector } from 'react-redux';
 
 function PolygonList() {
   const polygons = useSelector((state) => state.polygons)
-
+  console.log(polygons)
   return (
     <div>
       {polygons.map((polygon, index) => (
-        <PolygonDisplay key={polygon.id} {...polygon} />
+        <PolygonDisplay key={polygon.properties.id} {...polygon} />
       ))}
     </div>
   );

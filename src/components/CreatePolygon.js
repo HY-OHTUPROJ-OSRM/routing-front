@@ -6,7 +6,7 @@ import { validateName, validateType, validateCoordinate, validateSeverity } from
 import { CreatePolygon } from '../services/PolygonService';
 import { useDispatch } from 'react-redux';
 import { fetchPolygons } from '../features/polygons/polygonsSlice';
-
+import { convertToGeoJSON } from '../services/JSONToGeoJSON';
 function CreatePolygons() {
   const dispatch = useDispatch()
   const [formData, setFormData] = useState({
@@ -36,7 +36,7 @@ function CreatePolygons() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      await CreatePolygon(formData); // set to CreatePolygon on backend connection
+      await CreatePolygon(convertToGeoJSON(formData)); // set to CreatePolygon on backend connection
       setFormData({
         name: '',
         type: 'roadblock',

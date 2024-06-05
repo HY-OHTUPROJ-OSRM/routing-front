@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import 'leaflet-editable';
 import ReactLeafletEditable from 'react-leaflet-editable';
 import { setModifiedPolygons, addPolygon } from '../features/polygons/modifiedPolygonsSlice';
+import { GeoJSON } from 'react-leaflet';
 
 function Map_Displayer() {
     const dispatch = useDispatch()
@@ -185,6 +186,24 @@ function Map_Displayer() {
 
     useEffect(enableLayerEdits)
 
+    const geoJsonStyle = (feature) => {
+        return {
+          color: feature.properties.type === 'roadblock' ? 'red' : 'orange',
+          fillOpacity: 0.5
+        };
+      };
+    
+      const onEachFeature = (feature, layer) => {
+        layer.on({
+          mouseover: handleMouseOver,
+          mouseout: handleMouseOut,
+        });
+    
+        if (feature.properties && feature.properties.name) {
+          layer.bindTooltip(feature.properties.name);
+        }
+      };
+
     return (
         <ReactLeafletEditable
             ref={editRef}
@@ -223,12 +242,12 @@ function Map_Displayer() {
             {editing 
             ?
             <FeatureGroup ref={editingZonesRef}>
-                {(modifiedPolygons.map((polygon, index) => {
+                {(polygons.map((polygon, index) => {
                     const color = 'orangeRed';
                     return (
                         <Polygon
-                            key={index}
-                            positions={polygon.coordinates.map(coord => [coord.lat, coord.long])}
+                            key={polygon.properties.id}
+                            positions={polygon.geometry.coordinates[0].map(coord => [coord[1], coord[0]])}
                             color={color}
                             fillOpacity={0.5}
                             eventHandlers={{
@@ -237,31 +256,21 @@ function Map_Displayer() {
                             }}
                             originalColor={color} // Store original color for mouseout event
                         >
-                            <Tooltip>{polygon.name}</Tooltip>
+                            <Tooltip>{polygon.properties.name}</Tooltip>
                         </Polygon>
-                    )
+                    );
                 }))}
             </FeatureGroup>
             :
             <FeatureGroup ref={zonesRef}>
-                {(polygons.map((polygon, index) => {
-                    const color = polygon.type === 'roadblock' ? 'red' : 'orange';
-                    return (
-                        <Polygon
-                            key={polygon.id}
-                            positions={polygon.coordinates.map(coord => [coord.lat, coord.long])}
-                            color={color}
-                            fillOpacity={0.5}
-                            eventHandlers={{
-                                mouseover: handleMouseOver,
-                                mouseout: handleMouseOut,
-                            }}
-                            originalColor={color} // Store original color for mouseout event
-                        >
-                            <Tooltip>{polygon.name}</Tooltip>
-                        </Polygon>
-                    );
-                }))}
+                {polygons.map((feature, index) => (
+                    <GeoJSON
+                        key={feature.properties.id}
+                        data={feature}
+                        style={geoJsonStyle}
+                        onEachFeature={onEachFeature}
+                    />
+                ))}
                 <EditControl
                     position="topright"
                     onCreated={onDrawCreated}
