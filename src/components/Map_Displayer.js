@@ -184,6 +184,7 @@ function Map_Displayer({editMode, setEditMode}) {
         const added = Object.values(modifiedPolygons).filter(zone => Object.keys(sendIds).includes(String(zone.properties.id)))
         await ChangePolygons(added, Object.keys(deleteIds))
         dispatch(fetchPolygons())
+        dispatch(fetchRouteLine())
         cancelEdits()
     }
 
