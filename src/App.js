@@ -20,7 +20,7 @@ function App() {
   const dispatch = useDispatch()
   const [sidebarOpenP, setSidebarOpenP] = useState(false);
   const [sidebarOpenA, setSidebarOpenA] = useState(false);
-
+  const [editMode, setEditMode] = useState(false);
   useEffect(() => {
     dispatch(fetchPolygons())
   }, [dispatch])
@@ -39,6 +39,7 @@ function App() {
     handleViewSidebar(sidebarOpenA, setSidebarOpenA);
   };
 
+
   return (
     
     <div>
@@ -49,13 +50,13 @@ function App() {
           <TimedAlert />
           <Header onClickP={toggleSidebarp} onClickA={toggleSidebara} className="App-header" />
           
-          <SideBar isOpen={sidebarOpenP} toggleSidebar={setSidebarOpenP} />
+          <SideBar isOpen={sidebarOpenP} toggleSidebar={setSidebarOpenP} ediMode={editMode} setEditMode={setEditMode}/>
           <CopeSideBar isOpen={sidebarOpenA} toggleSidebar={setSidebarOpenA} />
         </span>
         
       </div>
       <div className="box" style={{zIndex: "0"}}>
-        <Map_displayer/>
+        <Map_displayer ediMode={editMode} setEditMode={setEditMode}/>
         
       </div>
       <Routing_form/>

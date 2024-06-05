@@ -14,7 +14,7 @@ import { setModifiedPolygons, addPolygon, modifyPolygon } from '../features/poly
 import { v4 as uuidv4 } from 'uuid';
 import { convertToGeoJSON } from '../services/JSONToGeoJSON';
 
-function Map_Displayer() {
+function Map_Displayer({editMode, setEditMode}) {
     const dispatch = useDispatch()
     const initialState = {
         long: 24.955,
@@ -56,9 +56,12 @@ function Map_Displayer() {
     const onMarkerDragEnd = (e, type) => {
         const { lat, lng } = e.target.getLatLng();
         if (type === 'start') {
+
             startposition={ lat:lat, long:lng };
+            dispatch(setStartPosition(startposition));
         } else if (type === 'destination') {
             destinationposition={ lat:lat, long:lng };
+            dispatch(setEndPosition(destinationposition));
         }
         //console.log(startPosition, destinationPosition, type, lat, lng)
         const newRoute = [
@@ -146,6 +149,8 @@ function Map_Displayer() {
 
     const enableEditMode = () => {
         setEditing(true)
+        setEditMode(true)
+        console.log("editmode map_disp", editMode)
         dispatch(setModifiedPolygons(polygons))
         editRef.current.startPolygon()
     }

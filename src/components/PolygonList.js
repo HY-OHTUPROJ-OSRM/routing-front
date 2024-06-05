@@ -3,14 +3,15 @@ import PolygonDisplay from "./PolygonDisplay";
 import ModifiedPolygonDisplay from "./ModifiedPolygonDisplay"; // Import the new component
 import { useSelector } from 'react-redux';
 
-function PolygonList(editmode) {
+function PolygonList({editMode, setEditMode}) {
+  console.log("PolygonList editMode", editMode)
   const polygons = useSelector((state) => state.polygons);
   const modifiedPolygons = useSelector((state) => state.modifiedPolygons);
 
   console.log(polygons);
   return (
     <div>
-      {modifiedPolygons.length > 0 ? (
+      {editMode ? (
         modifiedPolygons.map((polygon, index) => (
           <ModifiedPolygonDisplay key={polygon.properties.id} {...polygon} />
         ))
