@@ -12,7 +12,8 @@ import 'leaflet-editable';
 import ReactLeafletEditable from 'react-leaflet-editable';
 import { setModifiedPolygons, addPolygon, modifyPolygon } from '../features/polygons/modifiedPolygonsSlice';
 import { v4 as uuidv4 } from 'uuid';
-import { convertToGeoJSON } from '../services/JSONToGeoJSON';
+import { ChangePolygons } from '../services/PolygonService';
+import { fetchPolygons } from '../features/polygons/polygonsSlice';
 
 function Map_Displayer({editMode, setEditMode}) {
     const dispatch = useDispatch()
@@ -26,6 +27,8 @@ function Map_Displayer({editMode, setEditMode}) {
     const [editing, setEditing] = useState(false)
     const polygons = useSelector((state) => state.polygons)
     const modifiedPolygons = useSelector((state) => state.modifiedPolygons.polygons)
+    const sendIds = useSelector((state) => state.modifiedPolygons.sendIds)
+    const deleteIds = useSelector((state) => state.modifiedPolygons.deleteIds)
     const [markerCount, setMarkerCount] = useState(0);
     const editRef = useRef();
     const mapRef = useRef();
@@ -164,8 +167,8 @@ function Map_Displayer({editMode, setEditMode}) {
         const geoJSON = shape.layer.toGeoJSON()
 
         geoJSON.properties = {
-            name: "",
-            type: "",
+            name: window.prompt("Enter zone name:") || "Zone",
+            type: "roadblock",
             id: uuidv4()
         }
 
@@ -175,6 +178,13 @@ function Map_Displayer({editMode, setEditMode}) {
 
     const onCancelDrawing = (e) => {
         e.layer.remove()
+    }
+
+    const saveEdits = async () => {
+        const added = Object.values(modifiedPolygons).filter(zone => Object.keys(sendIds).includes(String(zone.properties.id)))
+        await ChangePolygons(added, Object.keys(deleteIds))
+        dispatch(fetchPolygons())
+        cancelEdits()
     }
 
     const enableLayerEdits = () => {
@@ -245,6 +255,11 @@ function Map_Displayer({editMode, setEditMode}) {
                     onClick={enableEditMode}
                     className="edit-button"
                 >Edit</button>
+                <button
+                    hidden={!editing}
+                    onClick={saveEdits}
+                    className="edit-button"
+                >Save</button>
                 <button
                     hidden={!editing}
                     onClick={cancelEdits}

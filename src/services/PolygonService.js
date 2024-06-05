@@ -68,6 +68,24 @@ const CreatePolygon = async (object) => {
   }
 };
 
+const ChangePolygons = async (added, deleted) => {
+  const alertId = `loading-${Date.now()}`;
+  showTimedAlert({ text: 'Updating roads...', variant: 'info', id: alertId });
+  try {
+    const data = {added, deleted}
+
+    await ins({
+      url: 'zones/diff',
+      method: "post",
+      data,
+      headers: { "content-type": "application/json" },
+    });
+  } catch (error) {
+    handleAxiosError(error)
+  }
+  clearTimedAlert(alertId)
+}
+
 const DeletePolygon = async (id) => {
   
   try {
@@ -85,4 +103,4 @@ const DeletePolygon = async (id) => {
 };
 
 
-export { getPolygons, CreatePolygon, DeletePolygon, UpdatePolygon };
+export { getPolygons, CreatePolygon, DeletePolygon, UpdatePolygon, ChangePolygons };
