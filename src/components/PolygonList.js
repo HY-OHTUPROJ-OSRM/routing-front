@@ -1,15 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import PolygonDisplay from "./PolygonDisplay";
+import ModifiedPolygonDisplay from "./ModifiedPolygonDisplay"; // Import the new component
 import { useSelector } from 'react-redux';
 
 function PolygonList() {
-  const polygons = useSelector((state) => state.polygons)
-  console.log(polygons)
+  const polygons = useSelector((state) => state.polygons);
+  const modifiedPolygons = useSelector((state) => state.modifiedPolygons);
+
+  console.log(polygons);
   return (
     <div>
-      {polygons.map((polygon, index) => (
-        <PolygonDisplay key={polygon.properties.id} {...polygon} />
-      ))}
+      {modifiedPolygons.length > 0 ? (
+        modifiedPolygons.map((polygon, index) => (
+          <ModifiedPolygonDisplay key={polygon.properties.id} {...polygon} />
+        ))
+      ) : (
+        polygons.map((polygon, index) => (
+          <PolygonDisplay key={polygon.properties.id} {...polygon} />
+        ))
+      )}
     </div>
   );
 }

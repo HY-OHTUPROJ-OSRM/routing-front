@@ -35,6 +35,11 @@ function Map_Displayer() {
     const editingZonesRef = useRef(null);
     const { setCoordinates } = useContext(CoordinatesContext);
     const { route, setRoute } = useContext(RouteContext);
+    const pathOptions = {
+        weight: 5, // you can set the line weight here as well
+        ...(route.color === 'blue' && { zIndex: 10000 }), // Conditionally add zIndex if color is blue
+      };
+      
     let startposition=null;
     //{lat: '', lng: ''}
     let destinationposition=null;
@@ -250,7 +255,11 @@ function Map_Displayer() {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             {routedata.slice().reverse().map((route, index) => (
-                <Polyline key={index} positions={route.route} color={route.color} />
+
+                <Polyline key={index} positions={route.route} color={route.color} pathOptions={{
+            color: route.color, 
+            zIndex: route.color === 'blue' ? 1000 : undefined
+          }}  />
             ))}
             {editing 
             ?
