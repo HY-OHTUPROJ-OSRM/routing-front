@@ -7,6 +7,7 @@ import { CreatePolygon } from '../services/PolygonService';
 import { useDispatch } from 'react-redux';
 import { fetchPolygons } from '../features/polygons/polygonsSlice';
 import { convertToGeoJSON } from '../services/JSONToGeoJSON';
+import { fetchRouteLine } from '../features/routes/routeSlice';
 function CreatePolygons() {
   const dispatch = useDispatch()
   const [formData, setFormData] = useState({
@@ -45,6 +46,7 @@ function CreatePolygons() {
       });
       setErrors({});
       dispatch(fetchPolygons())
+      dispatch(fetchRouteLine())
     }
   };
 

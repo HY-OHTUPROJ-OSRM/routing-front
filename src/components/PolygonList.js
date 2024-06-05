@@ -3,7 +3,7 @@ import PolygonDisplay from "./PolygonDisplay";
 import ModifiedPolygonDisplay from "./ModifiedPolygonDisplay"; // Import the new component
 import { useSelector } from 'react-redux';
 
-function PolygonList() {
+function PolygonList(editmode) {
   const polygons = useSelector((state) => state.polygons);
   const modifiedPolygons = useSelector((state) => state.modifiedPolygons);
 

@@ -4,7 +4,7 @@ import { validateCoordinate } from '../services/FormValidationService';
 import { RouteContext } from './CoordinatesContext';
 import {getRoute} from '../services/RouteService';
 import { useDispatch } from 'react-redux';
-import { fetchRouteline } from '../features/routes/routeSlice';
+import { fetchRouteLine } from '../features/routes/routeSlice';
 function Routing_form() {
   const dispatch = useDispatch()
   const [formData, setFormData] = useState({
@@ -42,7 +42,7 @@ function Routing_form() {
     e.preventDefault();
     if (validateForm()) {
       console.log('Form submitted successfully:', formData);
-      dispatch(fetchRouteline(formData.coordinates));
+      dispatch(fetchRouteLine(formData.coordinates));
       setFormData({
         coordinates: [
             { lat: '', long: '', name: 'Starting Position' },

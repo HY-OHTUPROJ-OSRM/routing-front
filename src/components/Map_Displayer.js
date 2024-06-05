@@ -6,7 +6,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-import { fetchRouteline } from '../features/routes/routeSlice';
+import { fetchRouteLine, setStartPosition, setEndPosition } from '../features/routes/routeSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import 'leaflet-editable';
 import ReactLeafletEditable from 'react-leaflet-editable';
@@ -21,24 +21,18 @@ function Map_Displayer() {
         lat: 60.205,
         zoom: 15
     };
-    const routedata = useSelector((state) => state.routeLine);
+    const routedata = useSelector((state) => state.routeLine.routeLine);
     const position = [initialState.lat, initialState.long];
     const [editing, setEditing] = useState(false)
     const polygons = useSelector((state) => state.polygons)
     const modifiedPolygons = useSelector((state) => state.modifiedPolygons.polygons)
     const [markerCount, setMarkerCount] = useState(0);
-    const [startPosition, setStartPosition] = useState(null);
-    const [destinationPosition, setDestinationPosition] = useState(null);
     const editRef = useRef();
     const mapRef = useRef();
     const zonesRef = useRef(null);
     const editingZonesRef = useRef(null);
     const { setCoordinates } = useContext(CoordinatesContext);
     const { route, setRoute } = useContext(RouteContext);
-    const pathOptions = {
-        weight: 5, // you can set the line weight here as well
-        ...(route.color === 'blue' && { zIndex: 10000 }), // Conditionally add zIndex if color is blue
-      };
       
     let startposition=null;
     //{lat: '', lng: ''}
@@ -66,7 +60,7 @@ function Map_Displayer() {
         } else if (type === 'destination') {
             destinationposition={ lat:lat, long:lng };
         }
-        console.log(startPosition, destinationPosition, type, lat, lng)
+        //console.log(startPosition, destinationPosition, type, lat, lng)
         const newRoute = [
             { lat: startposition?.lat ?? lat, long: startposition?.long ?? lng },
             { lat: destinationposition?.lat ?? lat, long: destinationposition?.long ?? lng }
@@ -75,7 +69,7 @@ function Map_Displayer() {
         if (newRoute.length === 2) {
             if (newRoute[0].lat !== undefined && newRoute[0].long !== undefined && newRoute[1].lat !== undefined && newRoute[1].long !== undefined) {
                 console.log("marker drag end", newRoute)
-                dispatch(fetchRouteline(newRoute));
+                dispatch(fetchRouteLine(newRoute));
             }
     };
     }
@@ -105,8 +99,9 @@ function Map_Displayer() {
                         .addTo(map)
                         .bindPopup("Start")
                         .on('dragend', (e) => onMarkerDragEnd(e, 'start'));
-                    setStartPosition({lat, lng});
+                    
                     startposition={ lat:lat, long:lng }
+                    dispatch(setStartPosition(startposition));
                     
                     await setRoute([startposition, destinationposition]);
                     console.log(startposition, destinationposition)
@@ -117,14 +112,15 @@ function Map_Displayer() {
                         .addTo(map)
                         .bindPopup("Destination")
                         .on('dragend', (e) => onMarkerDragEnd(e, 'destination'));
-                    console.log(startPosition, destinationPosition)
-                    setDestinationPosition({ lat,lng });
+                    //console.log(startPosition, destinationPosition)
+                    
                     destinationposition={lat:lat,long:lng }
+                    dispatch(setEndPosition(destinationposition));
                     console.log("secondoneadded",startposition, destinationposition)
                     await setRoute([startposition, destinationposition]);
                     console.log(route)
                     
-                            dispatch(fetchRouteline([startposition, destinationposition]));
+                            dispatch(fetchRouteLine([startposition, destinationposition]));
                         
                 
             }

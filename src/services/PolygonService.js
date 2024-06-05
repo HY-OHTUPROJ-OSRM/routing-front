@@ -2,7 +2,10 @@ import ins from '../api/api';
 import {convertToGeoJSON,convertToJSON} from './JSONToGeoJSON';
 import { showTimedAlert, clearTimedAlert } from '../Utils/dispatchUtility';
 import handleAxiosError from './handleAxiosError';
+import { fetchRouteLine } from '../features/routes/routeSlice';
+import { useDispatch } from 'react-redux';
 const getPolygons = async () => {
+  
   const alertId = `loading-${Date.now()}`;
   try {
     showTimedAlert({ text: 'Loading polygons...', variant: 'info', id: alertId });
@@ -42,6 +45,7 @@ const UpdatePolygon = async (object) => {
 
 const CreatePolygon = async (object) => {
   console.log(object);
+  
   try {
     //const GEOJSON= convertToGeoJSON(object);
     const GEOJSON=object
@@ -58,12 +62,14 @@ const CreatePolygon = async (object) => {
       return response.data;
     }
     showTimedAlert({ text: 'something unexpected happened', variant: 'failure' });
+    
   } catch (error) {
     handleAxiosError(error);
   }
 };
 
 const DeletePolygon = async (id) => {
+  
   try {
     const response = await ins({
       url: `zones/${id}`,
@@ -71,6 +77,7 @@ const DeletePolygon = async (id) => {
       headers: { "content-type": "application/json" },
     });
     showTimedAlert({ text: 'Polygon deleted successfully', variant: 'success' });
+    
     return response;
   } catch (error) {
     handleAxiosError(error);

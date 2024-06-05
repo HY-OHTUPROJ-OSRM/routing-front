@@ -3,9 +3,9 @@ import "./Polygon.css"; // Import the CSS file
 import { DeletePolygon, UpdatePolygon }  from "../services/PolygonService";
 import { useDispatch } from "react-redux";
 import { fetchPolygons } from "../features/polygons/polygonsSlice"
-
+import { fetchRouteLine } from "../features/routes/routeSlice"
 const PolygonDisplay = ({ type, geometry, properties }) => {
-        console.log(type, geometry, properties)
+        //console.log(type, geometry, properties)
         const dispatch = useDispatch()
 
         const [isExpanded, setIsExpanded] = useState(false);
@@ -18,6 +18,7 @@ const PolygonDisplay = ({ type, geometry, properties }) => {
           await DeletePolygon(properties.id);
 
           dispatch(fetchPolygons());
+          dispatch(fetchRouteLine());
        }
 
         //const { editMode, post } = this.state;
