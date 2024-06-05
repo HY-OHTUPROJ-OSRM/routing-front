@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, FeatureGroup, Polygon, Tooltip, useMap, Polyline } from 'react-leaflet';
+import { MapContainer, TileLayer, FeatureGroup, Polygon, Tooltip, useMap, Polyline, GeoJSON } from 'react-leaflet';
 import React, { useRef, useEffect, useState, useContext } from 'react';
 import { EditControl } from 'react-leaflet-draw';
 import { CoordinatesContext, RouteContext } from './CoordinatesContext';
@@ -10,8 +10,9 @@ import { fetchRouteline } from '../features/routes/routeSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import 'leaflet-editable';
 import ReactLeafletEditable from 'react-leaflet-editable';
-import { setModifiedPolygons, addPolygon } from '../features/polygons/modifiedPolygonsSlice';
-import { GeoJSON } from 'react-leaflet';
+import { setModifiedPolygons, addPolygon, modifyPolygon } from '../features/polygons/modifiedPolygonsSlice';
+import { v4 as uuidv4 } from 'uuid';
+import { convertToGeoJSON } from '../services/JSONToGeoJSON';
 
 function Map_Displayer() {
     const dispatch = useDispatch()
@@ -24,7 +25,7 @@ function Map_Displayer() {
     const position = [initialState.lat, initialState.long];
     const [editing, setEditing] = useState(false)
     const polygons = useSelector((state) => state.polygons)
-    const modifiedPolygons = useSelector((state) => state.modifiedPolygons)
+    const modifiedPolygons = useSelector((state) => state.modifiedPolygons.polygons)
     const [markerCount, setMarkerCount] = useState(0);
     const [startPosition, setStartPosition] = useState(null);
     const [destinationPosition, setDestinationPosition] = useState(null);
@@ -154,13 +155,16 @@ function Map_Displayer() {
     }
 
     const onDrawingCommit = (shape) => {
-        const polygon = {
+        const geoJSON = shape.layer.toGeoJSON()
+
+        geoJSON.properties = {
             name: "",
             type: "",
-            coordinates: shape.layer.getLatLngs()[0].map(latlng => ({ lat: latlng.lat, long: latlng.lng }))
+            id: uuidv4()
         }
+
         shape.layer.remove()
-        dispatch(addPolygon(polygon))
+        dispatch(addPolygon(geoJSON))
     }
 
     const onCancelDrawing = (e) => {
@@ -172,9 +176,18 @@ function Map_Displayer() {
             editingZonesRef.current.getLayers().forEach((layer) => {
                 layer.disableEdit()
                 layer.enableEdit()
-                layer.on("editable:vertex:dragend", (e) => {
-                    console.log(e)
-                })
+                if (!layer.listens("editable:vertex:dragend")) {
+                    layer.on("editable:vertex:dragend", (e) => {
+                        const { name, type, id } = e.layer.options
+                        const geoJSON = e.layer.toGeoJSON()
+
+                        geoJSON.properties = {
+                            name, type, id
+                        }
+
+                        dispatch(modifyPolygon(geoJSON))
+                    })
+                }
             })
         }
         if (editing && editRef.current != null) {
@@ -242,11 +255,14 @@ function Map_Displayer() {
             {editing 
             ?
             <FeatureGroup ref={editingZonesRef}>
-                {(polygons.map((polygon, index) => {
+                {(Object.values(modifiedPolygons).map((polygon, index) => {
                     const color = 'orangeRed';
                     return (
                         <Polygon
                             key={polygon.properties.id}
+                            id={polygon.properties.id}
+                            name={polygon.properties.name}
+                            type={polygon.properties.type}
                             positions={polygon.geometry.coordinates[0].map(coord => [coord[1], coord[0]])}
                             color={color}
                             fillOpacity={0.5}
