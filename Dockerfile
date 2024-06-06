@@ -18,9 +18,4 @@ FROM registry.access.redhat.com/ubi9/nginx-124 as run-stage
 
 COPY --from=build-stage /src/build /usr/share/nginx/html
 
-ADD test-app/nginx.conf "${NGINX_CONF_PATH}"
-ADD test-app/nginx-default-cfg/*.conf "${NGINX_DEFAULT_CONF_PATH}"
-ADD test-app/nginx-cfg/*.conf "${NGINX_CONFIGURATION_PATH}"
-ADD test-app/*.html .
-
 CMD nginx -g "daemon off;"
