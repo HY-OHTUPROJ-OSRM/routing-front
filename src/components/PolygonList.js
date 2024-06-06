@@ -1,25 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import PolygonDisplay from "./PolygonDisplay";
-import fetchPolygons from "../services/PolygonListService";
-//import { getPolygons } from '../services/PolygonService';
+import ModifiedPolygonDisplay from "./ModifiedPolygonDisplay"; // Import the new component
+import { useSelector } from 'react-redux';
 
-function PolygonList() {
-  const [polygons, setPolygons] = useState([]);
+function PolygonList({editMode, setEditMode}) {
+  console.log("PolygonList editMode", editMode)
+  const polygons = useSelector((state) => state.polygons);
+  const modifiedPolygons = useSelector((state) => state.modifiedPolygons);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      // const data = await getPolygons(); with backend
-      const data = await fetchPolygons();// with frontend only
-      setPolygons(data);
-    };
-    fetchData();
-  }, []);
-
+  console.log(polygons);
   return (
     <div>
-      {polygons.map((polygon, index) => (
-        <PolygonDisplay key={index} {...polygon} />
-      ))}
+      {editMode ? (
+        modifiedPolygons.map((polygon, index) => (
+          <ModifiedPolygonDisplay key={polygon.properties.id} {...polygon} />
+        ))
+      ) : (
+        polygons.map((polygon, index) => (
+          <PolygonDisplay key={polygon.properties.id} {...polygon} />
+        ))
+      )}
     </div>
   );
 }

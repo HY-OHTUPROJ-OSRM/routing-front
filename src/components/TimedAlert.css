@@ -1,0 +1,29 @@
+
+.timed-alert {
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    margin-top: -100px;
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 20%;
+    margin-left: 30%;
+    position: absolute;
+    position: center;
+    z-index: 1000;
+  }
+  
+  .timed-alert.success {
+    background-color: #28a745;
+  }
+  
+  .timed-alert.failure {
+    background-color: #dc3545;
+  }
+  
+  .timed-alert.info {
+    background-color: #17a2b8;
+  }

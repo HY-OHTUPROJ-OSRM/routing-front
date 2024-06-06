@@ -37,7 +37,8 @@ bower_components
 
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release
-
+build/static
+build/
 # Dependency directories
 node_modules/
 jspm_packages/
@@ -119,8 +120,9 @@ dist
 # TernJS port file
 .tern-port
 
-# Stores VSCode versions used for testing VSCode extensions
+# Stores VSCode versions used for testing VSCode extensions and VSCode config
 .vscode-test
+.vscode/
 
 # yarn v2
 .yarn/cache

@@ -43,3 +43,17 @@
   button[type="button"] {
     background-color: #444;
   }
+  .input-error {
+    border-color: rgb(126, 26, 26);
+  }
+  
+  .error {
+    color: rgb(17, 14, 14);
+    font-size: 1em;
+  }
+
+  .btn-disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+  }

@@ -1,19 +1,26 @@
-/* eslint-disable react/prop-types */
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import { Alert } from 'react-bootstrap'
+import { removeTimedAlert } from '../features/messages/timedAlertSlice';
+import './TimedAlert.css'
+export default function TimedAlert() {
+    const alerts = useSelector(state => state.timedAlert);
+    const dispatch = useDispatch();
 
-export default function TimedAlert({ msg }) {
-    const [show, setShow] = useState(false)
-
-    // eslint-disable-next-line
     useEffect(() => {
-        if (msg.variant !== "boot") {
-            setShow(true)
-            setTimeout(() => setShow(false), 3000)
-        }
-    })
+        alerts.forEach(alert => {
+            console.log(alert)
+            setTimeout(() => dispatch(removeTimedAlert(alert.id)), alert.timeout);
+        });
+    }, [alerts, dispatch]);
 
     return (
-        <Alert show={show} variant={msg.variant}>{msg.text}</Alert>
+        <>
+            {alerts.map(alert => (
+                <div key={alert.id} className={`timed-alert ${alert.variant}`}>
+                    {alert.text}
+                </div>
+            ))}
+        </>
     )
 }

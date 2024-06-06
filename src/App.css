@@ -1,4 +1,5 @@
 
+@import '~leaflet/dist/leaflet.css';
 
 .App-logo {
   height: 40vmin;
@@ -58,7 +59,7 @@ header {
   position: absolute;
   top: 60px;
   right: -30vw;
-  height: 120%;
+  height: 95%;
   width: 30vw;
   transition: right 0.5s ease-in-out;
   background-color: rgb(104, 126, 158);
@@ -86,6 +87,9 @@ header {
   margin: -10px;
 }
 
+.box {
+  clear: both;
+}
 .MapAndForm > * {
   flex: l;
   margin-right: 10px; /* Adjust spacing between components */
@@ -107,7 +111,7 @@ html,
 body {
 	padding: 0;
 	margin: 0;
-	height: 100%;
+	height: 90%;
 }
 .leaflet-container {
 	position: absolute;
@@ -123,9 +127,16 @@ body {
   margin-top: 100px;
 	position: relative;
 	width: 60%;
-	height: 100%;
+	height: 90%;
 }
 #map {
   width: 60%;
   height: 100%;
+}
+
+.edit-pane {
+  z-index: 9999;
+  position: absolute;
+  right: 60px;
+  top: 12px;
 }
