@@ -9,7 +9,7 @@ export default function TimedAlert() {
 
     useEffect(() => {
         alerts.forEach(alert => {
-            console.log(alert)
+            //console.log(alert)
             setTimeout(() => dispatch(removeTimedAlert(alert.id)), alert.timeout);
         });
     }, [alerts, dispatch]);

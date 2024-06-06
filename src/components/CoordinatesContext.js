@@ -1,6 +1,9 @@
 import React, { createContext, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { fetchRouteline } from '../features/routes/routeSlice';
+
+// This file contains the context providers for coordinates and routes
+
 // Coordinates Context
 export const CoordinatesContext = createContext();
 

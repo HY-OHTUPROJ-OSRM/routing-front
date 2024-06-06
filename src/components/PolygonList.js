@@ -1,6 +1,6 @@
 import React from "react";
 import PolygonDisplay from "./PolygonDisplay";
-import ModifiedPolygonDisplay from "./ModifiedPolygonDisplay"; // Import the new component
+import ModifiedPolygonDisplay from "./ModifiedPolygonDisplay";
 import { useSelector } from 'react-redux';
 
 function PolygonList({editMode, setEditMode}) {
@@ -8,11 +8,13 @@ function PolygonList({editMode, setEditMode}) {
   const polygons = useSelector((state) => state.polygons);
   const modifiedPolygons = useSelector((state) => state.modifiedPolygons);
 
-  console.log(polygons);
+  console.log(modifiedPolygons);
   return (
     <div>
-      {editMode ? (
-        modifiedPolygons.map((polygon, index) => (
+      {editMode && modifiedPolygons.polygons!={} ? (
+        
+        Object.values(modifiedPolygons.polygons).map((polygon, index) => (
+          console.log("polygon",polygon),
           <ModifiedPolygonDisplay key={polygon.properties.id} {...polygon} />
         ))
       ) : (

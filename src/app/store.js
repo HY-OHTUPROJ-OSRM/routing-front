@@ -4,6 +4,7 @@ import modifiedPolygonsReducer from "../features/polygons/modifiedPolygonsSlice"
 import routeReducer from "../features/routes/routeSlice"
 import timedAlertReducer from "../features/messages/timedAlertSlice"
 
+//store to add all used reducers
 export default configureStore({
     reducer: {
         polygons: polygonsReducer,

@@ -19,7 +19,7 @@ const getPolygons = async () => {
       return []
     }
 
-    console.log(response.data.features);
+    //console.log(response.data.features);
     return response.data.features;
     //return convertToJSON(response.data);
   } catch (error) {
@@ -45,7 +45,8 @@ const UpdatePolygon = async (object) => {
 
 const CreatePolygon = async (object) => {
   console.log(object);
-  
+  const alertId = `loading-${Date.now()}`;
+  showTimedAlert({ text: 'Adding polygon...', variant: 'info', id: alertId });
   try {
     //const GEOJSON= convertToGeoJSON(object);
     const GEOJSON=object
@@ -57,6 +58,7 @@ const CreatePolygon = async (object) => {
       headers: { "content-type": "application/json" },
     });
     console.log(response.data);
+    clearTimedAlert(alertId)
     if (response.status === 201) {
       showTimedAlert({ text: 'Polygon created successfully', variant: 'success' });
       return response.data;
@@ -64,6 +66,7 @@ const CreatePolygon = async (object) => {
     showTimedAlert({ text: 'something unexpected happened', variant: 'failure' });
     
   } catch (error) {
+    clearTimedAlert(alertId)
     handleAxiosError(error);
   }
 };
@@ -84,20 +87,24 @@ const ChangePolygons = async (added, deleted) => {
     handleAxiosError(error)
   }
   clearTimedAlert(alertId)
+  showTimedAlert({ text: 'Polygons updated succesfully', variant: 'success'});
 }
 
 const DeletePolygon = async (id) => {
-  
+  const alertId = `loading-${Date.now()}`;
+  showTimedAlert({ text: 'Deleting polygon...', variant: 'info', id: alertId });
   try {
     const response = await ins({
       url: `zones/${id}`,
       method: "delete",
       headers: { "content-type": "application/json" },
     });
+    clearTimedAlert(alertId)
     showTimedAlert({ text: 'Polygon deleted successfully', variant: 'success' });
     
     return response;
   } catch (error) {
+    clearTimedAlert(alertId)
     handleAxiosError(error);
   }
 };
