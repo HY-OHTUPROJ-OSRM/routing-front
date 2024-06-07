@@ -14,8 +14,4 @@ COPY . .
 
 RUN npm run build
 
-FROM registry.access.redhat.com/ubi9/nginx-124 as run-stage
-
-COPY --from=build-stage /src/build /usr/share/nginx/html
-
-CMD nginx -g "daemon off;"
+CMD npx serve -s build -l 80
