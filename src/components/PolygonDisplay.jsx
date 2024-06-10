@@ -22,14 +22,22 @@ const PolygonDisplay = ({ type, geometry, properties }) => {
        }
 
         //const { editMode, post } = this.state;
+        //console.log("publicurl",process.env.PUBLIC_URL)
         return (
           <div className="polygon">
             <h2>{properties.name}</h2>
             <p>{properties.type}</p>
-            <button onClick={toggleExpansion}>
+            {properties.type === 'traffic' && <p>{properties.severity}</p>}
+            <button onClick={toggleExpansion} className="clickable-icon">
               {isExpanded ? "Hide" : "Show"} Coordinates
             </button>
-            <img src="/trash.png" alt="Delete" onClick={HandleDelete} className="Delete icon" style={{height: '30px', width: '30px'}} />
+            <img 
+            src={`${process.env.PUBLIC_URL}/trash.png`} 
+            alt="Delete" 
+            onClick={HandleDelete} 
+            className="clickable-icon" 
+            style={{ height: '30px', width: '30px', marginLeft: '10px', marginTop: '10px' }} 
+          />
             {isExpanded && (
               <ul>
                 {geometry.coordinates[0].map((cord, index) => (

@@ -9,8 +9,8 @@ const Header = props => {
       
       <div className="image-container">
       
-        <img src="/add.png" alt="Add" onClick={props.onClickA} className="menu-iconone" />
-        <img src="/menu.png" alt="List" onClick={props.onClickP} className="menu-icontwo" />
+        <img src={`${process.env.PUBLIC_URL}/add.png`} alt="Add" onClick={props.onClickA} className="menu-iconone" />
+        <img src={`${process.env.PUBLIC_URL}/menu.png`} alt="List" onClick={props.onClickP} className="menu-icontwo" />
       </div>
     </header>
   );

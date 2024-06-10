@@ -8,13 +8,13 @@ function PolygonList({editMode, setEditMode}) {
   const polygons = useSelector((state) => state.polygons);
   const modifiedPolygons = useSelector((state) => state.modifiedPolygons);
 
-  console.log(modifiedPolygons);
+  //console.log(modifiedPolygons);
   return (
     <div>
       {editMode && modifiedPolygons.polygons!={} ? (
         
-        Object.values(modifiedPolygons.polygons).map((polygon, index) => (
-          console.log("polygon",polygon),
+        Object.values(modifiedPolygons.polygons).reverse().map((polygon, index) => (
+          //console.log("polygon",polygon),
           <ModifiedPolygonDisplay key={polygon.properties.id} {...polygon} />
         ))
       ) : (

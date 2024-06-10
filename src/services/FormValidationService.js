@@ -16,5 +16,7 @@ export const validateName = (name) => {
   };
   
   export const validateSeverity = (severity) => {
-    return ['mild', 'average', 'severe'].includes(severity);
+    //const regex = /^[+-](?!0\b)\d+(km\/h|%)$/;
+    const regex = /^(?!0\b)\d+$/;
+    return regex.test(severity);
   };

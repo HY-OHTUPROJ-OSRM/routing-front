@@ -10,11 +10,11 @@ import { fetchRouteLine, setStartPosition, setEndPosition } from '../features/ro
 import { useDispatch, useSelector } from 'react-redux';
 import 'leaflet-editable';
 import ReactLeafletEditable from 'react-leaflet-editable';
-import { setModifiedPolygons, addPolygon, modifyPolygon } from '../features/polygons/modifiedPolygonsSlice';
+import { setModifiedPolygons, addPolygon, modifyPolygon, setFaults } from '../features/polygons/modifiedPolygonsSlice';
 import { v4 as uuidv4 } from 'uuid';
 import { ChangePolygons } from '../services/PolygonService';
 import { fetchPolygons } from '../features/polygons/polygonsSlice';
-
+import "./Polygon.css"
 function Map_Displayer({editMode, setEditMode}) {
     const dispatch = useDispatch()
     const initialState = {
@@ -23,6 +23,7 @@ function Map_Displayer({editMode, setEditMode}) {
         zoom: 15
     };
     const routedata = useSelector((state) => state.routeLine.routeLine);
+    const cansave =useSelector((state) => state.modifiedPolygons.faultval)
     const position = [initialState.lat, initialState.long];
     const [editing, setEditing] = useState(false)
     const polygons = useSelector((state) => state.polygons)
@@ -159,6 +160,7 @@ function Map_Displayer({editMode, setEditMode}) {
     }
 
     const cancelEdits = () => {
+        dispatch(setFaults({id: 0, type: 2}))
         setEditing(false)
         setEditMode(false)
         editRef.current.props.map.editTools.stopDrawing()
@@ -178,6 +180,7 @@ function Map_Displayer({editMode, setEditMode}) {
     }
 
     const onCancelDrawing = (e) => {
+        
         e.layer.remove()
     }
 
@@ -259,11 +262,20 @@ function Map_Displayer({editMode, setEditMode}) {
                     onClick={enableEditMode}
                     className="edit-button"
                 >Edit</button>
+                {cansave !== 0 && (
+                    <div className="alert-message">
+                        Some changes are forbidden
+                    </div>
+                )}
+
                 <button
                     hidden={!editing}
+                    disabled={cansave !== 0}
                     onClick={saveEdits}
                     className="edit-button"
-                >Save</button>
+                >
+                    Save
+                </button>
                 <button
                     hidden={!editing}
                     onClick={cancelEdits}

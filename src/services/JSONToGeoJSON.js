@@ -9,7 +9,8 @@ function convertToGeoJSON(dataList) {
             properties: {
                 name: data.name,
                 type: data.type,
-                id: data.id
+                id: data.id,
+                speed_effect: data.severity
             },
             geometry: {
                 type: "Polygon",

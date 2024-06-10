@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Polygon.css"; // Import the CSS file
 import { useDispatch } from "react-redux";
-import { modifyPolygon } from "../features/polygons/modifiedPolygonsSlice";
-
+import { modifyPolygon, setFaults } from "../features/polygons/modifiedPolygonsSlice";
+import { validateName, validateType, validateSeverity } from "../services/FormValidationService"; // Import the validation functions
+import { convertToGeoJSON } from "../services/JSONToGeoJSON";
+import { UpdatePolygon } from "../services/PolygonService";
 const ModifiedPolygonDisplay = (p) => {
   const dispatch = useDispatch();
+  const [hasChanged, sethasChanged] = useState(false)
   const [formData, setFormData] = useState({
     name: p.properties.name,
     type: p.properties.type,
@@ -12,7 +15,38 @@ const ModifiedPolygonDisplay = (p) => {
       lat: cord[1],
       long: cord[0],
     })),
+    severity: p.properties.severity || '', // Add severity to formData
   });
+
+  const [errors, setErrors] = useState({});
+
+  const validateField = (name, value) => {
+    sethasChanged(true)
+    let errorMsg = '';
+    if (name === 'name' && !validateName(value)) {
+      errorMsg = 'Name must be 3-30 characters long and contain only letters or numbers.';
+    } else if (name === 'type' && !validateType(value)) {
+      errorMsg = 'Type must be either "roadblock" or "traffic".';
+    } else if (name === 'severity' && !validateSeverity(value)) {
+      errorMsg = 'Severity must be a valid speed effect (e.g., +10km/h or -10%).';
+    }
+
+    let newErrors = { ...errors };
+    if (errorMsg) {
+      newErrors[name] = errorMsg;
+    } else {
+      delete newErrors[name];
+    }
+    console.log("newErrors", newErrors);
+    if (Object.keys(newErrors).length === 0){
+      console.log("deleteFaults")
+      dispatch(setFaults({id: p.properties.id, type: 0}));
+    } else {
+      console.log("setFaults")
+      dispatch(setFaults({id: p.properties.id, type: 1}));
+    }
+    setErrors(newErrors);
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -27,11 +61,34 @@ const ModifiedPolygonDisplay = (p) => {
         [name]: value
       }
     };
-
-    console.log("modified p", updatedPolygon);
+    validateField(name, value);
+    console.log("modified p", updatedPolygon, errors);
     // Dispatch the updated p
-    dispatch(modifyPolygon(updatedPolygon));
+    //if (!errors.name && !errors.type && !errors.severity) {
+    //  console.log("dispatching", errors);
+    //dispatch(modifyPolygon(formData));
+    //}
   };
+
+  useEffect(() => {
+    console.log("useEffect", errors);
+    if (!errors.name && !errors.type && !errors.severity && hasChanged) {
+      const updatedPolygon = {
+        ...p,
+        properties: {
+          ...p.properties,
+          name: formData.name,
+          type: formData.type,
+          severity: formData.severity,
+        },
+      };
+
+      if (!errors.name && !errors.type && !errors.severity) {
+        console.log("dispatching", updatedPolygon);
+        dispatch(modifyPolygon(updatedPolygon));
+      }
+    }
+  }, [errors]);
 
   return (
     <div className="polygon">
@@ -45,7 +102,9 @@ const ModifiedPolygonDisplay = (p) => {
             name="name"
             value={formData.name}
             onChange={handleInputChange}
+            className={errors.name ? 'input-error' : ''}
           />
+          {errors.name && <span className="error">{errors.name}</span>}
         </div>
         <div className="form-group">
           <label htmlFor="type">Type:</label>
@@ -54,21 +113,25 @@ const ModifiedPolygonDisplay = (p) => {
             name="type"
             value={formData.type}
             onChange={handleInputChange}
+            className={errors.type ? 'input-error' : ''}
           >
             <option value="roadblock">Roadblock</option>
             <option value="traffic">Traffic</option>
           </select>
+          {errors.type && <span className="error">{errors.type}</span>}
         </div>
         {formData.type === 'traffic' && (
           <div className="form-group">
-            <label htmlFor="severity">Severity:</label>
+            <label htmlFor="severity">Speed effect:</label>
             <input
               type="text"
               id="severity"
               name="severity"
-              value={formData.traffic_multiplier}
+              value={formData.severity}
               onChange={handleInputChange}
+              className={errors.severity ? 'input-error' : ''}
             />
+            {errors.severity && <span className="error">{errors.severity}</span>}
           </div>
         )}
       </form>

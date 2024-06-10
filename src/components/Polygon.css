@@ -17,3 +17,12 @@
   .polygon li {
     margin-bottom: 5px;
   }
+
+  .clickable-icon {
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  
+  .clickable-icon:hover {
+    transform: scale(1.1);
+  }
