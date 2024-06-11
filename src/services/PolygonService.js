@@ -29,6 +29,31 @@ const getPolygons = async () => {
   }
 };
 
+const getSegments = async () => {
+  
+  const alertId = `loading-${Date.now()}`;
+  try {
+    showTimedAlert({ text: 'Loading segments...', variant: 'info', id: alertId });
+    const response = await ins({
+      url: 'segments',
+      method: "get",
+      headers: { "content-type": "application/json" },
+    });
+    clearTimedAlert(alertId);
+    if (response.data.features === null) {
+      return []
+    }
+
+    console.log(response.data);
+    return response.data;
+    //return convertToJSON(response.data);
+  } catch (error) {
+    clearTimedAlert(alertId);
+    handleAxiosError(error);
+    return [];
+  }
+};
+
 const UpdatePolygon = async (object) => {
   try {
     const response = await ins({
@@ -110,4 +135,4 @@ const DeletePolygon = async (id) => {
 };
 
 
-export { getPolygons, CreatePolygon, DeletePolygon, UpdatePolygon, ChangePolygons };
+export { getPolygons, CreatePolygon, DeletePolygon, UpdatePolygon, ChangePolygons, getSegments };

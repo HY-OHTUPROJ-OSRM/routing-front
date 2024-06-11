@@ -26,3 +26,16 @@
   .clickable-icon:hover {
     transform: scale(1.1);
   }
+
+  .error {
+    color: red;
+  }
+
+
+.polygon-error {
+  border: 2px solid red;
+}
+
+.input-error {
+  border-color: red;
+}

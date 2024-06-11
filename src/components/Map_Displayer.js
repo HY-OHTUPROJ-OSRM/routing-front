@@ -23,10 +23,12 @@ function Map_Displayer({editMode, setEditMode}) {
         zoom: 15
     };
     const routedata = useSelector((state) => state.routeLine.routeLine);
+    const calcelEditIds = useSelector((state) => state.modifiedPolygons.cancelSendIds);
     const cansave =useSelector((state) => state.modifiedPolygons.faultval)
     const position = [initialState.lat, initialState.long];
     const [editing, setEditing] = useState(false)
     const polygons = useSelector((state) => state.polygons)
+    const segments = useSelector((state) => state.segments)
     const modifiedPolygons = useSelector((state) => state.modifiedPolygons.polygons)
     const sendIds = useSelector((state) => state.modifiedPolygons.sendIds)
     const deleteIds = useSelector((state) => state.modifiedPolygons.deleteIds)
@@ -59,6 +61,7 @@ function Map_Displayer({editMode, setEditMode}) {
 
     const onMarkerDragEnd = (e, type) => {
         const { lat, lng } = e.target.getLatLng();
+        console.log("segments", segments);
         if (type === 'start') {
 
             startposition={ lat:lat, long:lng };
@@ -160,6 +163,7 @@ function Map_Displayer({editMode, setEditMode}) {
     }
 
     const cancelEdits = () => {
+        //remove all tracked faults as data resets on cancel
         dispatch(setFaults({id: 0, type: 2}))
         setEditing(false)
         setEditMode(false)
@@ -185,9 +189,13 @@ function Map_Displayer({editMode, setEditMode}) {
     }
 
     const saveEdits = async () => {
+        console.log(calcelEditIds)
         setEditMode(false)
         setEditing(false)
-        const added = Object.values(modifiedPolygons).filter(zone => Object.keys(sendIds).includes(String(zone.properties.id)))
+        const added = Object.values(modifiedPolygons).filter(zone => 
+            Object.keys(sendIds).includes(String(zone.properties.id)) &&
+            !Object.keys(calcelEditIds).includes(String(zone.properties.id))
+        );
         await ChangePolygons(added, Object.keys(deleteIds))
         dispatch(fetchPolygons())
         dispatch(fetchRouteLine())
@@ -292,6 +300,14 @@ function Map_Displayer({editMode, setEditMode}) {
             color: route.color, 
             zIndex: route.color === 'blue' ? 1000 : undefined
           }}  />
+            ))}
+            {segments.map((segment, index) => (
+                
+                <Polyline
+                key={index}
+                positions={segment.map(point => [point.lat, point.lon])}
+                color="red"
+                />
             ))}
             {editing 
             ?

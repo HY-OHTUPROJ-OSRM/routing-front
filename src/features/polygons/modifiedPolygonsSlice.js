@@ -6,6 +6,7 @@ export const modifiedPolygonsSlice = createSlice({
         polygons: {},
         sendIds: {}, // using boolean maps instead of sets because createSlice doesn't work with them
         deleteIds: {},
+        cancelSendIds: {"-1": true},
         faults: {},
         faultval: 0
     },
@@ -33,7 +34,7 @@ export const modifiedPolygonsSlice = createSlice({
         // type 0 when fixed type 1 if wrong
         setFaults: (state, action) => {
             const { id, type } = action.payload;
-            console.log("debug", id, type, state.faults, state.faultval);
+            //console.log("debug", id, type, state.faults, state.faultval);
             
             if (type === 2) {
                 state.faults = {};
@@ -48,11 +49,22 @@ export const modifiedPolygonsSlice = createSlice({
                 }
             }
             
-            console.log(state.faultval);
+            //console.log(state.faultval);
+        },
+        setCanceledits: (state, action) => {
+            //const ot change if to be cancelled from possible edit or added back to possible edits
+            const {id, add} = action.payload
+            if (add){
+                state.cancelSendIds[id]=true
+            } else{
+                delete state.cancelSendIds[id]
+            }
+            console.log(Object.keys(state.cancelSendIds).length)
+
         }
     }
 })
 
-export const { setModifiedPolygons, addPolygon, modifyPolygon, setFaults } = modifiedPolygonsSlice.actions
+export const { setModifiedPolygons, addPolygon, modifyPolygon, setFaults, setCanceledits } = modifiedPolygonsSlice.actions
 
 export default modifiedPolygonsSlice.reducer
