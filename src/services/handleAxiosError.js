@@ -2,11 +2,12 @@ import { showTimedAlert, RefetchPolygons } from '../Utils/dispatchUtility';
 
 const handleAxiosError = (error) => {
     if (error.response) {
-      console.log(error.response)
+      //console.log(error.response)
         if (error.message===undefined){
             showTimedAlert({ text: "An unspecified error occured", variant: 'failure' });
         } else {
-            showTimedAlert({ text: error.message, variant: 'failure' });
+          //console.log(error)
+            showTimedAlert({ text: error.response.data.message, variant: 'failure' });
         }
     } else if (error.request) {
       console.log('no connection');

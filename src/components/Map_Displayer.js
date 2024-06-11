@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ChangePolygons } from '../services/PolygonService';
 import { fetchPolygons } from '../features/polygons/polygonsSlice';
 import "./Polygon.css"
+import { generateName } from '../services/nameGiverService';
 function Map_Displayer({editMode, setEditMode}) {
     const dispatch = useDispatch()
     const initialState = {
@@ -174,7 +175,7 @@ function Map_Displayer({editMode, setEditMode}) {
         const geoJSON = shape.layer.toGeoJSON()
 
         geoJSON.properties = {
-            name: window.prompt("Enter zone name:") || "Zone",
+            name: generateName(),
             type: "roadblock",
             id: uuidv4()
         }
@@ -189,13 +190,16 @@ function Map_Displayer({editMode, setEditMode}) {
     }
 
     const saveEdits = async () => {
-        console.log(calcelEditIds)
+        console.log("canceledit", calcelEditIds)
+        console.log(modifiedPolygons)
+        console.log(deleteIds)
         setEditMode(false)
         setEditing(false)
         const added = Object.values(modifiedPolygons).filter(zone => 
             Object.keys(sendIds).includes(String(zone.properties.id)) &&
             !Object.keys(calcelEditIds).includes(String(zone.properties.id))
         );
+        console.log(added)
         await ChangePolygons(added, Object.keys(deleteIds))
         dispatch(fetchPolygons())
         dispatch(fetchRouteLine())

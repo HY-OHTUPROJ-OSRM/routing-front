@@ -4,7 +4,7 @@ import ModifiedPolygonDisplay from "./ModifiedPolygonDisplay";
 import { useSelector } from 'react-redux';
 
 function PolygonList({editMode, setEditMode}) {
-  console.log("PolygonList editMode", editMode)
+  //console.log("PolygonList editMode", editMode)
   const polygons = useSelector((state) => state.polygons);
   const modifiedPolygons = useSelector((state) => state.modifiedPolygons);
 

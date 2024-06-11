@@ -56,8 +56,10 @@ export const modifiedPolygonsSlice = createSlice({
             const {id, add} = action.payload
             if (add){
                 state.cancelSendIds[id]=true
+                state.deleteIds[id]=true    
             } else{
                 delete state.cancelSendIds[id]
+                delete state.deleteIds[id]  
             }
             console.log(Object.keys(state.cancelSendIds).length)
 

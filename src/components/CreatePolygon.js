@@ -8,11 +8,12 @@ import { useDispatch } from 'react-redux';
 import { fetchPolygons } from '../features/polygons/polygonsSlice';
 import { convertToGeoJSON } from '../services/JSONToGeoJSON';
 import { fetchRouteLine } from '../features/routes/routeSlice';
+import { generateName } from '../services/nameGiverService';
 //Form for creating polygons. Can receive coordinates from the map component when user draws a new polygon.
 function CreatePolygons() {
   const dispatch = useDispatch()
   const [formData, setFormData] = useState({
-    name: '',
+    name: generateName(),
     type: 'roadblock',
     severity: '30',
     coordinates: [{ lat: '', long: '' }]
@@ -40,9 +41,9 @@ function CreatePolygons() {
     if (validateForm()) {
       const copy= {...formData};
       setFormData({
-        name: '',
+        name: generateName(),
         type: 'roadblock',
-        severity: '',
+        severity: '10',
         coordinates: [{ lat: '', long: '' }]
       });
       

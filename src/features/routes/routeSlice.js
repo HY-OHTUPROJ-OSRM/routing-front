@@ -28,7 +28,7 @@ export const fetchRouteLine = (coords) => {
     const state = getState();
     const startPosition = state.routeLine.startPosition;
     const endPosition = state.routeLine.endPosition;
-    console.log("fetchingRouteLine", startPosition, endPosition, coords);
+    //console.log("fetchingRouteLine", startPosition, endPosition, coords);
     if (!coords && startPosition!==null && endPosition!==null) {
       coords = [startPosition, endPosition];
     }
@@ -36,7 +36,7 @@ export const fetchRouteLine = (coords) => {
     if (coords) {
         console.log("coords", coords);
       const routeLine = await getRoute(coords);
-      console.log("routeLine", routeLine);
+      //console.log("routeLine", routeLine);
       dispatch(setRouteLine(routeLine));
     } else {
       console.error("No coordinates provided and no start/end positions set");

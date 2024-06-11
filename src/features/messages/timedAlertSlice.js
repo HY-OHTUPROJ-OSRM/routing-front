@@ -17,11 +17,11 @@ export const { addTimedAlert, removeTimedAlert } = timedAlertSlice.actions;
 
 export const triggerTimedAlert = (msg) => (dispatch) => {
     const id = msg.id || new Date().getTime();
-    console.log(msg.id, id)
+    //console.log(msg.id, id)
     const timeout = msg.id===undefined ? 3000 : 1000000;
-    console.log(msg.id, id, timeout)
+    //console.log(msg.id, id, timeout)
     msg.timeout = timeout;
-    console.log(msg)
+    //console.log(msg)
     dispatch(addTimedAlert({ ...msg, id }));
     setTimeout(() => dispatch(removeTimedAlert(id)), timeout);
 };

@@ -68,7 +68,7 @@ const ModifiedPolygonDisplay = (p) => {
   };
 
   useEffect(() => {
-    console.log("useEffect", errors);
+    //console.log("useEffect", errors);
     if (!errors.name && !errors.type && !errors.severity && hasChanged) {
       const updatedPolygon = {
         ...p,
