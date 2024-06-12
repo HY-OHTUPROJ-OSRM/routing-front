@@ -309,9 +309,15 @@ function Map_Displayer({editMode, setEditMode}) {
                 
                 <Polyline
                 key={index}
+                id={segment.id}
                 positions={segment.map(point => [point.lat, point.lon])}
                 color="red"
-                />
+                >
+                <Tooltip>
+                {"ids: " + segment.map(point => point.id).join(' ') + 
+                " difference: " + Math.abs(segment[0].id - segment[1].id)}
+                </Tooltip>
+                </Polyline>
             ))}
             {editing 
             ?
