@@ -33,7 +33,7 @@ const fetchroute = async () => {
         });
     });
     
-    console.log(routes);
+    //console.log(routes);
     return routes;
 }
 

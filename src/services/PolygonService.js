@@ -4,6 +4,7 @@ import { showTimedAlert, clearTimedAlert } from '../Utils/dispatchUtility';
 import handleAxiosError from './handleAxiosError';
 import { fetchRouteLine } from '../features/routes/routeSlice';
 import { useDispatch } from 'react-redux';
+import { polylineToPolygon } from './LineToPolygon';
 const getPolygons = async () => {
   
   const alertId = `loading-${Date.now()}`;
@@ -19,8 +20,33 @@ const getPolygons = async () => {
       return []
     }
 
-    console.log(response.data.features);
+    //console.log(response.data.features);
     return response.data.features;
+    //return convertToJSON(response.data);
+  } catch (error) {
+    clearTimedAlert(alertId);
+    handleAxiosError(error);
+    return [];
+  }
+};
+
+const getSegments = async () => {
+  
+  const alertId = `loading-${Date.now()}`;
+  try {
+    showTimedAlert({ text: 'Loading segments...', variant: 'info', id: alertId });
+    const response = await ins({
+      url: 'segments',
+      method: "get",
+      headers: { "content-type": "application/json" },
+    });
+    clearTimedAlert(alertId);
+    if (response.data.features === null) {
+      return []
+    }
+
+    console.log(response.data);
+    return response.data;
     //return convertToJSON(response.data);
   } catch (error) {
     clearTimedAlert(alertId);
@@ -45,7 +71,8 @@ const UpdatePolygon = async (object) => {
 
 const CreatePolygon = async (object) => {
   console.log(object);
-  
+  const alertId = `loading-${Date.now()}`;
+  showTimedAlert({ text: 'Adding polygon...', variant: 'info', id: alertId });
   try {
     //const GEOJSON= convertToGeoJSON(object);
     const GEOJSON=object
@@ -57,6 +84,7 @@ const CreatePolygon = async (object) => {
       headers: { "content-type": "application/json" },
     });
     console.log(response.data);
+    clearTimedAlert(alertId)
     if (response.status === 201) {
       showTimedAlert({ text: 'Polygon created successfully', variant: 'success' });
       return response.data;
@@ -64,6 +92,7 @@ const CreatePolygon = async (object) => {
     showTimedAlert({ text: 'something unexpected happened', variant: 'failure' });
     
   } catch (error) {
+    clearTimedAlert(alertId)
     handleAxiosError(error);
   }
 };
@@ -71,8 +100,20 @@ const CreatePolygon = async (object) => {
 const ChangePolygons = async (added, deleted) => {
   const alertId = `loading-${Date.now()}`;
   showTimedAlert({ text: 'Updating roads...', variant: 'info', id: alertId });
+
+  // Function to convert polyline to polygon if IsLine is 1
+  const convertIfNeeded = (polygon) => {
+    if (polygon.properties && polygon.properties.IsLine === 1) {
+      return polylineToPolygon(polygon, 0.001); // Use desired width
+    }
+    return polygon;
+  };
+
   try {
-    const data = {added, deleted}
+    // Convert polygons if needed
+    const convertedAdded = added.map(convertIfNeeded);
+
+    const data = { added: convertedAdded, deleted };
 
     await ins({
       url: 'zones/diff',
@@ -81,26 +122,31 @@ const ChangePolygons = async (added, deleted) => {
       headers: { "content-type": "application/json" },
     });
   } catch (error) {
-    handleAxiosError(error)
+    handleAxiosError(error);
   }
-  clearTimedAlert(alertId)
-}
+
+  clearTimedAlert(alertId);
+  showTimedAlert({ text: 'Polygons updated successfully', variant: 'success' });
+};
 
 const DeletePolygon = async (id) => {
-  
+  const alertId = `loading-${Date.now()}`;
+  showTimedAlert({ text: 'Deleting polygon...', variant: 'info', id: alertId });
   try {
     const response = await ins({
       url: `zones/${id}`,
       method: "delete",
       headers: { "content-type": "application/json" },
     });
+    clearTimedAlert(alertId)
     showTimedAlert({ text: 'Polygon deleted successfully', variant: 'success' });
     
     return response;
   } catch (error) {
+    clearTimedAlert(alertId)
     handleAxiosError(error);
   }
 };
 
 
-export { getPolygons, CreatePolygon, DeletePolygon, UpdatePolygon, ChangePolygons };
+export { getPolygons, CreatePolygon, DeletePolygon, UpdatePolygon, ChangePolygons, getSegments };

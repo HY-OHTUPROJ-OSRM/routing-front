@@ -2,11 +2,13 @@ import React, { useState, useContext, useEffect } from 'react';
 import './RouteField.css';
 import { validateCoordinate } from '../services/FormValidationService';
 import { RouteContext } from './CoordinatesContext';
-import {getRoute} from '../services/RouteService';
+import { getRoute } from '../services/RouteService';
 import { useDispatch } from 'react-redux';
 import { fetchRouteLine } from '../features/routes/routeSlice';
+import { fetchSegments } from '../features/segments/segmentSlice';
+
 function Routing_form() {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     coordinates: [
       { lat: '', long: '', name: 'Starting Position' },
@@ -17,8 +19,7 @@ function Routing_form() {
   const { route, setRoute } = useContext(RouteContext);
 
   useEffect(() => {
-    //console.log(route)
-    if (route && route.length === 2 && route[1]!==null && route[0]!==null) {
+    if (route && route.length === 2 && route[1] !== null && route[0] !== null) {
       setFormData({
         coordinates: [
           { lat: route[0].lat, long: route[0].long, name: 'Starting Position' },
@@ -27,7 +28,6 @@ function Routing_form() {
       });
     }
   }, [route]);
-
 
   const handleChange = (index, e) => {
     const { name, value } = e.target;
@@ -45,13 +45,18 @@ function Routing_form() {
       dispatch(fetchRouteLine(formData.coordinates));
       setFormData({
         coordinates: [
-            { lat: '', long: '', name: 'Starting Position' },
-            { lat: '', long: '', name: 'Destination' }
+          { lat: '', long: '', name: 'Starting Position' },
+          { lat: '', long: '', name: 'Destination' }
         ]
       });
       setErrors({});
       setRoute([]);
     }
+  };
+
+  const handleGetBlockedSegments = () => {
+    console.log('Get Blocked Segments button clicked');
+    dispatch(fetchSegments());
   };
 
   const validateField = (name, value, index) => {
@@ -89,18 +94,14 @@ function Routing_form() {
   };
 
   const can_click = () => {
-    //console.log("can_click");
     for (let i = 0; i < formData.coordinates.length; i++) {
       const coordinate = formData.coordinates[i];
       if (!validateCoordinate(coordinate.lat) || !validateCoordinate(coordinate.long)) {
         return 0;
       }
     }
-    
-    //console.log('now can click');
     return 1;
   };
-
 
   return (
     <div className="new-component">
@@ -137,6 +138,9 @@ function Routing_form() {
           Route
         </button>
       </form>
+      <button onClick={handleGetBlockedSegments}>
+        Get Blocked Segments
+      </button>
     </div>
   );
 }

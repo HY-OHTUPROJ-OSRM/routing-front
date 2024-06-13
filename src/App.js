@@ -50,13 +50,13 @@ function App() {
           <TimedAlert />
           <Header onClickP={toggleSidebarp} onClickA={toggleSidebara} className="App-header" />
           
-          <SideBar isOpen={sidebarOpenP} toggleSidebar={setSidebarOpenP} ediMode={editMode} setEditMode={setEditMode}/>
+          <SideBar isOpen={sidebarOpenP} toggleSidebar={setSidebarOpenP} editMode={editMode} setEditMode={setEditMode}/>
           <CopeSideBar isOpen={sidebarOpenA} toggleSidebar={setSidebarOpenA} />
         </span>
         
       </div>
       <div className="box" style={{zIndex: "0"}}>
-        <Map_displayer ediMode={editMode} setEditMode={setEditMode}/>
+        <Map_displayer editMode={editMode} setEditMode={setEditMode}/>
         
       </div>
       <Routing_form/>

@@ -6,7 +6,7 @@ const SideBar = props => {
   const componentToDisplay=props.toBeDisplayed;
   return (
     <div className={sidebarClass} style={{overflow: "auto"}}>
-      <PolygonList ediMode={props.editMode} setEditMode={props.setEditMode} />
+      <PolygonList editMode={props.editMode} setEditMode={props.setEditMode} />
     </div>
   );
 };

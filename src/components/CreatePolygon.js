@@ -8,12 +8,14 @@ import { useDispatch } from 'react-redux';
 import { fetchPolygons } from '../features/polygons/polygonsSlice';
 import { convertToGeoJSON } from '../services/JSONToGeoJSON';
 import { fetchRouteLine } from '../features/routes/routeSlice';
+import { generateName } from '../services/nameGiverService';
+//Form for creating polygons. Can receive coordinates from the map component when user draws a new polygon.
 function CreatePolygons() {
   const dispatch = useDispatch()
   const [formData, setFormData] = useState({
-    name: '',
+    name: generateName(),
     type: 'roadblock',
-    severity: 'mild',
+    severity: '30',
     coordinates: [{ lat: '', long: '' }]
   });
   const [errors, setErrors] = useState({});
@@ -37,13 +39,15 @@ function CreatePolygons() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      await CreatePolygon(convertToGeoJSON(formData)); // set to CreatePolygon on backend connection
+      const copy= {...formData};
       setFormData({
-        name: '',
+        name: generateName(),
         type: 'roadblock',
-        severity: 'mild',
+        severity: '10',
         coordinates: [{ lat: '', long: '' }]
       });
+      
+      await CreatePolygon(convertToGeoJSON(copy)); // set to CreatePolygon on backend connection
       setErrors({});
       dispatch(fetchPolygons())
       dispatch(fetchRouteLine())
@@ -59,7 +63,8 @@ function CreatePolygons() {
     } else if ((name === 'lat' || name === 'long') && !validateCoordinate(value)) {
       errorMsg = 'Coordinates must be a number between 0 and 90.';
     } else if (name === 'severity' && !validateSeverity(value)) {
-      errorMsg = 'Severity must be one of "mild", "average", or "severe".';
+      //errorMsg = 'Severity must be of form +/- with wholenumber and end with km/h or %, e.g. +10km/h or -10%.';
+      errorMsg = 'Speed must be a whole number. (km/h)';
     }
     
     let newErrors = { ...errors };
@@ -111,7 +116,7 @@ function CreatePolygons() {
       }
     });
     if (formData.type === 'traffic' && !validateSeverity(formData.severity)) {
-      newErrors.severity = 'Severity must be one of "mild", "average", or "severe".';
+      newErrors.severity = /*'Severity must be of form +/- with wholenumber and end with km/h or %, e.g. +10km/h or -10%.'*/'Speed must be a whole number. (km/h)';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -124,6 +129,9 @@ function CreatePolygons() {
       return 0;
     }
     if (!validateType(formData.type)) {
+      return 0;
+    }
+    if (!validateSeverity(formData.severity)) { 
       return 0;
     }
   
@@ -178,14 +186,15 @@ function CreatePolygons() {
             className={errors.type ? 'input-error' : ''}
           >
             <option value="roadblock">Roadblock</option>
-            <option value="traffic">Traffic</option>
+            <option value="traffic">custom speed</option>
           </select>
           {errors.type && <span className="error">{errors.type}</span>}
         </div>
         {formData.type === 'traffic' && (
           <div className="form-group">
-            <label htmlFor="severity">Severity:</label>
-            <select
+            <label htmlFor="severity">speed effect:</label>
+            <input
+              type="text"
               id="severity"
               name="severity"
               value={formData.severity}
@@ -194,11 +203,9 @@ function CreatePolygons() {
                 validateField('severity', e.target.value);
               }}
               className={errors.severity ? 'input-error' : ''}
-            >
-              <option value="mild">Mild</option>
-              <option value="average">Average</option>
-              <option value="severe">Severe</option>
-            </select>
+            
+              
+            />
             {errors.severity && <span className="error">{errors.severity}</span>}
           </div>
         )}
