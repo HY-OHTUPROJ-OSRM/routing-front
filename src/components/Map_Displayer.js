@@ -16,6 +16,8 @@ import { ChangePolygons } from '../services/PolygonService';
 import { fetchPolygons } from '../features/polygons/polygonsSlice';
 import "./Polygon.css"
 import { generateName } from '../services/nameGiverService';
+import { showTimedAlert } from '../Utils/dispatchUtility';
+import * as turf from '@turf/turf';
 function Map_Displayer({editMode, setEditMode}) {
     const dispatch = useDispatch()
     const initialState = {
@@ -179,6 +181,25 @@ function Map_Displayer({editMode, setEditMode}) {
         editRef.current.props.map.editTools.stopDrawing()
     }
 
+    const intersectSelf = (geometry) => {
+        let turfGeometry;
+      
+        // Check if the geometry is a Polygon or a LineString
+        if (geometry.type === 'Polygon') {
+          turfGeometry = turf.polygon(geometry.coordinates);
+        } else if (geometry.type === 'LineString') {
+          turfGeometry = turf.lineString(geometry.coordinates);
+        } else {
+        showTimedAlert({ text: 'Geometry must be a Polygon or LineString', variant: 'failure' });
+        }
+      
+        // Use turf.kinks to check for self-intersections
+        const kinks = turf.kinks(turfGeometry);
+      
+        // Return 1 if it intersects itself, 0 otherwise
+        return kinks.features.length > 0 ? 1 : 0;
+      };
+
     const onDrawingCommit = (shape) => {
         const geoJSON = shape.layer.toGeoJSON()
         console.log("shape", shape)
@@ -192,7 +213,11 @@ function Map_Displayer({editMode, setEditMode}) {
             console.log("line", geoJSON)
         }
         shape.layer.remove()
-        dispatch(addPolygon(geoJSON))
+        if (!intersectSelf(geoJSON.geometry)) {
+            dispatch(addPolygon(geoJSON))
+        }else{
+            showTimedAlert({ text: 'Zone cannot intersect itself', variant: 'failure' });
+        }
         //console.log(modifiedPolygons)
     }
 
