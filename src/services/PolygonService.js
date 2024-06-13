@@ -4,7 +4,8 @@ import { showTimedAlert, clearTimedAlert } from '../Utils/dispatchUtility';
 import handleAxiosError from './handleAxiosError';
 import { fetchRouteLine } from '../features/routes/routeSlice';
 import { useDispatch } from 'react-redux';
-import { polylineToPolygon } from './LineToPolygon';
+import { createNarrowPolygon, PolygonToLine } from './LineToPolygon';
+
 const getPolygons = async () => {
   
   const alertId = `loading-${Date.now()}`;
@@ -21,7 +22,17 @@ const getPolygons = async () => {
     }
 
     //console.log(response.data.features);
-    return response.data.features;
+    const convertIfNeeded = (polygon) => {
+      if (polygon.properties && polygon.properties.IsLine === 1) {
+        return PolygonToLine(polygon); // Use desired width
+      }
+      return polygon;
+    };
+  
+    
+      // Convert polygons if needed
+    const convertedfeatures = response.data.features.map(convertIfNeeded);
+    return convertedfeatures;
     //return convertToJSON(response.data);
   } catch (error) {
     clearTimedAlert(alertId);
@@ -104,7 +115,7 @@ const ChangePolygons = async (added, deleted) => {
   // Function to convert polyline to polygon if IsLine is 1
   const convertIfNeeded = (polygon) => {
     if (polygon.properties && polygon.properties.IsLine === 1) {
-      return polylineToPolygon(polygon, 0.001); // Use desired width
+      return createNarrowPolygon(polygon, 10); // Use desired width
     }
     return polygon;
   };
@@ -112,7 +123,7 @@ const ChangePolygons = async (added, deleted) => {
   try {
     // Convert polygons if needed
     const convertedAdded = added.map(convertIfNeeded);
-
+    console.log(convertedAdded)
     const data = { added: convertedAdded, deleted };
 
     await ins({
@@ -121,12 +132,15 @@ const ChangePolygons = async (added, deleted) => {
       data,
       headers: { "content-type": "application/json" },
     });
+    clearTimedAlert(alertId);
+    showTimedAlert({ text: 'Polygons updated successfully', variant: 'success' });
   } catch (error) {
+    clearTimedAlert(alertId);
     handleAxiosError(error);
   }
 
-  clearTimedAlert(alertId);
-  showTimedAlert({ text: 'Polygons updated successfully', variant: 'success' });
+  
+  
 };
 
 const DeletePolygon = async (id) => {

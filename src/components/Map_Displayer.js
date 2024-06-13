@@ -339,7 +339,7 @@ function Map_Displayer({editMode, setEditMode}) {
                     onClick={() => ChangeLines()}
                     className="toggle-button"
                 >
-                    Lines
+                    Change to Lines
                 </button>
             ) : (
                 <button
@@ -347,7 +347,7 @@ function Map_Displayer({editMode, setEditMode}) {
                     onClick={() => ChangedrawPolygons()}
                     className="toggle-button"
                 >
-                    Polygons
+                    Change to Polygons
                 </button>
             )}
             </div>
@@ -395,6 +395,8 @@ function Map_Displayer({editMode, setEditMode}) {
                             positions={polygon.geometry.coordinates.map(coord => [coord[1], coord[0]])}
                             color={color}
                             fillOpacity={0.5}
+                            weight={7}
+                            width={7}
                             eventHandlers={{
                                 mouseover: handleMouseOver,
                                 mouseout: handleMouseOut,
