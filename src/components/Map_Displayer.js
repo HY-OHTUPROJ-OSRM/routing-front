@@ -34,6 +34,7 @@ function Map_Displayer({editMode, setEditMode}) {
     const sendIds = useSelector((state) => state.modifiedPolygons.sendIds)
     const deleteIds = useSelector((state) => state.modifiedPolygons.deleteIds)
     const [markerCount, setMarkerCount] = useState(0);
+    const [Lines, setLines] = useState(0);
     const editRef = useRef();
     const mapRef = useRef();
     const zonesRef = useRef(null);
@@ -87,7 +88,9 @@ function Map_Displayer({editMode, setEditMode}) {
 
     const onDrawCreated = async (e) => {
         const { layerType, layer } = e;
-        if (layerType === 'polygon') {
+        console.log("drawcreated", e, layerType, layer)
+        if (layerType === 'polygon' || layerType === 'Linestring') {
+            console.log("jaa")
             const latLngs = layer.getLatLngs()[0].map(latlng => ({ lat: latlng.lat, long: latlng.lng }));
             console.log(latLngs);
             setCoordinates(latLngs);
@@ -160,7 +163,11 @@ function Map_Displayer({editMode, setEditMode}) {
         setEditMode(true)
         console.log("editmode map_disp", editMode)
         dispatch(setModifiedPolygons(polygons))
-        editRef.current.startPolygon()
+        if (Lines) {
+            editRef.current.startPolyline()
+        } else {
+            editRef.current.startPolygon()
+        }
     }
 
     const cancelEdits = () => {
@@ -168,20 +175,25 @@ function Map_Displayer({editMode, setEditMode}) {
         dispatch(setFaults({id: 0, type: 2}))
         setEditing(false)
         setEditMode(false)
+        setLines(0)
         editRef.current.props.map.editTools.stopDrawing()
     }
 
     const onDrawingCommit = (shape) => {
         const geoJSON = shape.layer.toGeoJSON()
-
+        console.log("shape", shape)
         geoJSON.properties = {
             name: generateName(),
+            IsLine: Lines,
             type: "roadblock",
             id: uuidv4()
         }
-
+        if (geoJSON.properties.IsLine){
+            console.log("line", geoJSON)
+        }
         shape.layer.remove()
         dispatch(addPolygon(geoJSON))
+        //console.log(modifiedPolygons)
     }
 
     const onCancelDrawing = (e) => {
@@ -201,23 +213,27 @@ function Map_Displayer({editMode, setEditMode}) {
         );
         console.log(added)
         await ChangePolygons(added, Object.keys(deleteIds))
+        setLines(0)
         dispatch(fetchPolygons())
         dispatch(fetchRouteLine())
         cancelEdits()
     }
 
     const enableLayerEdits = () => {
-        if (editingZonesRef.current != null) {
+        console.log("enabled edit start")
+        if (editingZonesRef.current !== null) {
+            console.log(editingZonesRef.current.getLayers())
             editingZonesRef.current.getLayers().forEach((layer) => {
+                console.log(layer)
                 layer.disableEdit()
                 layer.enableEdit()
                 if (!layer.listens("editable:vertex:dragend")) {
                     layer.on("editable:vertex:dragend", (e) => {
-                        const { name, type, id } = e.layer.options
+                        const { name, type, id, IsLine } = e.layer.options
                         const geoJSON = e.layer.toGeoJSON()
 
                         geoJSON.properties = {
-                            name, type, id
+                            name, type, id, IsLine
                         }
 
                         dispatch(modifyPolygon(geoJSON))
@@ -227,9 +243,14 @@ function Map_Displayer({editMode, setEditMode}) {
         }
         if (editing && editRef.current != null) {
             if (!editRef.current.props.map?.editTools?.drawing()) {
+                if (Lines){
+                    editRef.current.startPolyline()
+                } else {
                 editRef.current.startPolygon()
+                }
             }
         }
+        console.log("enabled edit complete")
     }
 
     useEffect(enableLayerEdits)
@@ -251,6 +272,23 @@ function Map_Displayer({editMode, setEditMode}) {
           layer.bindTooltip(feature.properties.name);
         }
       };
+
+    const ChangeLines= () => {
+        setLines(1)
+        editRef.current.props.map.editTools.stopDrawing()
+        editRef.current.startPolyline()
+    }
+    const ChangedrawPolygons= () => {
+        console.log(Lines)
+        setLines(0)
+        editRef.current.props.map.editTools.stopDrawing()
+        editRef.current.startPolygon()
+ 
+
+    }
+
+
+    
 
     return (
         <ReactLeafletEditable
@@ -293,6 +331,25 @@ function Map_Displayer({editMode, setEditMode}) {
                     onClick={cancelEdits}
                     className="edit-button"
                 >Cancel</button>
+                
+                {Lines === 0 ? (
+                <button
+                    hidden={!editing}
+                    disabled={!editing}
+                    onClick={() => ChangeLines()}
+                    className="toggle-button"
+                >
+                    Lines
+                </button>
+            ) : (
+                <button
+                    hidden={!editing}
+                    onClick={() => ChangedrawPolygons()}
+                    className="toggle-button"
+                >
+                    Polygons
+                </button>
+            )}
             </div>
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -324,7 +381,31 @@ function Map_Displayer({editMode, setEditMode}) {
             <FeatureGroup ref={editingZonesRef}>
                 {(Object.values(modifiedPolygons).map((polygon, index) => {
                     const color = 'orangeRed';
+                    console.log("jepoe", polygon, polygon.geometry.coordinates[0].map(coord => [coord[1], coord[0]]))
+                    if (polygon.properties.IsLine === 1) {
                     return (
+                       
+
+                        <Polyline
+                            key={polygon.properties.id}
+                            id={polygon.properties.id}
+                            name={polygon.properties.name}
+                            type={polygon.properties.type}
+                            IsLine={polygon.properties.IsLine}
+                            positions={polygon.geometry.coordinates.map(coord => [coord[1], coord[0]])}
+                            color={color}
+                            fillOpacity={0.5}
+                            eventHandlers={{
+                                mouseover: handleMouseOver,
+                                mouseout: handleMouseOut,
+                            }}
+                            originalColor={color} // Store original color for mouseout event
+                        >
+                            <Tooltip>{polygon.properties.name}</Tooltip>
+                        </Polyline>
+                    )
+                    } else {
+                        return (
                         <Polygon
                             key={polygon.properties.id}
                             id={polygon.properties.id}
@@ -341,8 +422,12 @@ function Map_Displayer({editMode, setEditMode}) {
                         >
                             <Tooltip>{polygon.properties.name}</Tooltip>
                         </Polygon>
-                    );
+                        
+                    
+                    )};
+                
                 }))}
+                {console.log("Completed rendering all polygons for this round.")}
             </FeatureGroup>
             :
             <FeatureGroup ref={zonesRef}>

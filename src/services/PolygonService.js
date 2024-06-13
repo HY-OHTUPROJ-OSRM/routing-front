@@ -4,6 +4,7 @@ import { showTimedAlert, clearTimedAlert } from '../Utils/dispatchUtility';
 import handleAxiosError from './handleAxiosError';
 import { fetchRouteLine } from '../features/routes/routeSlice';
 import { useDispatch } from 'react-redux';
+import { polylineToPolygon } from './LineToPolygon';
 const getPolygons = async () => {
   
   const alertId = `loading-${Date.now()}`;
@@ -99,8 +100,20 @@ const CreatePolygon = async (object) => {
 const ChangePolygons = async (added, deleted) => {
   const alertId = `loading-${Date.now()}`;
   showTimedAlert({ text: 'Updating roads...', variant: 'info', id: alertId });
+
+  // Function to convert polyline to polygon if IsLine is 1
+  const convertIfNeeded = (polygon) => {
+    if (polygon.properties && polygon.properties.IsLine === 1) {
+      return polylineToPolygon(polygon, 0.001); // Use desired width
+    }
+    return polygon;
+  };
+
   try {
-    const data = {added, deleted}
+    // Convert polygons if needed
+    const convertedAdded = added.map(convertIfNeeded);
+
+    const data = { added: convertedAdded, deleted };
 
     await ins({
       url: 'zones/diff',
@@ -109,11 +122,12 @@ const ChangePolygons = async (added, deleted) => {
       headers: { "content-type": "application/json" },
     });
   } catch (error) {
-    handleAxiosError(error)
+    handleAxiosError(error);
   }
-  clearTimedAlert(alertId)
-  showTimedAlert({ text: 'Polygons updated succesfully', variant: 'success'});
-}
+
+  clearTimedAlert(alertId);
+  showTimedAlert({ text: 'Polygons updated successfully', variant: 'success' });
+};
 
 const DeletePolygon = async (id) => {
   const alertId = `loading-${Date.now()}`;

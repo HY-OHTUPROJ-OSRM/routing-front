@@ -16,11 +16,14 @@ export const modifiedPolygonsSlice = createSlice({
             state.sendIds = {}
             state.deleteIds = {}
             action.payload.forEach(polygon => {
+                
                 state.polygons[polygon.properties.id] = polygon
+                
             })
         },
         addPolygon: (state, action) => {
             const polygon = action.payload
+            console.log("nowaddingpolygon",polygon)
             state.polygons[polygon.properties.id] = polygon
             state.sendIds[polygon.properties.id] = true
         },
