@@ -6,9 +6,11 @@
     "@reduxjs/toolkit": "^2.2.5",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
+
+    "@testing-library/user-event": "^14.5.2",
     "@turf/kinks": "^7.0.0",
     "@turf/turf": "^7.0.0",
+
     "axios": "^1.7.2",
     "babel-preset-react-app": "^10.0.1",
     "filesystem": "^1.0.1",
