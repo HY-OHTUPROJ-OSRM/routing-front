@@ -19,7 +19,8 @@ import { generateName } from '../services/nameGiverService';
 import { showTimedAlert } from '../Utils/dispatchUtility';
 import { intersectSelf } from '../services/Intersect_self';
 import { geometry } from '@turf/turf';
-function Map_Displayer({editMode, setEditMode}) {
+import {startti_icon, desti_icon} from './leafletHTMLIcon';
+function Map_Displayer({editMode, setEditMode, setSidebar}) {
     const dispatch = useDispatch()
     const initialState = {
         long: 24.955,
@@ -44,26 +45,35 @@ function Map_Displayer({editMode, setEditMode}) {
     const editingZonesRef = useRef(null);
     const { setCoordinates } = useContext(CoordinatesContext);
     const { route, setRoute } = useContext(RouteContext);
-      
+    
     let startposition=null;
     //{lat: '', lng: ''}
     let destinationposition=null;
     var markercount=0;
 
     const start_icon = new L.Icon({
-        iconUrl: icon,
-        //iconSize: [50, 50],
-        iconAnchor: [13, 40],
+        iconUrl: require('../img/amb.webp'),
+        //iconUrl: icon,
+        //iconUrl: startti_icon,
+        iconSize: [60, 60],
+        iconAnchor: [30, 40],
         popupAnchor: [0, -30],
     });
 
     const destination_icon = new L.Icon({
+        iconUrl: require('../img/goal.png'),
+        //iconUrl: icon,
+        iconSize: [40, 40],
+        iconAnchor: [11, 38],
+        //iconAnchor: [13, 40],
+        popupAnchor: [0, -30],
+    });
+    const placehold_icon = new L.Icon({
         iconUrl: icon,
-        //iconSize: [50, 50],
+        iconSize: [25, 41],
         iconAnchor: [13, 40],
         popupAnchor: [0, -30],
     });
-
     const onMarkerDragEnd = (e, type) => {
         const { lat, lng } = e.target.getLatLng();
         console.log("segments", segments);
@@ -115,7 +125,7 @@ function Map_Displayer({editMode, setEditMode}) {
                 if (markercount === 0) {
                     setMarkerCount(prevCount =>prevCount + 1);
                     markercount++;
-                    const startMarker = L.marker([lat, lng], { icon: start_icon, draggable: true })
+                    const startMarker = L.marker([lat, lng], { icon: startti_icon, draggable: true })
                         .addTo(map)
                         .bindPopup("Start")
                         .on('dragend', (e) => onMarkerDragEnd(e, 'start'));
@@ -128,7 +138,7 @@ function Map_Displayer({editMode, setEditMode}) {
                 } else if (markercount === 1) {
                     markercount++;
                     setMarkerCount(prevCount => prevCount + 1);
-                    const destinationMarker = L.marker([lat,lng], { icon: destination_icon, draggable: true })
+                    const destinationMarker = L.marker([lat,lng], { icon: desti_icon, draggable: true })
                         .addTo(map)
                         .bindPopup("Destination")
                         .on('dragend', (e) => onMarkerDragEnd(e, 'destination'));
@@ -165,6 +175,7 @@ function Map_Displayer({editMode, setEditMode}) {
     };
 
     const enableEditMode = () => {
+        setSidebar(1)
         setEditing(true)
         setEditMode(true)
         console.log("editmode map_disp", editMode)
@@ -182,6 +193,7 @@ function Map_Displayer({editMode, setEditMode}) {
         setEditing(false)
         setEditMode(false)
         setLines(0)
+        setSidebar(0)
         editRef.current.props.map.editTools.stopDrawing()
     }
 
@@ -222,16 +234,18 @@ function Map_Displayer({editMode, setEditMode}) {
         console.log("canceledit", calcelEditIds)
         console.log(modifiedPolygons)
         console.log(deleteIds)
-        setEditMode(false)
-        setEditing(false)
         const added = Object.values(modifiedPolygons).filter(zone => 
             Object.keys(sendIds).includes(String(zone.properties.id)) &&
             !Object.keys(calcelEditIds).includes(String(zone.properties.id))
         );
         console.log(added)
+        
         editRef.current.props.map.editTools.stopDrawing()
         await ChangePolygons(added, Object.keys(deleteIds))
+        setEditMode(false)
+        setEditing(false)
         setLines(0)
+        setSidebar(0)
         dispatch(fetchPolygons())
         dispatch(fetchRouteLine())
         cancelEdits()
@@ -468,7 +482,7 @@ function Map_Displayer({editMode, setEditMode}) {
                         circle: false,
                         circlemarker: false,
                         marker: markerCount < 2 ? {
-                            icon: start_icon
+                            icon: placehold_icon
                         } : false // Allow drawing markers only if there are less than 2 markers
                     }}
                 />

@@ -1,7 +1,8 @@
 import store from '../app/store';
 import { triggerTimedAlert, removeTimedAlert } from '../features/messages/timedAlertSlice';
-import { fetchRouteLine } from '../features/routes/routeSlice';
+import { fetchRouteLine, UpdateRouteInfo } from '../features/routes/routeSlice';
 import { fetchPolygons } from '../features/polygons/polygonsSlice';
+
 export const showTimedAlert = (msg) => {
     store.dispatch(triggerTimedAlert(msg));
 };
@@ -17,3 +18,8 @@ export const updateRoute = () => {
 export const RefetchPolygons = () => {
     store.dispatch(fetchPolygons());
 };
+
+export const UpdateRouteInfoUtil = (info) => {
+    console.log("info", info)
+    store.dispatch(UpdateRouteInfo(info));
+}

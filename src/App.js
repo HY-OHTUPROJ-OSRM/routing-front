@@ -15,7 +15,7 @@ import { fetchPolygons } from "./features/polygons/polygonsSlice";
 import TimedAlert from "./components/TimedAlert";
 import { Provider } from 'react-redux';
 import { configureStore } from "@reduxjs/toolkit";
-import tempButton from "./components/tempButton";
+import RouteList from "./components/RouteInfo";
 function App() {
   const dispatch = useDispatch()
   const [sidebarOpenP, setSidebarOpenP] = useState(false);
@@ -56,10 +56,13 @@ function App() {
         
       </div>
       <div className="box" style={{zIndex: "0"}}>
-        <Map_displayer editMode={editMode} setEditMode={setEditMode}/>
+        <Map_displayer editMode={editMode} setEditMode={setEditMode} setSidebar={setSidebarOpenP}/>
         
       </div>
+      <div >
       <Routing_form/>
+      <RouteList/>
+      </div>
       </AppProviders>
     </div>
     

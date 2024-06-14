@@ -5,14 +5,15 @@ import { modifyPolygon, setFaults, setCanceledits } from "../features/polygons/m
 import { validateName, validateType, validateSeverity } from "../services/FormValidationService"; // Import the validation functions
 import { convertToGeoJSON } from "../services/JSONToGeoJSON";
 import { UpdatePolygon } from "../services/PolygonService";
+
 const ModifiedPolygonDisplay = (p) => {
   const dispatch = useDispatch();
-  const [hasChanged, sethasChanged] = useState(false);
+  const [hasChanged, setHasChanged] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
   const [formData, setFormData] = useState({
     name: p.properties.name,
     type: p.properties.type,
-
+    effectValue: '',
     coordinates: p.geometry.coordinates[0].map(cord => ({
       lat: cord[1],
       long: cord[0],
@@ -23,14 +24,21 @@ const ModifiedPolygonDisplay = (p) => {
   const [errors, setErrors] = useState({});
 
   const validateField = (name, value) => {
-    sethasChanged(true);
+    setHasChanged(true);
     let errorMsg = '';
     if (name === 'name' && !validateName(value)) {
       errorMsg = 'Name must be 3-30 characters long and contain only letters or numbers.';
     } else if (name === 'type' && !validateType(value)) {
-      errorMsg = 'Type must be either "roadblock" or "traffic".';
-    } else if (name === 'severity' && !validateSeverity(value)) {
-      errorMsg = 'Severity must be a valid speed effect (e.g., +10km/h or -10%).';
+      errorMsg = 'Type must be one of the specified options.';
+    } else if (name === 'effectValue') {
+      const type = formData.type;
+      if (type === 'custom speed' || type === 'speed limit cap' || type === 'speed change (Km/h)') {
+        if (!Number.isInteger(Number(value))) {
+          errorMsg = 'Effect value must be an integer.';
+        }
+      } else if (type === 'speed change (%)' && isNaN(Number(value))) {
+        errorMsg = 'Effect value must be a positive number.';
+      }
     }
 
     let newErrors = { ...errors };
@@ -39,12 +47,9 @@ const ModifiedPolygonDisplay = (p) => {
     } else {
       delete newErrors[name];
     }
-    console.log("newErrors", newErrors);
     if (Object.keys(newErrors).length === 0) {
-      console.log("deleteFaults");
       dispatch(setFaults({ id: p.properties.id, type: 0 }));
     } else {
-      console.log("setFaults");
       dispatch(setFaults({ id: p.properties.id, type: 1 }));
     }
     setErrors(newErrors);
@@ -55,7 +60,6 @@ const ModifiedPolygonDisplay = (p) => {
     const updatedFormData = { ...formData, [name]: value };
     setFormData(updatedFormData);
 
-    // Create a new object for p with updated properties
     const updatedPolygon = {
       ...p,
       properties: {
@@ -64,26 +68,20 @@ const ModifiedPolygonDisplay = (p) => {
       }
     };
     validateField(name, value);
-    console.log("modified p", updatedPolygon, errors);
   };
 
   useEffect(() => {
-    //console.log("useEffect", errors);
-    if (!errors.name && !errors.type && !errors.severity && hasChanged) {
+    if (!errors.name && !errors.type && !errors.effectValue && hasChanged) {
       const updatedPolygon = {
         ...p,
         properties: {
           ...p.properties,
           name: formData.name,
           type: formData.type,
-          severity: formData.severity,
+          effectValue: formData.effectValue,
         },
       };
-
-      if (!errors.name && !errors.type && !errors.severity) {
-        console.log("dispatching", updatedPolygon);
-        dispatch(modifyPolygon(updatedPolygon));
-      }
+      dispatch(modifyPolygon(updatedPolygon));
     }
   }, [errors]);
 
@@ -91,12 +89,12 @@ const ModifiedPolygonDisplay = (p) => {
 
   const handleDeleteClick = () => {
     setIsDeleted(true);
-    dispatch(setCanceledits({id: p.properties.id, add: 1}))
+    dispatch(setCanceledits({ id: p.properties.id, add: 1 }));
   };
 
   const handleUndoClick = () => {
     setIsDeleted(false);
-    dispatch(setCanceledits({id: p.properties.id, add: 0}))
+    dispatch(setCanceledits({ id: p.properties.id, add: 0 }));
   };
 
   return (
@@ -133,22 +131,25 @@ const ModifiedPolygonDisplay = (p) => {
                 className={errors.type ? 'input-error' : ''}
               >
                 <option value="roadblock">Roadblock</option>
-                <option value="traffic">Traffic</option>
+                <option value="speed limit cap">Speed Limit Cap</option>
+                <option value="custom speed">Custom Speed</option>
+                <option value="speed change (Km/h)">Speed Change (Km/h)</option>
+                <option value="speed change (%)">Speed Change (%)</option>
               </select>
               {errors.type && <span className="error">{errors.type}</span>}
             </div>
-            {formData.type === 'traffic' && (
+            {formData.type !== 'roadblock' && (
               <div className="form-group">
-                <label htmlFor="severity">Speed effect:</label>
+                <label htmlFor="effectValue">Effect Value:</label>
                 <input
                   type="text"
-                  id="severity"
-                  name="severity"
-                  value={formData.severity}
+                  id="effectValue"
+                  name="effectValue"
+                  value={formData.effectValue}
                   onChange={handleInputChange}
-                  className={errors.severity ? 'input-error' : ''}
+                  className={errors.effectValue ? 'input-error' : ''}
                 />
-                {errors.severity && <span className="error">{errors.severity}</span>}
+                {errors.effectValue && <span className="error">{errors.effectValue}</span>}
               </div>
             )}
           </form>

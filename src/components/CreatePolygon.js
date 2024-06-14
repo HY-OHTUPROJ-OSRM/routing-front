@@ -2,20 +2,21 @@ import React, { useState, useEffect, useContext } from 'react';
 import './CreatePolygon.css';
 import { addPolygon } from '../services/PolygonAddService';
 import { CoordinatesContext } from './CoordinatesContext';
-import { validateName, validateType, validateCoordinate, validateSeverity } from '../services/FormValidationService';
+import { validateName, validateType, validateCoordinate, validateEffectValue } from '../services/FormValidationService';
 import { CreatePolygon } from '../services/PolygonService';
 import { useDispatch } from 'react-redux';
 import { fetchPolygons } from '../features/polygons/polygonsSlice';
 import { convertToGeoJSON } from '../services/JSONToGeoJSON';
 import { fetchRouteLine } from '../features/routes/routeSlice';
 import { generateName } from '../services/nameGiverService';
-//Form for creating polygons. Can receive coordinates from the map component when user draws a new polygon.
+
+// Form for creating polygons. Can receive coordinates from the map component when user draws a new polygon.
 function CreatePolygons() {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     name: generateName(),
     type: 'roadblock',
-    severity: '30',
+    effectValue: '',
     coordinates: [{ lat: '', long: '' }]
   });
   const [errors, setErrors] = useState({});
@@ -39,18 +40,18 @@ function CreatePolygons() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      const copy= {...formData};
+      const copy = { ...formData };
       setFormData({
         name: generateName(),
         type: 'roadblock',
-        severity: '10',
+        effectValue: '',
         coordinates: [{ lat: '', long: '' }]
       });
-      
-      await CreatePolygon(convertToGeoJSON(copy)); // set to CreatePolygon on backend connection
+
+      await CreatePolygon(convertToGeoJSON(copy));
       setErrors({});
-      dispatch(fetchPolygons())
-      dispatch(fetchRouteLine())
+      dispatch(fetchPolygons());
+      dispatch(fetchRouteLine());
     }
   };
 
@@ -59,14 +60,17 @@ function CreatePolygons() {
     if (name === 'name' && !validateName(value)) {
       errorMsg = 'Name must be 3-30 characters long and contain only letters or numbers.';
     } else if (name === 'type' && !validateType(value)) {
-      errorMsg = 'Type must be either "roadblock" or "traffic".';
+      errorMsg = 'Type must be one of the specified options.';
     } else if ((name === 'lat' || name === 'long') && !validateCoordinate(value)) {
       errorMsg = 'Coordinates must be a number between 0 and 90.';
-    } else if (name === 'severity' && !validateSeverity(value)) {
-      //errorMsg = 'Severity must be of form +/- with wholenumber and end with km/h or %, e.g. +10km/h or -10%.';
-      errorMsg = 'Speed must be a whole number. (km/h)';
+    } else if (name === 'effectValue' && !validateEffectValue(value, formData.type)) {
+      if (formData.type === 'speed change (%)') {
+        errorMsg = 'Effect value must be a positive number.';
+      } else {
+      errorMsg = 'Effect value must be an integer.';
+      }
     }
-    
+
     let newErrors = { ...errors };
 
     if (index !== null) {
@@ -74,7 +78,6 @@ function CreatePolygons() {
       coordinateErrors[index] = { ...coordinateErrors[index], [name]: errorMsg };
       newErrors.coordinates = coordinateErrors;
 
-      // Remove coordinate errors if no error message
       if (!errorMsg) {
         delete coordinateErrors[index][name];
         if (Object.keys(coordinateErrors[index]).length === 0) {
@@ -98,7 +101,7 @@ function CreatePolygons() {
       newErrors.name = 'Name must be 3-30 characters long and contain only letters or numbers.';
     }
     if (!validateType(formData.type)) {
-      newErrors.type = 'Type must be either "roadblock" or "traffic".';
+      newErrors.type = 'Type must be one of the specified options.';
     }
     formData.coordinates.forEach((coordinate, index) => {
       const coordErrors = {};
@@ -115,37 +118,31 @@ function CreatePolygons() {
         newErrors.coordinates[index] = coordErrors;
       }
     });
-    if (formData.type === 'traffic' && !validateSeverity(formData.severity)) {
-      newErrors.severity = /*'Severity must be of form +/- with wholenumber and end with km/h or %, e.g. +10km/h or -10%.'*/'Speed must be a whole number. (km/h)';
+    if (formData.type !== 'roadblock' && !validateEffectValue(formData.effectValue, formData.type)) {
+      newErrors.effectValue = 'Effect value must be valid for the selected type.';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const can_click = () => {
-    //console.log("can_click");
-    
+  const canClick = () => {
     if (!validateName(formData.name)) {
-      return 0;
+      return false;
     }
     if (!validateType(formData.type)) {
-      return 0;
+      return false;
     }
-    if (!validateSeverity(formData.severity)) { 
-      return 0;
+    if (formData.type !== 'roadblock' && !validateEffectValue(formData.effectValue, formData.type)) {
+      return false;
     }
-  
     for (let i = 0; i < formData.coordinates.length; i++) {
       const coordinate = formData.coordinates[i];
       if (!validateCoordinate(coordinate.lat) || !validateCoordinate(coordinate.long)) {
-        return 0;
+        return false;
       }
     }
-    
-    //console.log('now can click');
-    return 1;
+    return true;
   };
-
 
   useEffect(() => {
     if (coordinates.length > 0) {
@@ -186,27 +183,28 @@ function CreatePolygons() {
             className={errors.type ? 'input-error' : ''}
           >
             <option value="roadblock">Roadblock</option>
-            <option value="traffic">custom speed</option>
+            <option value="speed limit cap">Speed Limit Cap</option>
+            <option value="custom speed">Custom Speed</option>
+            <option value="speed change (Km/h)">Speed Change (Km/h)</option>
+            <option value="speed change (%)">Speed Change (%)</option>
           </select>
           {errors.type && <span className="error">{errors.type}</span>}
         </div>
-        {formData.type === 'traffic' && (
+        {formData.type !== 'roadblock' && (
           <div className="form-group">
-            <label htmlFor="severity">speed effect:</label>
+            <label htmlFor="effectValue">Effect Value:</label>
             <input
               type="text"
-              id="severity"
-              name="severity"
-              value={formData.severity}
+              id="effectValue"
+              name="effectValue"
+              value={formData.effectValue}
               onChange={(e) => {
-                setFormData({ ...formData, severity: e.target.value });
-                validateField('severity', e.target.value);
+                setFormData({ ...formData, effectValue: e.target.value });
+                validateField('effectValue', e.target.value);
               }}
-              className={errors.severity ? 'input-error' : ''}
-            
-              
+              className={errors.effectValue ? 'input-error' : ''}
             />
-            {errors.severity && <span className="error">{errors.severity}</span>}
+            {errors.effectValue && <span className="error">{errors.effectValue}</span>}
           </div>
         )}
         <div className="form-group">
@@ -237,7 +235,7 @@ function CreatePolygons() {
             Add Coordinate
           </button>
         </div>
-        <button type="submit" disabled={!can_click()} className={!can_click() ? 'btn-disabled' : ''}>Submit</button>
+        <button type="submit" disabled={!canClick()} className={!canClick() ? 'btn-disabled' : ''}>Submit</button>
       </form>
     </div>
   );
