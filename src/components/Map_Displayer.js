@@ -17,7 +17,8 @@ import { fetchPolygons } from '../features/polygons/polygonsSlice';
 import "./Polygon.css"
 import { generateName } from '../services/nameGiverService';
 import { showTimedAlert } from '../Utils/dispatchUtility';
-import * as turf from '@turf/turf';
+import { intersectSelf } from '../services/Intersect_self';
+import { geometry } from '@turf/turf';
 function Map_Displayer({editMode, setEditMode}) {
     const dispatch = useDispatch()
     const initialState = {
@@ -92,11 +93,14 @@ function Map_Displayer({editMode, setEditMode}) {
         const { layerType, layer } = e;
         console.log("drawcreated", e, layerType, layer)
         if (layerType === 'polygon' || layerType === 'Linestring') {
-            console.log("jaa")
+            console.log(layer.getLatLngs()[0].map(latlng => ([latlng.lat, latlng.lng])))
+            const cords={geometry: {type: "Polygon", coordinates: [layer.getLatLngs()[0].map(latlng => ([latlng.lng, latlng.lat]))]}};
+            cords.geometry.coordinates[0].push(cords.geometry.coordinates[0][0]);
             const latLngs = layer.getLatLngs()[0].map(latlng => ({ lat: latlng.lat, long: latlng.lng }));
             console.log(latLngs);
+            if (!intersectSelf(cords)) {
             setCoordinates(latLngs);
-
+            }
             if (zonesRef.current) {
                 zonesRef.current.removeLayer(layer);
             }
@@ -181,24 +185,6 @@ function Map_Displayer({editMode, setEditMode}) {
         editRef.current.props.map.editTools.stopDrawing()
     }
 
-    const intersectSelf = (geometry) => {
-        let turfGeometry;
-      
-        // Check if the geometry is a Polygon or a LineString
-        if (geometry.type === 'Polygon') {
-          turfGeometry = turf.polygon(geometry.coordinates);
-        } else if (geometry.type === 'LineString') {
-          turfGeometry = turf.lineString(geometry.coordinates);
-        } else {
-        showTimedAlert({ text: 'Geometry must be a Polygon or LineString', variant: 'failure' });
-        }
-      
-        // Use turf.kinks to check for self-intersections
-        const kinks = turf.kinks(turfGeometry);
-      
-        // Return 1 if it intersects itself, 0 otherwise
-        return kinks.features.length > 0 ? 1 : 0;
-      };
 
     const onDrawingCommit = (shape) => {
         const geoJSON = shape.layer.toGeoJSON()
@@ -213,10 +199,15 @@ function Map_Displayer({editMode, setEditMode}) {
             console.log("line", geoJSON)
         }
         shape.layer.remove()
-        if (!intersectSelf(geoJSON.geometry)) {
+        if (!intersectSelf(geoJSON)) {
             dispatch(addPolygon(geoJSON))
-        }else{
-            showTimedAlert({ text: 'Zone cannot intersect itself', variant: 'failure' });
+        } else {
+            editRef.current.props.map.editTools.stopDrawing()
+           if (Lines) {
+            editRef.current.startPolyline()
+           } else {
+            editRef.current.startPolygon()
+           }
         }
         //console.log(modifiedPolygons)
     }
@@ -225,6 +216,7 @@ function Map_Displayer({editMode, setEditMode}) {
         
         e.layer.remove()
     }
+
 
     const saveEdits = async () => {
         console.log("canceledit", calcelEditIds)
@@ -237,6 +229,7 @@ function Map_Displayer({editMode, setEditMode}) {
             !Object.keys(calcelEditIds).includes(String(zone.properties.id))
         );
         console.log(added)
+        editRef.current.props.map.editTools.stopDrawing()
         await ChangePolygons(added, Object.keys(deleteIds))
         setLines(0)
         dispatch(fetchPolygons())
@@ -268,10 +261,10 @@ function Map_Displayer({editMode, setEditMode}) {
         }
         if (editing && editRef.current != null) {
             if (!editRef.current.props.map?.editTools?.drawing()) {
-                if (Lines){
+                if (Lines) {
                     editRef.current.startPolyline()
                 } else {
-                editRef.current.startPolygon()
+                    editRef.current.startPolygon()
                 }
             }
         }
