@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, FeatureGroup, Polygon, Tooltip, useMap, Polyline, GeoJSON } from 'react-leaflet';
+import { MapContainer, TileLayer, FeatureGroup, Polygon, Tooltip, useMap, Polyline, GeoJSON, useMapEvent } from 'react-leaflet';
 import React, { useRef, useEffect, useState, useContext } from 'react';
 import { EditControl } from 'react-leaflet-draw';
 import { CoordinatesContext, RouteContext } from './CoordinatesContext';
@@ -20,6 +20,7 @@ import { showTimedAlert } from '../Utils/dispatchUtility';
 import { intersectSelf } from '../services/Intersect_self';
 import { geometry } from '@turf/turf';
 import {startti_icon, desti_icon} from './leafletHTMLIcon';
+import { changeListView } from '../features/view/ViewSlice';
 function Map_Displayer({editMode, setEditMode, setSidebar}) {
     const dispatch = useDispatch()
     const initialState = {
@@ -45,8 +46,10 @@ function Map_Displayer({editMode, setEditMode, setSidebar}) {
     const editingZonesRef = useRef(null);
     const { setCoordinates } = useContext(CoordinatesContext);
     const { route, setRoute } = useContext(RouteContext);
-    
+    const mapView = useSelector((state) => state.view.mapView);
+    let mountingHelper=0
     let startposition=null;
+    let maphelp=null
     //{lat: '', lng: ''}
     let destinationposition=null;
     var markercount=0;
@@ -94,10 +97,12 @@ function Map_Displayer({editMode, setEditMode, setSidebar}) {
         if (newRoute.length === 2) {
             if (newRoute[0].lat !== undefined && newRoute[0].long !== undefined && newRoute[1].lat !== undefined && newRoute[1].long !== undefined) {
                 console.log("marker drag end", newRoute)
-                dispatch(fetchRouteLine(newRoute));
+                dispatch(fetchRouteLine());
             }
     };
     }
+
+
 
     const onDrawCreated = async (e) => {
         const { layerType, layer } = e;
@@ -159,11 +164,15 @@ function Map_Displayer({editMode, setEditMode, setSidebar}) {
     };
 
     const handleMouseOver = (e) => {
+        console.log("joo", e)
         const layer = e.target;
         layer.setStyle({
             fillColor: 'black',
             fillOpacity: 0.7
         });
+        if (editMode){
+        onClickHandler(e.target.options);
+        }
     };
 
     const handleMouseOut = (e) => {
@@ -251,39 +260,66 @@ function Map_Displayer({editMode, setEditMode, setSidebar}) {
         cancelEdits()
     }
 
-    const enableLayerEdits = () => {
-        console.log("enabled edit start")
+    const onClickHandler = (properties) => {
+        dispatch(changeListView(properties.id));
+        console.log("clicked", properties)
+      };
+    
+      const setupClickListener = (layer) => {
+        if (!layer.listens("click")) {
+          layer.on("click", (e) => {
+            onClickHandler(e.layer.feature.properties);
+          });
+        }
+      };
+    
+      const enableLayerEdits = () => {
+        console.log("enabled edit start");
         if (editingZonesRef.current !== null) {
-            console.log(editingZonesRef.current.getLayers())
-            editingZonesRef.current.getLayers().forEach((layer) => {
-                console.log(layer)
-                layer.disableEdit()
-                layer.enableEdit()
-                if (!layer.listens("editable:vertex:dragend")) {
-                    layer.on("editable:vertex:dragend", (e) => {
-                        const { name, type, id, IsLine } = e.layer.options
-                        const geoJSON = e.layer.toGeoJSON()
-
-                        geoJSON.properties = {
-                            name, type, id, IsLine
-                        }
-
-                        dispatch(modifyPolygon(geoJSON))
-                    })
+          console.log(editingZonesRef.current.getLayers());
+          editingZonesRef.current.getLayers().forEach((layer) => {
+            //console.log(layer);
+            layer.disableEdit();
+            layer.enableEdit();
+    
+            if (!layer.listens("editable:vertex:dragend")) {
+              layer.on("editable:vertex:dragend", (e) => {
+                const { name, type, id, IsLine } = e.layer.options;
+                const geoJSON = e.layer.toGeoJSON();
+                console.log("dragend", e);
+                //onClickHandler(e.layer.options);
+    
+                geoJSON.properties = {
+                  name, type, id, IsLine
+                };
+                if(!intersectSelf(geoJSON)){
+                dispatch(modifyPolygon(geoJSON));
                 }
-            })
-        }
-        if (editing && editRef.current != null) {
-            if (!editRef.current.props.map?.editTools?.drawing()) {
-                if (Lines) {
-                    editRef.current.startPolyline()
-                } else {
-                    editRef.current.startPolygon()
-                }
+              });
             }
+    
+            setupClickListener(layer);
+          });
         }
-        console.log("enabled edit complete")
-    }
+    
+        if (editing && editRef.current != null) {
+          if (!editRef.current.props.map?.editTools?.drawing()) {
+            if (Lines) {
+              editRef.current.startPolyline();
+            } else {
+              editRef.current.startPolygon();
+            }
+          }
+        }
+        console.log("enabled edit complete");
+      };
+    
+      useEffect(() => {
+        if (zonesRef.current !== null) {
+            console.log("setting up click listeners");
+          zonesRef.current.getLayers().forEach(setupClickListener);
+        }
+      }, [polygons, modifiedPolygons, editingZonesRef.current, mountingHelper]);
 
     useEffect(enableLayerEdits)
 
@@ -319,8 +355,61 @@ function Map_Displayer({editMode, setEditMode, setSidebar}) {
 
     }
 
-
+    function handleOnFlyTo() {
+        
+        const { leafletElement: map } = mapRef;
+        if (mapView.center!==undefined){
+        mapRef.current.flyTo(mapView.center, mapView.zoom, {
+          duration: 1
+        });
+        }
+      }
+    useEffect(() => {
+        handleOnFlyTo();
+      }, [mapView]);
     
+
+      const ClickHandler = () => {
+        useMapEvent('click', (event) => {
+           let {lat, lng} = event.latlng;
+           const map = mapRef.current;
+          if (markerCount ===0){
+            setMarkerCount(prevCount => prevCount + 1);
+            markercount++;
+            const startMarker = L.marker([lat, lng], { icon: startti_icon, draggable: true })
+                        .addTo(map)
+                        .bindPopup("Start")
+                        .on('dragend', (e) => onMarkerDragEnd(e, 'start'));
+                    
+                    startposition={ lat:lat, long:lng }
+                    dispatch(setStartPosition(startposition));
+                    
+                    setRoute([startposition, destinationposition]);
+                    console.log(startposition, destinationposition)
+            } else if (markerCount === 1) {
+                    markercount++;
+                    setMarkerCount(prevCount => prevCount + 1);
+                    const destinationMarker = L.marker([lat,lng], { icon: desti_icon, draggable: true })
+                        .addTo(map)
+                        .bindPopup("Destination")
+                        .on('dragend', (e) => onMarkerDragEnd(e, 'destination'));
+                    //console.log(startPosition, destinationPosition)
+                    
+                    destinationposition={lat:lat,long:lng }
+                    dispatch(setEndPosition(destinationposition));
+                    console.log("secondoneadded",startposition, destinationposition)
+                    setRoute([startposition, destinationposition]);
+                    console.log(route)
+                    
+                            dispatch(fetchRouteLine());
+          }
+        });
+        return null;
+      };
+      
+        const handleClick = (event) => {
+          console.log('Map clicked at:', event.latlng);
+        };
 
     return (
         <ReactLeafletEditable
@@ -328,6 +417,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar}) {
             map={mapRef.current}
             onDrawingCommit={onDrawingCommit}
             onCancelDrawing={onCancelDrawing}
+            
         >
         <MapContainer
             editable={true}
@@ -413,7 +503,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar}) {
             <FeatureGroup ref={editingZonesRef}>
                 {(Object.values(modifiedPolygons).map((polygon, index) => {
                     const color = 'orangeRed';
-                    console.log("jepoe", polygon, polygon.geometry.coordinates[0].map(coord => [coord[1], coord[0]]))
+                    //console.log("jepoe", polygon, polygon.geometry.coordinates[0].map(coord => [coord[1], coord[0]]))
                     if (polygon.properties.IsLine === 1) {
                     return (
                        
@@ -459,7 +549,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar}) {
                         
                     
                     )};
-                
+                mountingHelper=1;
                 }))}
                 {console.log("Completed rendering all polygons for this round.")}
             </FeatureGroup>
@@ -487,6 +577,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar}) {
                     }}
                 />
             </FeatureGroup>}
+        <ClickHandler onClick={handleClick} />
         </MapContainer>
         </ReactLeafletEditable>
     );

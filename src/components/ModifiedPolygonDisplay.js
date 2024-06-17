@@ -2,17 +2,20 @@ import React, { useState, useEffect } from "react";
 import "./Polygon.css"; // Import the CSS file
 import { useDispatch } from "react-redux";
 import { modifyPolygon, setFaults, setCanceledits } from "../features/polygons/modifiedPolygonsSlice";
-import { validateName, validateType, validateSeverity } from "../services/FormValidationService"; // Import the validation functions
+import { validateName, validateType, validateEffectValue } from "../services/FormValidationService"; // Import the validation functions
 import { convertToGeoJSON } from "../services/JSONToGeoJSON";
 import { UpdatePolygon } from "../services/PolygonService";
-
-const ModifiedPolygonDisplay = (p) => {
+import { useSelector } from 'react-redux';
+const ModifiedPolygonDisplay = (p, isOpen) => {
+  const [highlightedId, setHighlightedId] = useState(null);
+  const listViewId = useSelector((state) => state.view.listView);
   const dispatch = useDispatch();
   const [hasChanged, setHasChanged] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
   const [formData, setFormData] = useState({
     name: p.properties.name,
     type: p.properties.type,
+    id: p.properties.id,
     effectValue: '',
     coordinates: p.geometry.coordinates[0].map(cord => ({
       lat: cord[1],
@@ -23,6 +26,20 @@ const ModifiedPolygonDisplay = (p) => {
 
   const [errors, setErrors] = useState({});
 
+  const scrollToElement = () => {
+    console.log("scrollToElement", listViewId)
+    if (listViewId) {
+      const element = document.getElementById(listViewId);
+      if (element && isOpen) {
+        setHighlightedId(listViewId);
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+  useEffect(() => {
+    scrollToElement();
+  }, [listViewId]);
+
   const validateField = (name, value) => {
     setHasChanged(true);
     let errorMsg = '';
@@ -30,19 +47,22 @@ const ModifiedPolygonDisplay = (p) => {
       errorMsg = 'Name must be 3-30 characters long and contain only letters or numbers.';
     } else if (name === 'type' && !validateType(value)) {
       errorMsg = 'Type must be one of the specified options.';
-    } else if (name === 'effectValue') {
+    } else {
       const type = formData.type;
-      if (type === 'custom speed' || type === 'speed limit cap' || type === 'speed change (Km/h)') {
-        if (!Number.isInteger(Number(value))) {
-          errorMsg = 'Effect value must be an integer.';
+      console.log("yoooooo",type, value)
+      if (type === 'speed change (%)') {
+        if (!validateEffectValue(value, type)) {
+          name="effectValue";
+          errorMsg = 'Effect value must be a positive number.';
         }
-      } else if (type === 'speed change (%)' && isNaN(Number(value))) {
-        errorMsg = 'Effect value must be a positive number.';
-      }
-    }
+      } else if (type!=='roadblock' && !validateEffectValue(value, type)) {
+        errorMsg = 'Effect value must be an integer.';
+        name="effectValue";
+      } 
+    
 
     let newErrors = { ...errors };
-    if (errorMsg) {
+    if (errorMsg!=="") {
       newErrors[name] = errorMsg;
     } else {
       delete newErrors[name];
@@ -54,6 +74,7 @@ const ModifiedPolygonDisplay = (p) => {
     }
     setErrors(newErrors);
   };
+}
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -100,13 +121,13 @@ const ModifiedPolygonDisplay = (p) => {
   return (
     <div className={`polygon ${hasErrors ? 'polygon-error' : ''}`}>
       {isDeleted ? (
-        <div>
+        <div className={highlightedId === p.properties.id ? 'highlight' : 'polygon'} id={formData.id}>
           <h2>{formData.name}</h2>
           <p>Set to be deleted</p>
           <button onClick={handleUndoClick}>Undo</button>
         </div>
       ) : (
-        <div>
+        <div className={highlightedId === p.properties.id ? 'highlight' : 'polygon'} id={formData.id}>
           <h2>{formData.name}</h2>
           <form>
             <div className="form-group">
@@ -131,10 +152,10 @@ const ModifiedPolygonDisplay = (p) => {
                 className={errors.type ? 'input-error' : ''}
               >
                 <option value="roadblock">Roadblock</option>
-                <option value="speed limit cap">Speed Limit Cap</option>
-                <option value="custom speed">Custom Speed</option>
+                <option value="speed limit cap">Speed Limit Cap (Km/H)</option>
+                <option value="custom speed">Custom Speed (Km/H)</option>
                 <option value="speed change (Km/h)">Speed Change (Km/h)</option>
-                <option value="speed change (%)">Speed Change (%)</option>
+                <option value="speed change (%)">Speed Change (multiplier)</option>
               </select>
               {errors.type && <span className="error">{errors.type}</span>}
             </div>
