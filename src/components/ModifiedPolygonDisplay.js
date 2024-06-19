@@ -40,28 +40,36 @@ const ModifiedPolygonDisplay = (p, isOpen) => {
     scrollToElement();
   }, [listViewId]);
 
-  const validateField = (name, value) => {
+  const validateField = (updated, name, value) => {
+    console.log(updated, value, name)
     setHasChanged(true);
+    const type = updated.properties.type;
     let errorMsg = '';
-    if (name === 'name' && !validateName(value)) {
+    if (!validateName(updated.properties.name)) {
       errorMsg = 'Name must be 3-30 characters long and contain only letters or numbers.';
-    } else if (name === 'type' && !validateType(value)) {
+    } else if (!validateType(updated.properties.type)) {
       errorMsg = 'Type must be one of the specified options.';
     } else {
-      const type = formData.type;
+      
       console.log("yoooooo",type, value)
-      if (type === 'factor') {
-        if (!validateEffectValue(value, type)) {
+    if (type === 'factor') {
+        if (!validateEffectValue(updated.properties.effectValue, type)) {
           name="effectValue";
           errorMsg = 'Effect value must be a positive number.';
         }
-      } else if (type!=='roadblock' && !validateEffectValue(value, type)) {
+      } else if (type!=='roadblock' && !validateEffectValue(updated.properties.effectValue, type)) {
         errorMsg = 'Effect value must be an integer.';
         name="effectValue";
       } 
-    
+    }
 
     let newErrors = { ...errors };
+    console.log("before del newErrors",newErrors)
+    if (type === 'roadblock') {
+        delete newErrors['effectValue'];
+        dispatch(setFaults({ id: p.properties.id, type: 0 }));
+      }
+    console.log("newErrors",newErrors)
     if (errorMsg!=="") {
       newErrors[name] = errorMsg;
     } else {
@@ -73,7 +81,7 @@ const ModifiedPolygonDisplay = (p, isOpen) => {
       dispatch(setFaults({ id: p.properties.id, type: 1 }));
     }
     setErrors(newErrors);
-  };
+  
 }
 
   const handleInputChange = (e) => {
@@ -88,7 +96,7 @@ const ModifiedPolygonDisplay = (p, isOpen) => {
         [name]: value
       }
     };
-    validateField(name, value);
+    validateField(updatedPolygon, name, value);
   };
 
   useEffect(() => {

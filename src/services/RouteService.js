@@ -1,4 +1,4 @@
-import ins from '../api/api';
+import { ins } from '../api/api';
 import { routeTransformer, routeGiver, fetchroute, routeFlip, routeInfoExtractor } from './RouteTransformer';
 import { showTimedAlert, clearTimedAlert, UpdateRouteInfoUtil } from '../Utils/dispatchUtility';
 import handleAxiosError from './handleAxiosError';

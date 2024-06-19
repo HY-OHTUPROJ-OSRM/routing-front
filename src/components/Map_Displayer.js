@@ -19,6 +19,7 @@ import { generateName } from '../services/nameGiverService';
 import { showTimedAlert } from '../Utils/dispatchUtility';
 import { intersectSelf } from '../services/Intersect_self';
 import { geometry } from '@turf/turf';
+import { getColorAndOpacity } from '../services/PolygonVisualService';
 import {startti_icon, desti_icon} from './leafletHTMLIcon';
 import { changeListView } from '../features/view/ViewSlice';
 function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
@@ -179,7 +180,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
         const layer = e.target;
         layer.setStyle({
             fillColor: layer.options.originalColor,
-            fillOpacity: 0.5
+            fillOpacity: layer.options.originalOpacity
         });
     };
 
@@ -268,12 +269,11 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     }
 
     const onClickHandler = (properties) => {
-        if (!isOpen) {
+        if (!isOpen)    {
         setSidebar(true)
-        isOpen = true
-        } else{
-        dispatch(changeListView(properties.id));
         }
+        dispatch(changeListView(properties.id));
+        
         console.log("clicked",isOpen, properties)
       };
     
@@ -336,9 +336,15 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     useEffect(enableLayerEdits)
 
     const geoJsonStyle = (feature) => {
+        console.log(feature.properties)
+        let {color, opacity} = getColorAndOpacity(feature.properties.type, feature.properties.effectValue);
+        if(!Number(opacity)){
+            opacity=0.5
+        }
+        console.log(opacity)
         return {
-          color: feature.properties.type === 'roadblock' ? 'red' : 'orange',
-          fillOpacity: 0.5
+          color: color,
+          fillOpacity: opacity
         };
       };
     
@@ -349,7 +355,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
         });
     
         if (feature.properties && feature.properties.name) {
-          layer.bindTooltip(feature.properties.name);
+          layer.bindTooltip(`${feature.properties.name} | ${feature.properties.type}`);
         }
       };
 
@@ -517,7 +523,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
             ?
             <FeatureGroup ref={editingZonesRef}>
                 {(Object.values(modifiedPolygons).map((polygon, index) => {
-                    const color = 'orangeRed';
+                     const { color, opacity } = getColorAndOpacity(polygon.properties.type, polygon.properties.effectValue);
                     //console.log("jepoe", polygon, polygon.geometry.coordinates[0].map(coord => [coord[1], coord[0]]))
                     if (polygon.properties.IsLine === 1) {
                     return (
@@ -540,7 +546,8 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                             }}
                             originalColor={color} // Store original color for mouseout event
                         >
-                            <Tooltip>{polygon.properties.name}</Tooltip>
+                            <Tooltip>{`${polygon.properties.name} | ${polygon.properties.type}`}</Tooltip>
+                            
                         </Polyline>
                     )
                     } else {
@@ -559,7 +566,8 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                             }}
                             originalColor={color} // Store original color for mouseout event
                         >
-                            <Tooltip>{polygon.properties.name}</Tooltip>
+                            <Tooltip>{`${polygon.properties.name} | ${polygon.properties.type}`}</Tooltip>
+                            
                         </Polygon>
                         
                     
@@ -586,9 +594,11 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                         polyline: false,
                         circle: false,
                         circlemarker: false,
-                        marker: markerCount < 2 ? {
-                            icon: placehold_icon
-                        } : false // Allow drawing markers only if there are less than 2 markers
+                        marker: false 
+                        
+                        //markerCount < 2 ? {
+                        //    icon: placehold_icon
+                        //} : false // Allow drawing markers only if there are less than 2 markers
                     }}
                 />
             </FeatureGroup>}
