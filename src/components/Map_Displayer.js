@@ -180,7 +180,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
         const layer = e.target;
         layer.setStyle({
             fillColor: layer.options.originalColor,
-            fillOpacity: layer.options.originalOpacity
+            fillOpacity: 0.5
         });
     };
 
@@ -544,7 +544,8 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                                 mouseover: handleMouseOver,
                                 mouseout: handleMouseOut,
                             }}
-                            originalColor={color} // Store original color for mouseout event
+                            originalColor={color}
+                            originalOpacity={opacity} // Store original color for mouseout event
                         >
                             <Tooltip>{`${polygon.properties.name} | ${polygon.properties.type}`}</Tooltip>
                             
@@ -564,7 +565,8 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                                 mouseover: handleMouseOver,
                                 mouseout: handleMouseOut,
                             }}
-                            originalColor={color} // Store original color for mouseout event
+                            originalColor={color}
+                            originalOpacity={opacity}// Store original color for mouseout event
                         >
                             <Tooltip>{`${polygon.properties.name} | ${polygon.properties.type}`}</Tooltip>
                             
@@ -584,6 +586,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                         data={feature}
                         style={geoJsonStyle}
                         onEachFeature={onEachFeature}
+                        
                     />
                 ))}
                 <EditControl
