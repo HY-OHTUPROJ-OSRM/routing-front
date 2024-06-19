@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Alert, ProgressBar } from 'react-bootstrap';
 import { removeTimedAlert } from '../features/messages/timedAlertSlice';
 import './TimedAlert.css';
-import { status_socket } from '../api/api';
+import { ROUTING_API_URL } from '../Utils/config';
 
 export default function TimedAlert() {
     const alerts = useSelector(state => state.timedAlert);
@@ -19,7 +19,7 @@ export default function TimedAlert() {
     useEffect(() => {
         
         
-        const socket = new EventSource(status_socket);
+        const socket = new EventSource(ROUTING_API_URL);
 
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);

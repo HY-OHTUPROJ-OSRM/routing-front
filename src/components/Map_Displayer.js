@@ -22,6 +22,8 @@ import { geometry } from '@turf/turf';
 import { getColorAndOpacity } from '../services/PolygonVisualService';
 import {startti_icon, desti_icon} from './leafletHTMLIcon';
 import { changeListView } from '../features/view/ViewSlice';
+import VectorTileLayer from "react-leaflet-vector-tile-layer";
+
 function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     const dispatch = useDispatch()
     const initialState = {
@@ -48,6 +50,8 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     const { setCoordinates } = useContext(CoordinatesContext);
     const { route, setRoute } = useContext(RouteContext);
     const mapView = useSelector((state) => state.view.mapView);
+    const [styleUrl, setStyleUrl] = useState("/road_style.json")
+    const [key, setKey] = useState(0)
     let mountingHelper=0
     let startposition=null;
     let maphelp=null
@@ -245,6 +249,10 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
         e.layer.remove()
     }
 
+    const updateSpeedData = () => {
+        setStyleUrl("/road_style.json?time=" + new Date().getTime())
+        setKey(prevKey => prevKey + 1)
+    }
 
     const saveEdits = async () => {
         console.log("canceledit", calcelEditIds)
@@ -263,6 +271,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
         setEditing(false)
         setLines(0)
         setSidebar(false)
+        updateSpeedData()
         dispatch(fetchPolygons())
         dispatch(fetchRouteLine())
         cancelEdits()
@@ -494,9 +503,9 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                 </button>
             )}
             </div>
-            <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            <VectorTileLayer
+                key={key}
+                styleUrl={styleUrl}
             />
             {routedata.slice().reverse().map((route, index) => (
 
