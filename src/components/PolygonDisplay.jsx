@@ -73,7 +73,7 @@ const PolygonDisplay = ({ type, geometry, properties, isOpen }) => {
                 {geometry.coordinates[0].map((cord, index) => (
                   console.log(cord),
                   <li key={index}>
-                    Latitude: {cord[1].toFixed(3)}, Longitude: {cord[0].toFixed(3)}
+                    Latitude: {cord[1].toFixed(6)}, Longitude: {cord[0].toFixed(6)}
                   </li>
                 ))}
               </ul>

@@ -49,7 +49,7 @@ export const startti_icon = Leaflet.divIcon({
   className: "my-custom-pin",
   iconAnchor: [0, 3],
   labelAnchor: [-6, 0],
-  popupAnchor: [0, -36],
+  popupAnchor: [-7, -20],
   html: `<span style="${markerHtmlStyles}">
            <span style="${whiteCircleStyles}"></span>
          </span>`
@@ -59,7 +59,7 @@ export const desti_icon = Leaflet.divIcon({
     className: "my-custom-pin",
     iconAnchor: [0, 3],
     labelAnchor: [-6, 0],
-    popupAnchor: [0, -36],
+    popupAnchor: [-7, -20],
     html: `<span style="${markerHtmlStylese}">
              <span style="${whiteCircleStyles}"></span>
            </span>`

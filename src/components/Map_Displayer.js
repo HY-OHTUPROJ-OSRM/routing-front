@@ -21,7 +21,7 @@ import { intersectSelf } from '../services/Intersect_self';
 import { geometry } from '@turf/turf';
 import {startti_icon, desti_icon} from './leafletHTMLIcon';
 import { changeListView } from '../features/view/ViewSlice';
-function Map_Displayer({editMode, setEditMode, setSidebar}) {
+function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     const dispatch = useDispatch()
     const initialState = {
         long: 24.955,
@@ -184,7 +184,9 @@ function Map_Displayer({editMode, setEditMode, setSidebar}) {
     };
 
     const enableEditMode = () => {
-        setSidebar(1)
+        if (!isOpen)    {
+        setSidebar(true)
+        }
         setEditing(true)
         setEditMode(true)
         console.log("editmode map_disp", editMode)
@@ -199,10 +201,11 @@ function Map_Displayer({editMode, setEditMode, setSidebar}) {
     const cancelEdits = () => {
         //remove all tracked faults as data resets on cancel
         dispatch(setFaults({id: 0, type: 2}))
+        dispatch(changeListView(null));
         setEditing(false)
         setEditMode(false)
         setLines(0)
-        setSidebar(0)
+        setSidebar(false)
         editRef.current.props.map.editTools.stopDrawing()
     }
 
@@ -243,6 +246,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar}) {
         console.log("canceledit", calcelEditIds)
         console.log(modifiedPolygons)
         console.log(deleteIds)
+        dispatch(changeListView(null));
         const added = Object.values(modifiedPolygons).filter(zone => 
             Object.keys(sendIds).includes(String(zone.properties.id)) &&
             !Object.keys(calcelEditIds).includes(String(zone.properties.id))
@@ -254,15 +258,20 @@ function Map_Displayer({editMode, setEditMode, setSidebar}) {
         setEditMode(false)
         setEditing(false)
         setLines(0)
-        setSidebar(0)
+        setSidebar(false)
         dispatch(fetchPolygons())
         dispatch(fetchRouteLine())
         cancelEdits()
     }
 
     const onClickHandler = (properties) => {
+        if (!isOpen) {
+        setSidebar(true)
+        isOpen = true
+        } else{
         dispatch(changeListView(properties.id));
-        console.log("clicked", properties)
+        }
+        console.log("clicked",isOpen, properties)
       };
     
       const setupClickListener = (layer) => {

@@ -1,5 +1,5 @@
 import ins from '../api/api';
-import {convertToGeoJSON,convertToJSON} from './JSONToGeoJSON';
+import {convertToGeoJSON,convertToJSON, filterUUIDv4} from './JSONToGeoJSON';
 import { showTimedAlert, clearTimedAlert } from '../Utils/dispatchUtility';
 import handleAxiosError from './handleAxiosError';
 import { fetchRouteLine } from '../features/routes/routeSlice';
@@ -110,8 +110,9 @@ const CreatePolygon = async (object) => {
 
 const ChangePolygons = async (added, deleted) => {
   const alertId = `loading-${Date.now()}`;
+  let filteredDelete=filterUUIDv4(deleted);
   showTimedAlert({ text: 'Updating roads...', variant: 'info', id: alertId });
-
+  
   // Function to convert polyline to polygon if IsLine is 1
   const convertIfNeeded = (polygon) => {
     if (polygon.properties && polygon.properties.IsLine === 1) {
@@ -124,7 +125,7 @@ const ChangePolygons = async (added, deleted) => {
     // Convert polygons if needed
     const convertedAdded = added.map(convertIfNeeded);
     console.log(convertedAdded)
-    const data = { added: convertedAdded, deleted };
+    const data = { added: convertedAdded, filteredDelete };
 
     await ins({
       url: 'zones/diff',

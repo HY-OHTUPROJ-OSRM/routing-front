@@ -152,10 +152,10 @@ const ModifiedPolygonDisplay = (p, isOpen) => {
                 className={errors.type ? 'input-error' : ''}
               >
                 <option value="roadblock">Roadblock</option>
-                <option value="speed limit cap">Speed Limit Cap (Km/H)</option>
-                <option value="custom speed">Custom Speed (Km/H)</option>
-                <option value="speed change (Km/h)">Speed Change (Km/h)</option>
-                <option value="speed change (%)">Speed Change (multiplier)</option>
+                <option value="speed limit cap">Speed Limit Cap (Km/h)</option>
+                <option value="custom speed">Custom Speed (Km/h)</option>
+                <option value="speed change constant">Speed Change (Km/h)</option>
+                <option value="speed change multiplier">Speed Change (multiplier)</option>
               </select>
               {errors.type && <span className="error">{errors.type}</span>}
             </div>

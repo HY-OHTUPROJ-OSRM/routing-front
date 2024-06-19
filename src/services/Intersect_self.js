@@ -38,5 +38,5 @@ export const intersectSelf = (object) => {
   // Calculate the zoom level needed to fit the geometry
   //poorly calculated FIX pls
   export const zoomFit =(geom) => {
-    return Math.max(22-0.6*Math.log(turf.area(turf.polygon(geom.coordinates))),14);
+    return Math.min(Math.max(23-0.7*Math.log(turf.area(turf.polygon(geom.coordinates))),14), 18);
   }

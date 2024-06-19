@@ -19,8 +19,8 @@ const RouteList = () => {
       {routedata.map((route, index) => (
         <div key={index} style={{ marginBottom: '20px', marginLeft: '73%' }}>
           <h3>{index % 2 === 0 ? 'Primary Route' : 'Secondary Route'} </h3>
-          <p>Distance: {formatDistance(route.distance)} km</p>
-          <p>Duration: {formatDuration(route.duration)}</p>
+          <p id='distval'>Distance: {formatDistance(route.distance)} km</p>
+          <p id='durval'>Duration: {formatDuration(route.duration)}</p>
         </div>
       ))}
     </div>

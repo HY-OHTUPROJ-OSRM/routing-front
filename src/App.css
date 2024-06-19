@@ -61,7 +61,7 @@ header {
   right: -30vw;
   height: 95%;
   width: 30vw;
-  transition: right 0.5s ease-in-out;
+  transition: right 0.1s ease-in-out;
   background-color: rgb(104, 126, 158);
 }
 .sidebar-toggle {
@@ -112,6 +112,8 @@ body {
 	padding: 0;
 	margin: 0;
 	height: 90%;
+  overflow-y: initial;
+  overflow-x: initial;
 }
 .leaflet-container {
 	position: absolute;

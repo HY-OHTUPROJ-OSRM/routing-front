@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState} from "react";
 
 import { handleViewSidebar } from "./services/sidebarService";
 import SideBar from "./components/SideBar";
@@ -29,19 +29,18 @@ function App() {
     if (sidebarOpenA) {
       setSidebarOpenA(false);
     }
-    handleViewSidebar(sidebarOpenP, setSidebarOpenP);
+    setSidebarOpenP(!sidebarOpenP);
   };
 
   const toggleSidebara = () => {
     if (sidebarOpenP) {
       setSidebarOpenP(false);
     }
-    handleViewSidebar(sidebarOpenA, setSidebarOpenA);
+    setSidebarOpenA(!sidebarOpenA);
   };
 
-
+  
   return (
-    
     <div>
       <AppProviders>
       <div className="App">
@@ -56,7 +55,7 @@ function App() {
         
       </div>
       <div className="box" style={{zIndex: "0"}}>
-        <Map_displayer editMode={editMode} setEditMode={setEditMode} setSidebar={setSidebarOpenP}/>
+        <Map_displayer editMode={editMode} setEditMode={setEditMode} setSidebar={toggleSidebarp} isOpen={sidebarOpenP}/>
         
       </div>
       <div >
