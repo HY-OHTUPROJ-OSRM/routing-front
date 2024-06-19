@@ -19,11 +19,11 @@ export const validateName = (name) => {
   };
 
   export const validateEffectValue = (effectValue, type) => {
-    if (type === 'custom speed' || type === 'speed limit cap' || type === 'speed change (Km/h)') {
+    if (['offset', 'cap', 'constant'].includes(type)) {
       // Validate as an integer
       const integerRegex = /^-?\d+$/;
       return integerRegex.test(effectValue);
-    } else if (type === 'speed change (%)') {
+    } else if (type === 'factor') {
       // Validate as an integer or float
       const floatRegex = /^\d+(\.\d+)?$/;
       return floatRegex.test(effectValue);
@@ -33,5 +33,5 @@ export const validateName = (name) => {
   
   // Validator for type
   export const validateType = (type) => {
-    return ['roadblock', 'speed limit cap', 'custom speed', 'speed change (Km/h)', 'speed change (%)'].includes(type);
+    return ['roadblock', 'cap', 'constant', 'offset', 'factor'].includes(type);
   };

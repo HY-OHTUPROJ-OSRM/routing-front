@@ -50,7 +50,7 @@ const ModifiedPolygonDisplay = (p, isOpen) => {
     } else {
       const type = formData.type;
       console.log("yoooooo",type, value)
-      if (type === 'speed change (%)') {
+      if (type === 'factor') {
         if (!validateEffectValue(value, type)) {
           name="effectValue";
           errorMsg = 'Effect value must be a positive number.';
@@ -152,10 +152,10 @@ const ModifiedPolygonDisplay = (p, isOpen) => {
                 className={errors.type ? 'input-error' : ''}
               >
                 <option value="roadblock">Roadblock</option>
-                <option value="speed limit cap">Speed Limit Cap (Km/h)</option>
-                <option value="custom speed">Custom Speed (Km/h)</option>
-                <option value="speed change constant">Speed Change (Km/h)</option>
-                <option value="speed change multiplier">Speed Change (multiplier)</option>
+                <option value="cap">Speed Limit Cap (km/h)</option>
+                <option value="constant">Custom Speed (km/h)</option>
+                <option value="offset">Speed Change (km/h)</option>
+                <option value="factor">Speed Change (multiplier)</option>
               </select>
               {errors.type && <span className="error">{errors.type}</span>}
             </div>

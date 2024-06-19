@@ -64,7 +64,7 @@ function CreatePolygons() {
     } else if ((name === 'lat' || name === 'long') && !validateCoordinate(value)) {
       errorMsg = 'Coordinates must be a number between 0 and 90.';
     } else if (name === 'effectValue' && !validateEffectValue(value, formData.type)) {
-      if (formData.type === 'speed change (%)') {
+      if (formData.type === 'factor') {
         errorMsg = 'Effect value must be a positive number.';
       } else {
       errorMsg = 'Effect value must be an integer.';
@@ -183,10 +183,10 @@ function CreatePolygons() {
             className={errors.type ? 'input-error' : ''}
           >
             <option value="roadblock">Roadblock</option>
-            <option value="speed limit cap">Speed Limit Cap</option>
-            <option value="custom speed">Custom Speed</option>
-            <option value="speed change (Km/h)">Speed Change (Km/h)</option>
-            <option value="speed change (%)">Speed Change (%)</option>
+            <option value="cap">Speed Limit Cap</option>
+            <option value="constant">Custom Speed</option>
+            <option value="offset">Speed Change (km/h)</option>
+            <option value="factor">Speed Change (%)</option>
           </select>
           {errors.type && <span className="error">{errors.type}</span>}
         </div>

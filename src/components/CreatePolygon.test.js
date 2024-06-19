@@ -18,7 +18,7 @@ beforeEach(()=>{
 })
 
 test('selecting type custom speed switches to custom speed', async () => {
-  await userEvent.selectOptions(screen.getByLabelText(/Type:/i),'custom speed')
+  await userEvent.selectOptions(screen.getByLabelText(/Type:/i),'constant')
   expect(screen.getByLabelText(/speed effect:/i)).toBeInTheDocument()
 });
 
