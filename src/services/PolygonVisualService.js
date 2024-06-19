@@ -9,7 +9,7 @@ export const getColorAndOpacity =(type, val) =>{
         break;
       case 'cap':
         color = 'grey';
-        opacity = Math.min(0.7, Math.max(0, (val - 1) / 9)); // Cap standardized between 1 to 10
+        opacity = Math.min(0.7, Math.max(0, (val - 1) / 9));  // Cap standardized between 1 to 10
         break;
       case 'constant':
         color = 'yellow';
@@ -21,7 +21,7 @@ export const getColorAndOpacity =(type, val) =>{
         break;
       case 'factor':
         color = val > 1 ? 'green' : 'red';
-        opacity = Math.min(0.7, Math.max(0, Math.abs(val) / 100)); // Factor standardized between 0 and 100
+        opacity = Math.min(0.7, Math.max(0, Math.abs(val) / 10)); // Factor standardized between 0 and 100
         break;
       default:
         color = 'black';

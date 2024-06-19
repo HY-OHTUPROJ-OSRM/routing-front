@@ -337,7 +337,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
 
     const geoJsonStyle = (feature) => {
         console.log(feature.properties)
-        let {color, opacity} = getColorAndOpacity(feature.properties.type, feature.properties.effectValue);
+        let {color, opacity} = getColorAndOpacity(feature.properties.type, feature.properties.effect_value);
         if(!Number(opacity)){
             opacity=0.5
         }

@@ -54,7 +54,7 @@ const PolygonDisplay = ({ type, geometry, properties, isOpen }) => {
           <div  className={highlightedId === properties.id ? 'highlight' : 'polygon'} id={properties.id}>
             <h2>{properties.name}</h2>
             <p>{properties.type}</p>
-            {properties.type !== 'roadblock' && <p>{properties.effectValue}</p>}
+            {properties.type !== 'roadblock' && <p>{properties.effect_value}</p>}
             <button onClick={toggleExpansion} className="clickable-icon">
               {isExpanded ? "Hide" : "Show"} Coordinates
             </button>
