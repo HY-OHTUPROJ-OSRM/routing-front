@@ -185,6 +185,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
 
     const enableEditMode = () => {
         if (!isOpen)    {
+        dispatch(changeListView(null));
         setSidebar(true)
         }
         setEditing(true)
@@ -205,7 +206,9 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
         setEditing(false)
         setEditMode(false)
         setLines(0)
+        if (isOpen) {
         setSidebar(false)
+        }
         editRef.current.props.map.editTools.stopDrawing()
     }
 
@@ -382,7 +385,10 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
         useMapEvent('click', (event) => {
            let {lat, lng} = event.latlng;
            const map = mapRef.current;
-          if (markerCount ===0){
+           if (editMode){
+            return null
+           } 
+            if (markerCount ===0){
             setMarkerCount(prevCount => prevCount + 1);
             markercount++;
             const startMarker = L.marker([lat, lng], { icon: startti_icon, draggable: true })
