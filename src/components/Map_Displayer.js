@@ -502,7 +502,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
 
                 <Polyline key={index} positions={route.route} color={route.color} pathOptions={{
             color: route.color, 
-            zIndex: route.color === 'blue' ? 1000 : undefined
+            zIndex: route.color === 'blue' ? 10000 : undefined
           }}  />
             ))}
             {segments.map((segment, index) => (

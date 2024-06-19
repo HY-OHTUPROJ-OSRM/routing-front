@@ -16,7 +16,7 @@ const ModifiedPolygonDisplay = (p, isOpen) => {
     name: p.properties.name,
     type: p.properties.type,
     id: p.properties.id,
-    effectValue: '',
+    effectValue: p.properties.effect_value,
     coordinates: p.geometry.coordinates[0].map(cord => ({
       lat: cord[1],
       long: cord[0],
