@@ -108,9 +108,9 @@ const CreatePolygon = async (object) => {
   }
 };
 
-const ChangePolygons = async (added, deleted) => {
+const ChangePolygons = async (added, deletedIds) => {
   const alertId = `loading-${Date.now()}`;
-  let filteredDelete=filterUUIDv4(deleted);
+  let deleted=filterUUIDv4(deleted);
   showTimedAlert({ text: 'Updating roads...', variant: 'info', id: alertId });
   
   // Function to convert polyline to polygon if IsLine is 1
@@ -125,7 +125,7 @@ const ChangePolygons = async (added, deleted) => {
     // Convert polygons if needed
     const convertedAdded = added.map(convertIfNeeded);
     console.log(convertedAdded)
-    const data = { added: convertedAdded, filteredDelete };
+    const data = { added: convertedAdded, deleted };
 
     await ins({
       url: 'zones/diff',
