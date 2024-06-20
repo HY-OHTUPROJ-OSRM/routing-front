@@ -2,18 +2,21 @@ import { render, screen} from '@testing-library/react';
 import Routing_form from './RouteField';
 import '@testing-library/jest-dom'
 import userEvent from '@testing-library/user-event'
-import { Provider } from 'react-redux';
-import store from '../app/store';
 import { RouteProvider } from './CoordinatesContext';
+
+const mockDispatch = jest.fn();
+const mockSelector = jest.fn()
+jest.mock('react-redux', () => ({
+  useDispatch: () => mockDispatch,
+  useSelector: () => mockSelector
+}));
 
 beforeEach(()=>{
   IS_REACT_ACT_ENVIRONMENT = false
   render(
-  <Provider store={store}>
     <RouteProvider>
       <Routing_form />
     </RouteProvider>
-  </Provider>
   );
 })
 

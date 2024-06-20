@@ -6,7 +6,7 @@ import { getRoute } from '../services/RouteService';
 import { useDispatch } from 'react-redux';
 import { fetchRouteLine } from '../features/routes/routeSlice';
 import { fetchSegments } from '../features/segments/segmentSlice';
-
+import { useSelector } from 'react-redux';
 function Routing_form() {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
@@ -17,17 +17,20 @@ function Routing_form() {
   });
   const [errors, setErrors] = useState({});
   const { route, setRoute } = useContext(RouteContext);
-
+  const startpos=useSelector((state) => state.routeLine.startPosition);
+  const destpos=useSelector((state) => state.routeLine.endPosition);
+  
   useEffect(() => {
-    if (route && route.length === 2 && route[1] !== null && route[0] !== null) {
+    console.log('startpos', startpos, destpos);
+    if (startpos && destpos) {
       setFormData({
         coordinates: [
-          { lat: route[0].lat, long: route[0].long, name: 'Starting Position' },
-          { lat: route[1].lat, long: route[1].long, name: 'Destination' }
+          { lat: startpos.lat, long: startpos.long, name: 'Starting Position' },
+          { lat: destpos.lat, long: destpos.long, name: 'Destination' }
         ]
       });
     }
-  }, [route]);
+  }, [startpos, destpos]);
 
   const handleChange = (index, e) => {
     const { name, value } = e.target;
@@ -113,6 +116,7 @@ function Routing_form() {
             <input
               type="text"
               name="lat"
+              id="lat"
               value={coordinate.lat}
               onChange={(e) => handleChange(index, e)}
               placeholder="Latitude"
@@ -124,6 +128,7 @@ function Routing_form() {
             <input
               type="text"
               name="long"
+              id="long"
               value={coordinate.long}
               onChange={(e) => handleChange(index, e)}
               placeholder="Longitude"

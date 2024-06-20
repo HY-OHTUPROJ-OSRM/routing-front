@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, FeatureGroup, Polygon, Tooltip, useMap, Polyline, GeoJSON } from 'react-leaflet';
+import { MapContainer, TileLayer, FeatureGroup, Polygon, Tooltip, useMap, Polyline, GeoJSON, useMapEvent } from 'react-leaflet';
 import React, { useRef, useEffect, useState, useContext } from 'react';
 import { EditControl } from 'react-leaflet-draw';
 import { CoordinatesContext, RouteContext } from './CoordinatesContext';
@@ -19,7 +19,12 @@ import { generateName } from '../services/nameGiverService';
 import { showTimedAlert } from '../Utils/dispatchUtility';
 import { intersectSelf } from '../services/Intersect_self';
 import { geometry } from '@turf/turf';
-function Map_Displayer({editMode, setEditMode}) {
+import { getColorAndOpacity } from '../services/PolygonVisualService';
+import {startti_icon, desti_icon} from './leafletHTMLIcon';
+import { changeListView } from '../features/view/ViewSlice';
+import VectorTileLayer from "react-leaflet-vector-tile-layer";
+
+function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     const dispatch = useDispatch()
     const initialState = {
         long: 24.955,
@@ -44,26 +49,39 @@ function Map_Displayer({editMode, setEditMode}) {
     const editingZonesRef = useRef(null);
     const { setCoordinates } = useContext(CoordinatesContext);
     const { route, setRoute } = useContext(RouteContext);
-      
+    const mapView = useSelector((state) => state.view.mapView);
+    const [styleUrl, setStyleUrl] = useState("/road_style.json")
+    const [key, setKey] = useState(0)
+    let mountingHelper=0
     let startposition=null;
+    let maphelp=null
     //{lat: '', lng: ''}
     let destinationposition=null;
     var markercount=0;
 
     const start_icon = new L.Icon({
-        iconUrl: icon,
-        //iconSize: [50, 50],
-        iconAnchor: [13, 40],
+        iconUrl: require('../img/amb.webp'),
+        //iconUrl: icon,
+        //iconUrl: startti_icon,
+        iconSize: [60, 60],
+        iconAnchor: [30, 40],
         popupAnchor: [0, -30],
     });
 
     const destination_icon = new L.Icon({
+        iconUrl: require('../img/goal.png'),
+        //iconUrl: icon,
+        iconSize: [40, 40],
+        iconAnchor: [11, 38],
+        //iconAnchor: [13, 40],
+        popupAnchor: [0, -30],
+    });
+    const placehold_icon = new L.Icon({
         iconUrl: icon,
-        //iconSize: [50, 50],
+        iconSize: [25, 41],
         iconAnchor: [13, 40],
         popupAnchor: [0, -30],
     });
-
     const onMarkerDragEnd = (e, type) => {
         const { lat, lng } = e.target.getLatLng();
         console.log("segments", segments);
@@ -84,10 +102,12 @@ function Map_Displayer({editMode, setEditMode}) {
         if (newRoute.length === 2) {
             if (newRoute[0].lat !== undefined && newRoute[0].long !== undefined && newRoute[1].lat !== undefined && newRoute[1].long !== undefined) {
                 console.log("marker drag end", newRoute)
-                dispatch(fetchRouteLine(newRoute));
+                dispatch(fetchRouteLine());
             }
     };
     }
+
+
 
     const onDrawCreated = async (e) => {
         const { layerType, layer } = e;
@@ -115,7 +135,7 @@ function Map_Displayer({editMode, setEditMode}) {
                 if (markercount === 0) {
                     setMarkerCount(prevCount =>prevCount + 1);
                     markercount++;
-                    const startMarker = L.marker([lat, lng], { icon: start_icon, draggable: true })
+                    const startMarker = L.marker([lat, lng], { icon: startti_icon, draggable: true })
                         .addTo(map)
                         .bindPopup("Start")
                         .on('dragend', (e) => onMarkerDragEnd(e, 'start'));
@@ -128,7 +148,7 @@ function Map_Displayer({editMode, setEditMode}) {
                 } else if (markercount === 1) {
                     markercount++;
                     setMarkerCount(prevCount => prevCount + 1);
-                    const destinationMarker = L.marker([lat,lng], { icon: destination_icon, draggable: true })
+                    const destinationMarker = L.marker([lat,lng], { icon: desti_icon, draggable: true })
                         .addTo(map)
                         .bindPopup("Destination")
                         .on('dragend', (e) => onMarkerDragEnd(e, 'destination'));
@@ -149,11 +169,15 @@ function Map_Displayer({editMode, setEditMode}) {
     };
 
     const handleMouseOver = (e) => {
+        console.log("joo", e)
         const layer = e.target;
         layer.setStyle({
             fillColor: 'black',
             fillOpacity: 0.7
         });
+        if (editMode){
+        onClickHandler(e.target.options);
+        }
     };
 
     const handleMouseOut = (e) => {
@@ -165,6 +189,10 @@ function Map_Displayer({editMode, setEditMode}) {
     };
 
     const enableEditMode = () => {
+        if (!isOpen)    {
+        dispatch(changeListView(null));
+        setSidebar(true)
+        }
         setEditing(true)
         setEditMode(true)
         console.log("editmode map_disp", editMode)
@@ -179,9 +207,13 @@ function Map_Displayer({editMode, setEditMode}) {
     const cancelEdits = () => {
         //remove all tracked faults as data resets on cancel
         dispatch(setFaults({id: 0, type: 2}))
+        dispatch(changeListView(null));
         setEditing(false)
         setEditMode(false)
         setLines(0)
+        if (isOpen) {
+        setSidebar(false)
+        }
         editRef.current.props.map.editTools.stopDrawing()
     }
 
@@ -217,66 +249,111 @@ function Map_Displayer({editMode, setEditMode}) {
         e.layer.remove()
     }
 
+    const updateSpeedData = () => {
+        setStyleUrl("/road_style.json?time=" + new Date().getTime())
+        setKey(prevKey => prevKey + 1)
+    }
 
     const saveEdits = async () => {
         console.log("canceledit", calcelEditIds)
         console.log(modifiedPolygons)
         console.log(deleteIds)
-        setEditMode(false)
-        setEditing(false)
+        dispatch(changeListView(null));
         const added = Object.values(modifiedPolygons).filter(zone => 
             Object.keys(sendIds).includes(String(zone.properties.id)) &&
             !Object.keys(calcelEditIds).includes(String(zone.properties.id))
         );
         console.log(added)
+        
         editRef.current.props.map.editTools.stopDrawing()
         await ChangePolygons(added, Object.keys(deleteIds))
+        setEditMode(false)
+        setEditing(false)
         setLines(0)
+        setSidebar(false)
+        updateSpeedData()
         dispatch(fetchPolygons())
         dispatch(fetchRouteLine())
         cancelEdits()
     }
 
-    const enableLayerEdits = () => {
-        console.log("enabled edit start")
+    const onClickHandler = (properties) => {
+        if (!isOpen)    {
+        setSidebar(true)
+        }
+        dispatch(changeListView(properties.id));
+        
+        console.log("clicked",isOpen, properties)
+      };
+    
+      const setupClickListener = (layer) => {
+        if (!layer.listens("click")) {
+          layer.on("click", (e) => {
+            onClickHandler(e.layer.feature.properties);
+          });
+        }
+      };
+    
+      const enableLayerEdits = () => {
+        console.log("enabled edit start");
         if (editingZonesRef.current !== null) {
-            console.log(editingZonesRef.current.getLayers())
-            editingZonesRef.current.getLayers().forEach((layer) => {
-                console.log(layer)
-                layer.disableEdit()
-                layer.enableEdit()
-                if (!layer.listens("editable:vertex:dragend")) {
-                    layer.on("editable:vertex:dragend", (e) => {
-                        const { name, type, id, IsLine } = e.layer.options
-                        const geoJSON = e.layer.toGeoJSON()
-
-                        geoJSON.properties = {
-                            name, type, id, IsLine
-                        }
-
-                        dispatch(modifyPolygon(geoJSON))
-                    })
+          console.log(editingZonesRef.current.getLayers());
+          editingZonesRef.current.getLayers().forEach((layer) => {
+            //console.log(layer);
+            layer.disableEdit();
+            layer.enableEdit();
+    
+            if (!layer.listens("editable:vertex:dragend")) {
+              layer.on("editable:vertex:dragend", (e) => {
+                const { name, type, id, IsLine } = e.layer.options;
+                const geoJSON = e.layer.toGeoJSON();
+                console.log("dragend", e);
+                //onClickHandler(e.layer.options);
+    
+                geoJSON.properties = {
+                  name, type, id, IsLine
+                };
+                if(!intersectSelf(geoJSON)){
+                dispatch(modifyPolygon(geoJSON));
                 }
-            })
-        }
-        if (editing && editRef.current != null) {
-            if (!editRef.current.props.map?.editTools?.drawing()) {
-                if (Lines) {
-                    editRef.current.startPolyline()
-                } else {
-                    editRef.current.startPolygon()
-                }
+              });
             }
+    
+            setupClickListener(layer);
+          });
         }
-        console.log("enabled edit complete")
-    }
+    
+        if (editing && editRef.current != null) {
+          if (!editRef.current.props.map?.editTools?.drawing()) {
+            if (Lines) {
+              editRef.current.startPolyline();
+            } else {
+              editRef.current.startPolygon();
+            }
+          }
+        }
+        console.log("enabled edit complete");
+      };
+    
+      useEffect(() => {
+        if (zonesRef.current !== null) {
+            console.log("setting up click listeners");
+          zonesRef.current.getLayers().forEach(setupClickListener);
+        }
+      }, [polygons, modifiedPolygons, editingZonesRef.current, mountingHelper]);
 
     useEffect(enableLayerEdits)
 
     const geoJsonStyle = (feature) => {
+        console.log(feature.properties)
+        let {color, opacity} = getColorAndOpacity(feature.properties.type, feature.properties.effect_value);
+        if(!Number(opacity)){
+            opacity=0.5
+        }
+        console.log(opacity)
         return {
-          color: feature.properties.type === 'roadblock' ? 'red' : 'orange',
-          fillOpacity: 0.5
+          color: color,
+          fillOpacity: opacity
         };
       };
     
@@ -287,7 +364,7 @@ function Map_Displayer({editMode, setEditMode}) {
         });
     
         if (feature.properties && feature.properties.name) {
-          layer.bindTooltip(feature.properties.name);
+          layer.bindTooltip(`${feature.properties.name} | ${feature.properties.type}`);
         }
       };
 
@@ -305,8 +382,64 @@ function Map_Displayer({editMode, setEditMode}) {
 
     }
 
-
+    function handleOnFlyTo() {
+        
+        const { leafletElement: map } = mapRef;
+        if (mapView.center!==undefined){
+        mapRef.current.flyTo(mapView.center, mapView.zoom, {
+          duration: 1
+        });
+        }
+      }
+    useEffect(() => {
+        handleOnFlyTo();
+      }, [mapView]);
     
+
+      const ClickHandler = () => {
+        useMapEvent('click', (event) => {
+           let {lat, lng} = event.latlng;
+           const map = mapRef.current;
+           if (editMode){
+            return null
+           } 
+            if (markerCount ===0){
+            setMarkerCount(prevCount => prevCount + 1);
+            markercount++;
+            const startMarker = L.marker([lat, lng], { icon: startti_icon, draggable: true })
+                        .addTo(map)
+                        .bindPopup("Start")
+                        .on('dragend', (e) => onMarkerDragEnd(e, 'start'));
+                    
+                    startposition={ lat:lat, long:lng }
+                    dispatch(setStartPosition(startposition));
+                    
+                    setRoute([startposition, destinationposition]);
+                    console.log(startposition, destinationposition)
+            } else if (markerCount === 1) {
+                    markercount++;
+                    setMarkerCount(prevCount => prevCount + 1);
+                    const destinationMarker = L.marker([lat,lng], { icon: desti_icon, draggable: true })
+                        .addTo(map)
+                        .bindPopup("Destination")
+                        .on('dragend', (e) => onMarkerDragEnd(e, 'destination'));
+                    //console.log(startPosition, destinationPosition)
+                    
+                    destinationposition={lat:lat,long:lng }
+                    dispatch(setEndPosition(destinationposition));
+                    console.log("secondoneadded",startposition, destinationposition)
+                    setRoute([startposition, destinationposition]);
+                    console.log(route)
+                    
+                            dispatch(fetchRouteLine());
+          }
+        });
+        return null;
+      };
+      
+        const handleClick = (event) => {
+          console.log('Map clicked at:', event.latlng);
+        };
 
     return (
         <ReactLeafletEditable
@@ -314,6 +447,7 @@ function Map_Displayer({editMode, setEditMode}) {
             map={mapRef.current}
             onDrawingCommit={onDrawingCommit}
             onCancelDrawing={onCancelDrawing}
+            
         >
         <MapContainer
             editable={true}
@@ -369,15 +503,15 @@ function Map_Displayer({editMode, setEditMode}) {
                 </button>
             )}
             </div>
-            <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            <VectorTileLayer
+                key={key}
+                styleUrl={styleUrl}
             />
             {routedata.slice().reverse().map((route, index) => (
 
                 <Polyline key={index} positions={route.route} color={route.color} pathOptions={{
             color: route.color, 
-            zIndex: route.color === 'blue' ? 1000 : undefined
+            zIndex: route.color === 'blue' ? 10000 : undefined
           }}  />
             ))}
             {segments.map((segment, index) => (
@@ -398,8 +532,8 @@ function Map_Displayer({editMode, setEditMode}) {
             ?
             <FeatureGroup ref={editingZonesRef}>
                 {(Object.values(modifiedPolygons).map((polygon, index) => {
-                    const color = 'orangeRed';
-                    console.log("jepoe", polygon, polygon.geometry.coordinates[0].map(coord => [coord[1], coord[0]]))
+                     const { color, opacity } = getColorAndOpacity(polygon.properties.type, polygon.properties.effectValue);
+                    //console.log("jepoe", polygon, polygon.geometry.coordinates[0].map(coord => [coord[1], coord[0]]))
                     if (polygon.properties.IsLine === 1) {
                     return (
                        
@@ -419,9 +553,11 @@ function Map_Displayer({editMode, setEditMode}) {
                                 mouseover: handleMouseOver,
                                 mouseout: handleMouseOut,
                             }}
-                            originalColor={color} // Store original color for mouseout event
+                            originalColor={color}
+                            originalOpacity={opacity} // Store original color for mouseout event
                         >
-                            <Tooltip>{polygon.properties.name}</Tooltip>
+                            <Tooltip>{`${polygon.properties.name} | ${polygon.properties.type}`}</Tooltip>
+                            
                         </Polyline>
                     )
                     } else {
@@ -438,14 +574,16 @@ function Map_Displayer({editMode, setEditMode}) {
                                 mouseover: handleMouseOver,
                                 mouseout: handleMouseOut,
                             }}
-                            originalColor={color} // Store original color for mouseout event
+                            originalColor={color}
+                            originalOpacity={opacity}// Store original color for mouseout event
                         >
-                            <Tooltip>{polygon.properties.name}</Tooltip>
+                            <Tooltip>{`${polygon.properties.name} | ${polygon.properties.type}`}</Tooltip>
+                            
                         </Polygon>
                         
                     
                     )};
-                
+                mountingHelper=1;
                 }))}
                 {console.log("Completed rendering all polygons for this round.")}
             </FeatureGroup>
@@ -457,6 +595,7 @@ function Map_Displayer({editMode, setEditMode}) {
                         data={feature}
                         style={geoJsonStyle}
                         onEachFeature={onEachFeature}
+                        
                     />
                 ))}
                 <EditControl
@@ -467,12 +606,15 @@ function Map_Displayer({editMode, setEditMode}) {
                         polyline: false,
                         circle: false,
                         circlemarker: false,
-                        marker: markerCount < 2 ? {
-                            icon: start_icon
-                        } : false // Allow drawing markers only if there are less than 2 markers
+                        marker: false 
+                        
+                        //markerCount < 2 ? {
+                        //    icon: placehold_icon
+                        //} : false // Allow drawing markers only if there are less than 2 markers
                     }}
                 />
             </FeatureGroup>}
+        <ClickHandler onClick={handleClick} />
         </MapContainer>
         </ReactLeafletEditable>
     );

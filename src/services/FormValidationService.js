@@ -4,9 +4,6 @@ export const validateName = (name) => {
     return regex.test(name);
   };
   
-  export const validateType = (type) => {
-    return type === 'roadblock' || type === 'traffic';
-  };
   
   export const validateCoordinate = (coordinate) => {
     const coordinateRegex = /^(\d+(\.\d+)?|\.\d+)$/;
@@ -19,4 +16,22 @@ export const validateName = (name) => {
     //const regex = /^[+-](?!0\b)\d+(km\/h|%)$/;
     const regex = /^(?!0\b)\d+$/;
     return regex.test(severity);
+  };
+
+  export const validateEffectValue = (effectValue, type) => {
+    if (['offset', 'cap', 'constant'].includes(type)) {
+      // Validate as an integer
+      const integerRegex = /^-?\d+$/;
+      return integerRegex.test(effectValue);
+    } else if (type === 'factor') {
+      // Validate as an integer or float
+      const floatRegex = /^\d+(\.\d+)?$/;
+      return floatRegex.test(effectValue);
+    }
+    return true;
+  };
+  
+  // Validator for type
+  export const validateType = (type) => {
+    return ['roadblock', 'cap', 'constant', 'offset', 'factor'].includes(type);
   };

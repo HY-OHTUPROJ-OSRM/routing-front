@@ -1,5 +1,5 @@
-import ins from '../api/api';
-import {convertToGeoJSON,convertToJSON} from './JSONToGeoJSON';
+import { ins } from '../api/api';
+import {convertToGeoJSON,convertToJSON, filterUUIDv4} from './JSONToGeoJSON';
 import { showTimedAlert, clearTimedAlert } from '../Utils/dispatchUtility';
 import handleAxiosError from './handleAxiosError';
 import { fetchRouteLine } from '../features/routes/routeSlice';
@@ -84,23 +84,18 @@ const CreatePolygon = async (object) => {
   console.log(object);
   const alertId = `loading-${Date.now()}`;
   showTimedAlert({ text: 'Adding polygon...', variant: 'info', id: alertId });
+  const data = { added: [object], deleted: [] };
   try {
     //const GEOJSON= convertToGeoJSON(object);
-    const GEOJSON=object
-    console.log(GEOJSON)
-    const response = await ins({
-      url: 'zones',
+    await ins({
+      url: 'zones/diff',
       method: "post",
-      data: GEOJSON,
+      data,
       headers: { "content-type": "application/json" },
     });
-    console.log(response.data);
+    
     clearTimedAlert(alertId)
-    if (response.status === 201) {
-      showTimedAlert({ text: 'Polygon created successfully', variant: 'success' });
-      return response.data;
-    }
-    showTimedAlert({ text: 'something unexpected happened', variant: 'failure' });
+    showTimedAlert({ text: 'Polygon created successfully', variant: 'success' });
     
   } catch (error) {
     clearTimedAlert(alertId)
@@ -108,10 +103,11 @@ const CreatePolygon = async (object) => {
   }
 };
 
-const ChangePolygons = async (added, deleted) => {
+const ChangePolygons = async (added, deletedIds) => {
   const alertId = `loading-${Date.now()}`;
-  showTimedAlert({ text: 'Updating roads...', variant: 'info', id: alertId });
-
+  let deleted=filterUUIDv4(deletedIds);
+  showTimedAlert({ text: 'Updating roads...', variant: 'progress', id: alertId });
+  
   // Function to convert polyline to polygon if IsLine is 1
   const convertIfNeeded = (polygon) => {
     if (polygon.properties && polygon.properties.IsLine === 1) {
@@ -147,15 +143,15 @@ const DeletePolygon = async (id) => {
   const alertId = `loading-${Date.now()}`;
   showTimedAlert({ text: 'Deleting polygon...', variant: 'info', id: alertId });
   try {
-    const response = await ins({
-      url: `zones/${id}`,
-      method: "delete",
+    const data = { added: [], deleted: [id] };
+    await ins({
+      url: 'zones/diff',
+      method: "post",
+      data,
       headers: { "content-type": "application/json" },
     });
     clearTimedAlert(alertId)
     showTimedAlert({ text: 'Polygon deleted successfully', variant: 'success' });
-    
-    return response;
   } catch (error) {
     clearTimedAlert(alertId)
     handleAxiosError(error);

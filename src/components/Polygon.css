@@ -39,3 +39,8 @@
 .input-error {
   border-color: red;
 }
+
+.highlight {
+  border: 4px solid greenyellow; /* Add your highlight style here */
+  
+}

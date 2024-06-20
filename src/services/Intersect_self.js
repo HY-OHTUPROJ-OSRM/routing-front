@@ -1,6 +1,7 @@
 import * as turf from '@turf/turf';
 import { showTimedAlert } from '../Utils/dispatchUtility';
 import { createNarrowPolygon } from './LineToPolygon';
+
 export const intersectSelf = (object) => {
     console.log(object)
     let geometry = object.geometry;
@@ -30,3 +31,12 @@ export const intersectSelf = (object) => {
     return kinks.features.length > 0 ? 1 : 0;
   };
 
+  export const getCentroid =(geom) => {
+    //console.log(turf.centroid(turf.polygon(geom.coordinates)))
+    return turf.centroid(turf.polygon(geom.coordinates)).geometry.coordinates;
+  }
+  // Calculate the zoom level needed to fit the geometry
+  //poorly calculated FIX pls
+  export const zoomFit =(geom) => {
+    return Math.min(Math.max(23-0.7*Math.log(turf.area(turf.polygon(geom.coordinates))),14), 18);
+  }

@@ -1,8 +1,17 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
-import { Provider } from 'react-redux';
-import store from './app/store';
-
+import { AppProviders } from './components/CoordinatesContext';
+jest.mock("./components/TimedAlert")
+jest.mock("./components/CopeSideBar")
+jest.mock("./components/RouteField")
+jest.mock("./components/SideBar")
+jest.mock("./components/RouteInfo")
+const mockDispatch = jest.fn();
+const mockSelector = jest.fn();
+jest.mock('react-redux', () => ({
+  useDispatch: () => mockDispatch,
+  useSelector: () => mockSelector
+}));
 // Mock the Map_Displayer component
 jest.mock('./components/Map_Displayer.js', () => {
   return () => <div>Mocked MyMap</div>;
@@ -10,9 +19,7 @@ jest.mock('./components/Map_Displayer.js', () => {
 
 test('renders Routing app', () => {
   render(
-    <Provider store={store}>
-      <App />
-    </Provider>
+    <AppProviders><App/></AppProviders>
   );
   const linkElement = screen.getByText(/Routing app/i);
   expect(linkElement).toBeInTheDocument();

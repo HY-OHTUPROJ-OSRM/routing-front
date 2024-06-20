@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState} from "react";
 
 import { handleViewSidebar } from "./services/sidebarService";
 import SideBar from "./components/SideBar";
@@ -15,7 +15,7 @@ import { fetchPolygons } from "./features/polygons/polygonsSlice";
 import TimedAlert from "./components/TimedAlert";
 import { Provider } from 'react-redux';
 import { configureStore } from "@reduxjs/toolkit";
-import tempButton from "./components/tempButton";
+import RouteList from "./components/RouteInfo";
 function App() {
   const dispatch = useDispatch()
   const [sidebarOpenP, setSidebarOpenP] = useState(false);
@@ -29,19 +29,18 @@ function App() {
     if (sidebarOpenA) {
       setSidebarOpenA(false);
     }
-    handleViewSidebar(sidebarOpenP, setSidebarOpenP);
+    setSidebarOpenP(!sidebarOpenP);
   };
 
   const toggleSidebara = () => {
     if (sidebarOpenP) {
       setSidebarOpenP(false);
     }
-    handleViewSidebar(sidebarOpenA, setSidebarOpenA);
+    setSidebarOpenA(!sidebarOpenA);
   };
 
-
+  
   return (
-    
     <div>
       <AppProviders>
       <div className="App">
@@ -56,10 +55,13 @@ function App() {
         
       </div>
       <div className="box" style={{zIndex: "0"}}>
-        <Map_displayer editMode={editMode} setEditMode={setEditMode}/>
+        <Map_displayer editMode={editMode} setEditMode={setEditMode} setSidebar={toggleSidebarp} isOpen={sidebarOpenP}/>
         
       </div>
+      <div >
       <Routing_form/>
+      <RouteList/>
+      </div>
       </AppProviders>
     </div>
     

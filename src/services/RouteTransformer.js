@@ -9,7 +9,14 @@ const fetchroute = async () => {
     }
   };
   
-
+  function routeInfoExtractor(jsonData) {
+    let routes = [];
+    jsonData.routes.forEach((route, routeIndex) => {
+      routes.push({distance: route.distance, duration: route.duration});
+      })
+      console.log("extractedinfo: ",routes)
+      return routes
+  }
 
   function routeTransformer(jsonData) {
     console.log("received route data:", jsonData);
@@ -45,5 +52,5 @@ function routeFlip(arr) {
 function routeGiver(coords) {
     return `${coords[0].long},${coords[0].lat};${coords[1].long},${coords[1].lat}`;
 }
-export {fetchroute, routeTransformer, routeGiver, routeFlip};
+export {fetchroute, routeTransformer, routeGiver, routeFlip, routeInfoExtractor};
 

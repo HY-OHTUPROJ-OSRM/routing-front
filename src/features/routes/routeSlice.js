@@ -7,6 +7,7 @@ export const routeSlice = createSlice({
     routeLine: [],
     startPosition: null,
     endPosition: null,
+    routeInfo: [],
   },
   reducers: {
     setRouteLine: (state, action) => {
@@ -18,10 +19,13 @@ export const routeSlice = createSlice({
     setEndPosition: (state, action) => {
       state.endPosition = action.payload;
     },
-  },
+    setRouteInfo: (state, action) => {
+      state.routeInfo = action.payload;
+    },
+  }
 });
 
-export const { setRouteLine, setStartPosition, setEndPosition } = routeSlice.actions;
+export const { setRouteLine, setStartPosition, setEndPosition, setRouteInfo } = routeSlice.actions;
 
 export const fetchRouteLine = (coords) => {
   return async (dispatch, getState) => {
@@ -38,12 +42,18 @@ export const fetchRouteLine = (coords) => {
       const routeLine = await getRoute(coords);
       //console.log("routeLine", routeLine);
       dispatch(setRouteLine(routeLine));
+
     } else {
       console.error("No coordinates provided and no start/end positions set");
     }
   };
 };
 
+export const UpdateRouteInfo = (info) => {  
+  return async (dispatch, getState) => {
+    dispatch(setRouteInfo(info));
+  }
+}
 export default routeSlice.reducer;
 
 

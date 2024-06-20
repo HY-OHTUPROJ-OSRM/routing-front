@@ -1,6 +1,6 @@
-import ins from '../api/api';
-import { routeTransformer, routeGiver, fetchroute, routeFlip } from './RouteTransformer';
-import { showTimedAlert, clearTimedAlert } from '../Utils/dispatchUtility';
+import { ins } from '../api/api';
+import { routeTransformer, routeGiver, fetchroute, routeFlip, routeInfoExtractor } from './RouteTransformer';
+import { showTimedAlert, clearTimedAlert, UpdateRouteInfoUtil } from '../Utils/dispatchUtility';
 import handleAxiosError from './handleAxiosError';
 const getRoute = async (coords) => {
     let proper=routeGiver(coords);
@@ -17,6 +17,7 @@ const getRoute = async (coords) => {
       //let response=await fetchroute()
       console.log("route response:", response);
       const proper_route=routeTransformer(response.data);
+      UpdateRouteInfoUtil(routeInfoExtractor(response.data));
       console.log("proper_route",proper_route);
       return proper_route;
     } catch (error) {
