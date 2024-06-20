@@ -2,24 +2,25 @@ import { render, screen } from '@testing-library/react';
 import CreatePolygons from './CreatePolygon';
 import '@testing-library/jest-dom'
 import userEvent from '@testing-library/user-event'
-import { Provider } from 'react-redux';
-import store from '../app/store';
 import { CoordinatesProvider } from './CoordinatesContext';
 
+const mockDispatch = jest.fn();
+jest.mock('react-redux', () => ({
+  useDispatch: () => mockDispatch
+}));
+
 beforeEach(()=>{
-  IS_REACT_ACT_ENVIRONMENT = false
+  IS_REACT_ACT_ENVIRONMENT = false  
   render(
-  <Provider store={store}>
-    <CoordinatesProvider>
-      <CreatePolygons />
-    </CoordinatesProvider>
-  </Provider>
+  <CoordinatesProvider>
+    <CreatePolygons />
+  </CoordinatesProvider>
   );
 })
-
+// FOR DEBUGGING USE "screen.debug()"
 test('selecting type custom speed switches to custom speed', async () => {
-  await userEvent.selectOptions(screen.getByLabelText(/Type:/i),'constant')
-  expect(screen.getByLabelText(/speed effect:/i)).toBeInTheDocument()
+  await userEvent.selectOptions(screen.getByLabelText(/Type:/i),'Custom Speed')
+  expect(screen.getByLabelText(/Effect Value:/i)).toBeInTheDocument()
 });
 
 test('selecting type Roadblock doesnt show speed effect', async () => {
