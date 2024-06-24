@@ -282,6 +282,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
         if (!isOpen)    {
         setSidebar(true)
         }
+        console.log("clicked", properties)
         dispatch(changeListView(properties.id));
         
         //console.log("clicked",isOpen, properties)
@@ -290,6 +291,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
       const setupClickListener = (layer) => {
         if (!layer.listens("click")) {
           layer.on("click", (e) => {
+
             onClickHandler(e.layer.feature.properties);
           });
         }
@@ -308,13 +310,13 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
               layer.on("editable:vertex:dragend", (e) => {
                 const { name, type, id, IsLine, effectValue } = e.layer.options;
                 const geoJSON = e.layer.toGeoJSON();
-                //console.log("dragend", e);
+                console.log("dragend", e);
                 //onClickHandler(e.layer.options);
     
                 geoJSON.properties = {
                   name, type, id, IsLine, effectValue
                 };
-                //console.log("editmode new",geoJSON)
+                console.log("editmode new",geoJSON)
                 if(!intersectSelf(geoJSON)){
                     console.log("dispatching map")
                 dispatch(modifyPolygon(geoJSON));
@@ -494,7 +496,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
             center={position}
             zoom={initialState.zoom}
             scrollWheelZoom={true}
-            style={{ flex: 1, width: '70%', height: "95%", marginTop: "-40px", zIndex: 0}}
+            style={{ flex: 1, width: '70%', height: "95%", marginTop: "-40px", zIndex: 0,}}
             whenCreated={(map) => { mapRef.current = map; }}
             ref={mapRef}
         >   
@@ -581,7 +583,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
             <FeatureGroup ref={editingZonesRef}>
                 {(Object.values(modifiedPolygons).map((polygon, index) => {
                      const { color, opacity } = getColorAndOpacity(polygon.properties.type, polygon.properties.effectValue);
-                    console.log("opacity change??", opacity, polygon.properties.effectValue)
+                    //console.log("opacity change??", opacity, polygon.properties.effectValue)
                     if (polygon.properties.IsLine === 1) {
                     return (
                        

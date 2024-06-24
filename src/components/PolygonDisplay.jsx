@@ -7,7 +7,7 @@ import { fetchRouteLine } from "../features/routes/routeSlice"
 import { useSelector } from 'react-redux';
 import { getCentroid, zoomFit } from "../services/Intersect_self";
 import {changeMapView} from "../features/view/ViewSlice";
-const PolygonDisplay = ({ type, geometry, properties, isOpen }) => {
+const PolygonDisplay = ({ type, geometry, properties, isOpen, index }) => {
   const [highlightedId, setHighlightedId] = useState(null);
   const listViewId = useSelector((state) => state.view.listView);
         //console.log(type, geometry, properties)
@@ -71,6 +71,7 @@ const PolygonDisplay = ({ type, geometry, properties, isOpen }) => {
             src={`${process.env.PUBLIC_URL}/trash.png`} 
             alt="Delete" 
             onClick={HandleDelete} 
+            id={`del${index}`}
             className="clickable-icon" 
             style={{ height: '30px', width: '30px', marginLeft: '10px', marginTop: '10px' }} 
           />

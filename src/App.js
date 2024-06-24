@@ -43,15 +43,15 @@ function App() {
   return (
     <div>
       <AppProviders>
-      <div className="App">
+      <div className="App" style={{overflow: "clip", overflowClipMargin: "10px"}}>
       
-        <span style={{zIndex: "10"}}>
+        <div style={{zIndex: "10", marginBottom: "40px"}}>
           <TimedAlert />
-          <Header onClickP={toggleSidebarp} onClickA={toggleSidebara} className="App-header" />
+          <Header onClickP={toggleSidebarp} onClickA={toggleSidebara} className="App-header"  />
           
           <SideBar isOpen={sidebarOpenP} toggleSidebar={setSidebarOpenP} editMode={editMode} setEditMode={setEditMode}/>
           <CopeSideBar isOpen={sidebarOpenA} toggleSidebar={setSidebarOpenA} />
-        </span>
+        </div>
         
       </div>
       <div className="box" style={{zIndex: "0"}}>

@@ -29,5 +29,6 @@ export const getColorAndOpacity =(type, val) =>{
         break;
     }
     //console.log(opacity, color)
-    return { color, opacity };
+    const op=0.5
+    return { color, op };
   }

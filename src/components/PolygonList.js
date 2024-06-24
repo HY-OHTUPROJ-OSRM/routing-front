@@ -24,7 +24,7 @@ function PolygonList({editMode, setEditMode, isOpen}) {
         ))
       ) : (
         polygons.map((polygon, index) => (
-          <PolygonDisplay key={polygon.properties.id} {...polygon} isOpen={isOpen}/>
+          <PolygonDisplay key={polygon.properties.id} {...polygon} isOpen={isOpen} index={index}/>
         ))
       )}
     </div>
