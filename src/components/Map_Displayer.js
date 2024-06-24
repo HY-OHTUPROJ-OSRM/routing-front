@@ -445,6 +445,31 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
           console.log('Map clicked at:', event.latlng);
         };
 
+        useEffect(() => {
+            let map=mapRef.current
+            if (map===null){
+                return
+            }
+            const bringPolylinesToFront = () => {
+                map.eachLayer((layer) => {
+                    //console.log(layer)
+                    if (layer instanceof L.Polyline) {
+                        console.log("bring to fron layer:", layer)
+                        if (layer._latlngs.length > 2 && layer.options.weight === 7){
+                        layer.bringToFront();
+                        }
+                        
+                    }
+                });
+            };
+    
+            // Call this function initially and whenever routedata changes
+            bringPolylinesToFront();
+    
+            // Listen for the map's moveend event to bring blue polylines to the front
+            
+        }, [routedata]);    
+
     return (
         <ReactLeafletEditable
             ref={editRef}
@@ -513,16 +538,14 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
             />
             {routedata.slice().reverse().map((route, index) => (
 
-                <Polyline key={index} positions={route.route} color={route.color} pathOptions={{
+            <Polyline key={index} positions={route.route} color={route.color} pathOptions={{
             color: route.color, 
-            zIndex: route.color === 'blue' ? 10000000 : 10000,
+            zIndex: route.color === '#661e87' ? 1000000000 : 100000000,
             weight: 7,
           }}
           eventHandlers={{
             add: (e) => {
-                if (route.color === 'blue') {
                     e.target.bringToFront();
-                }
             },
         }}  />
             ))}
@@ -565,6 +588,9 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                             eventHandlers={{
                                 mouseover: handleMouseOver,
                                 mouseout: handleMouseOut,
+                            }}
+                            pathOptions={{
+                                zIndex: 10000000
                             }}
                             originalColor={color}
                             originalOpacity={opacity} // Store original color for mouseout event
