@@ -19,7 +19,7 @@ export default function TimedAlert() {
     useEffect(() => {
         
         
-        const socket = new EventSource(`${ROUTING_API_URL}status`);
+        const socket = new EventSource(`${ROUTING_API_URL}/status`);
 
         socket.onmessage = (event) => {
             console.log('WebSocket message received:', event.data)
