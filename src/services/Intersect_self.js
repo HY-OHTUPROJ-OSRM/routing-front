@@ -11,17 +11,17 @@ export const intersectSelf = (object) => {
     if (geometry.type === 'Polygon') {
       turfGeometry = turf.polygon(geometry.coordinates);
       if (turf.kinks(turfGeometry).features.length > 0) {
-        showTimedAlert({ text: "Polygon can't intersect itself", variant: 'failure' });
+        showTimedAlert({ text: "Polygon can't intersect itself", variant: 'danger' });
       }
     } else if (geometry.type === 'LineString') {
         console.log(geometry, createNarrowPolygon(object, 10))
 
       turfGeometry = turf.polygon(createNarrowPolygon(object, 10).geometry.coordinates);
       if (turf.kinks(turfGeometry).features.length > 0) {
-        showTimedAlert({ text: 'Line has too sharp edges', variant: 'failure' });
+        showTimedAlert({ text: 'Line has too sharp edges', variant: 'danger' });
       }
     } else {
-    showTimedAlert({ text: 'Geometry must be a Polygon or LineString', variant: 'failure' });
+    showTimedAlert({ text: 'Geometry must be a Polygon or LineString', variant: 'danger' });
     }
   
     // Use turf.kinks to check for self-intersections

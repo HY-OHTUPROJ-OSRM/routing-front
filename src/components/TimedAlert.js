@@ -19,7 +19,7 @@ export default function TimedAlert() {
     useEffect(() => {
         
         
-        const socket = new EventSource(ROUTING_API_URL);
+        const socket = new EventSource(`${ROUTING_API_URL}status`);
 
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
@@ -41,13 +41,10 @@ export default function TimedAlert() {
         <>
             {alerts.map(alert => (
                 <div key={alert.id} className={`timed-alert ${alert.variant}`}>
-                    {alert.variant === 'progress' ? (
-                        <ProgressBar now={percentage} label={`${percentage}%`} />
-                    ) : (
-                        <Alert variant={alert.variant}>
+                        <Alert variant={alert.variant} style={{width: "100%"}}>
                             {alert.text}
+                            {alert.progress && <ProgressBar key={percentage} animated now={percentage} label={`${percentage}%`} />}
                         </Alert>
-                    )}
                 </div>
             ))}
         </>
