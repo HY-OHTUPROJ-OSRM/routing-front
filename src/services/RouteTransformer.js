@@ -36,7 +36,7 @@ const fetchroute = async () => {
         
         routes.push({
             route: routeFlip(locations),
-            color: routeIndex === 0 ? "blue" : "grey"
+            color: routeIndex === 0 ? "#661e87":"#da72fc"
         });
     });
     

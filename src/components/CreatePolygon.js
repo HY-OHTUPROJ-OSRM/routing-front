@@ -16,7 +16,7 @@ function CreatePolygons() {
   const [formData, setFormData] = useState({
     name: generateName(),
     type: 'roadblock',
-    effectValue: '',
+    effectValue: 0,
     coordinates: [{ lat: '', long: '' }]
   });
   const [errors, setErrors] = useState({});
@@ -44,7 +44,7 @@ function CreatePolygons() {
       setFormData({
         name: generateName(),
         type: 'roadblock',
-        effectValue: '',
+        effectValue: 0,
         coordinates: [{ lat: '', long: '' }]
       });
 

@@ -3,7 +3,7 @@ import { showTimedAlert } from '../Utils/dispatchUtility';
 import { createNarrowPolygon } from './LineToPolygon';
 
 export const intersectSelf = (object) => {
-    console.log(object)
+    //console.log(object)
     let geometry = object.geometry;
     let turfGeometry;
   
@@ -14,7 +14,7 @@ export const intersectSelf = (object) => {
         showTimedAlert({ text: "Polygon can't intersect itself", variant: 'danger' });
       }
     } else if (geometry.type === 'LineString') {
-        console.log(geometry, createNarrowPolygon(object, 10))
+        //console.log(geometry, createNarrowPolygon(object, 10))
 
       turfGeometry = turf.polygon(createNarrowPolygon(object, 10).geometry.coordinates);
       if (turf.kinks(turfGeometry).features.length > 0) {

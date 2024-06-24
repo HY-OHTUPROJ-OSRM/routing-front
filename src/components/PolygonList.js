@@ -9,7 +9,7 @@ function PolygonList({editMode, setEditMode, isOpen}) {
   const polygons = useSelector((state) => state.polygons);
   const modifiedPolygons = useSelector((state) => state.modifiedPolygons);
   //const listViewId = useSelector((state) => state.view.listView);
-  console.log("listcomp",isOpen)
+  //console.log("listcomp",isOpen)
 
   //<div key={polygon.properties.id} id={polygon.properties.id}>
   //</div>

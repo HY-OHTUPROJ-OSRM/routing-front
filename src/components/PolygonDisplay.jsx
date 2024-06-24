@@ -26,18 +26,19 @@ const PolygonDisplay = ({ type, geometry, properties, isOpen }) => {
           dispatch(fetchRouteLine());
        }
 
+      const translator={"cap": "Speed limit (Km/h)", "roadblock": "roadblock", "constant": "Custom speed", "offset": "Modified speed +-(Km/h", "factor": "Modified speed (multiplier)"}
       const flyOver = () => {
-        console.log("flyOver", geometry);
+        //console.log("flyOver", geometry);
         const centroid = getCentroid(geometry);
-        console.log(zoomFit(geometry))
+        //console.log(zoomFit(geometry))
         dispatch(changeMapView({ center: [centroid[1], centroid[0]], zoom: zoomFit(geometry) }))
       }
 
        const scrollToElement = () => {
-        console.log("scrollToElement", listViewId)
+        //console.log("scrollToElement", listViewId)
         if (listViewId) {
           const element = document.getElementById(listViewId);
-          console.log("isopen",isOpen)
+          //console.log("isopen",isOpen)
           if (element && isOpen) {
             setHighlightedId(listViewId);
             element.scrollIntoView({ behavior: "smooth" });
@@ -53,8 +54,13 @@ const PolygonDisplay = ({ type, geometry, properties, isOpen }) => {
         return (
           <div  className={highlightedId === properties.id ? 'highlight' : 'polygon'} id={properties.id}>
             <h2>{properties.name}</h2>
-            <p>{properties.type}</p>
-            {properties.type !== 'roadblock' && <p>{properties.effect_value}</p>}
+            <p>{translator[properties.type]}</p>
+            {properties.type !== 'roadblock' && (
+              <p>
+                {properties.effect_value}
+                {properties.type === 'factor' ? ' (multiplier)' : ' (Km/h)'}
+              </p>
+            )}
             <button onClick={toggleExpansion} className="clickable-icon">
               {isExpanded ? "Hide" : "Show"} Coordinates
             </button>
@@ -71,7 +77,7 @@ const PolygonDisplay = ({ type, geometry, properties, isOpen }) => {
             {isExpanded && (
               <ul>
                 {geometry.coordinates[0].map((cord, index) => (
-                  console.log(cord),
+                  //console.log(cord),
                   <li key={index}>
                     Latitude: {cord[1].toFixed(6)}, Longitude: {cord[0].toFixed(6)}
                   </li>

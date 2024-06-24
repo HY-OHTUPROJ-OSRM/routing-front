@@ -21,7 +21,7 @@ function Routing_form() {
   const destpos=useSelector((state) => state.routeLine.endPosition);
   
   useEffect(() => {
-    console.log('startpos', startpos, destpos);
+    //console.log('startpos', startpos, destpos);
     if (startpos && destpos) {
       setFormData({
         coordinates: [
@@ -58,7 +58,7 @@ function Routing_form() {
   };
 
   const handleGetBlockedSegments = () => {
-    console.log('Get Blocked Segments button clicked');
+    //console.log('Get Blocked Segments button clicked');
     dispatch(fetchSegments());
   };
 
@@ -143,9 +143,7 @@ function Routing_form() {
           Route
         </button>
       </form>
-      <button onClick={handleGetBlockedSegments}>
-        Get Blocked Segments
-      </button>
+      
     </div>
   );
 }

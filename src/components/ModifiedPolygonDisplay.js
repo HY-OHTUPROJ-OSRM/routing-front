@@ -110,6 +110,7 @@ const ModifiedPolygonDisplay = (p, isOpen) => {
           effectValue: formData.effectValue,
         },
       };
+      console.log("dispatching")
       dispatch(modifyPolygon(updatedPolygon));
     }
   }, [errors]);

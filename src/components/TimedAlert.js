@@ -22,6 +22,7 @@ export default function TimedAlert() {
         const socket = new EventSource(`${ROUTING_API_URL}status`);
 
         socket.onmessage = (event) => {
+            console.log('WebSocket message received:', event.data)
             const data = JSON.parse(event.data);
             if (data.status === 'processing') {
                 setPercentage(data.progress.percentage);
@@ -41,10 +42,14 @@ export default function TimedAlert() {
         <>
             {alerts.map(alert => (
                 <div key={alert.id} className={`timed-alert ${alert.variant}`}>
-                        <Alert variant={alert.variant} style={{width: "100%"}}>
+                    {alert.variant === 'progress' ? (
+                        <ProgressBar key={percentage} now={percentage} label={`${percentage}%`} variant='info' />
+                    ) : (
+                        <Alert variant={alert.variant}>
                             {alert.text}
                             {alert.progress && <ProgressBar key={percentage} animated now={percentage} label={`${percentage}%`} />}
                         </Alert>
+                    )}
                 </div>
             ))}
         </>

@@ -4,7 +4,7 @@ import { showTimedAlert, clearTimedAlert, UpdateRouteInfoUtil } from '../Utils/d
 import handleAxiosError from './handleAxiosError';
 const getRoute = async (coords) => {
     let proper=routeGiver(coords);
-    console.log(proper,"cords",coords);
+    //console.log(proper,"cords",coords);
     const alertId = `loading-${Date.now()}`;
     try {
       showTimedAlert({ text: 'Loading route...', variant: 'info', id: alertId });
@@ -15,10 +15,10 @@ const getRoute = async (coords) => {
       });
       setTimeout(() => clearTimedAlert(alertId), 300);
       //let response=await fetchroute()
-      console.log("route response:", response);
+      //console.log("route response:", response);
       const proper_route=routeTransformer(response.data);
       UpdateRouteInfoUtil(routeInfoExtractor(response.data));
-      console.log("proper_route",proper_route);
+      //console.log("proper_route",proper_route);
       return proper_route;
     } catch (error) {
       

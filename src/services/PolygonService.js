@@ -31,8 +31,14 @@ const getPolygons = async () => {
   
     
       // Convert polygons if needed
-    const convertedfeatures = response.data.features.map(convertIfNeeded);
-    return convertedfeatures;
+      console.log(response.data)
+      const updatedFeatures = response.data.features.map(polygon => {
+        if (polygon.properties) {
+          polygon.properties.effectValue = polygon.properties.effect_value;
+        }
+        return convertIfNeeded(polygon);
+      });
+      return updatedFeatures
     //return convertToJSON(response.data);
   } catch (error) {
     clearTimedAlert(alertId);
@@ -56,7 +62,7 @@ const getSegments = async () => {
       return []
     }
 
-    console.log(response.data);
+    //console.log(response.data);
     return response.data;
     //return convertToJSON(response.data);
   } catch (error) {
@@ -81,10 +87,11 @@ const UpdatePolygon = async (object) => {
 };
 
 const CreatePolygon = async (object) => {
-  console.log(object);
+  //console.log(object);
   const alertId = `loading-${Date.now()}`;
   showTimedAlert({ text: 'Adding polygon...', variant: 'info', id: alertId });
-  const data = { added: [object], deleted: [] };
+  const data = { added: object.features, deleted: [5225] };
+  console.log("data", data)
   try {
     //const GEOJSON= convertToGeoJSON(object);
     await ins({
@@ -119,8 +126,9 @@ const ChangePolygons = async (added, deletedIds) => {
   try {
     // Convert polygons if needed
     const convertedAdded = added.map(convertIfNeeded);
-    console.log(convertedAdded)
+    //console.log(convertedAdded)
     const data = { added: convertedAdded, deleted };
+    console.log("data", data)
 
     await ins({
       url: 'zones/diff',

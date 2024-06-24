@@ -84,7 +84,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     });
     const onMarkerDragEnd = (e, type) => {
         const { lat, lng } = e.target.getLatLng();
-        console.log("segments", segments);
+        //console.log("segments", segments);
         if (type === 'start') {
 
             startposition={ lat:lat, long:lng };
@@ -101,7 +101,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
         setRoute(newRoute);
         if (newRoute.length === 2) {
             if (newRoute[0].lat !== undefined && newRoute[0].long !== undefined && newRoute[1].lat !== undefined && newRoute[1].long !== undefined) {
-                console.log("marker drag end", newRoute)
+                //console.log("marker drag end", newRoute)
                 dispatch(fetchRouteLine());
             }
     };
@@ -111,13 +111,13 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
 
     const onDrawCreated = async (e) => {
         const { layerType, layer } = e;
-        console.log("drawcreated", e, layerType, layer)
+        //console.log("drawcreated", e, layerType, layer)
         if (layerType === 'polygon' || layerType === 'Linestring') {
-            console.log(layer.getLatLngs()[0].map(latlng => ([latlng.lat, latlng.lng])))
+            //console.log(layer.getLatLngs()[0].map(latlng => ([latlng.lat, latlng.lng])))
             const cords={geometry: {type: "Polygon", coordinates: [layer.getLatLngs()[0].map(latlng => ([latlng.lng, latlng.lat]))]}};
             cords.geometry.coordinates[0].push(cords.geometry.coordinates[0][0]);
             const latLngs = layer.getLatLngs()[0].map(latlng => ({ lat: latlng.lat, long: latlng.lng }));
-            console.log(latLngs);
+            //console.log(latLngs);
             if (!intersectSelf(cords)) {
             setCoordinates(latLngs);
             }
@@ -127,7 +127,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
         }
         if (layerType === 'marker') {
             const {lat, lng} = layer.getLatLng();
-            console.log(lat, lng, markerCount, markercount);
+            //console.log(lat, lng, markerCount, markercount);
             if (zonesRef.current) {
                 zonesRef.current.removeLayer(layer);
                 const map = mapRef.current;
@@ -144,7 +144,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                     dispatch(setStartPosition(startposition));
                     
                     await setRoute([startposition, destinationposition]);
-                    console.log(startposition, destinationposition)
+                    //console.log(startposition, destinationposition)
                 } else if (markercount === 1) {
                     markercount++;
                     setMarkerCount(prevCount => prevCount + 1);
@@ -156,9 +156,9 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                     
                     destinationposition={lat:lat,long:lng }
                     dispatch(setEndPosition(destinationposition));
-                    console.log("secondoneadded",startposition, destinationposition)
+                    //console.log("secondoneadded",startposition, destinationposition)
                     await setRoute([startposition, destinationposition]);
-                    console.log(route)
+                    //console.log(route)
                     
                             dispatch(fetchRouteLine([startposition, destinationposition]));
                         
@@ -169,7 +169,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     };
 
     const handleMouseOver = (e) => {
-        console.log("joo", e)
+        //console.log("joo", e)
         const layer = e.target;
         layer.setStyle({
             fillColor: 'black',
@@ -195,7 +195,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
         }
         setEditing(true)
         setEditMode(true)
-        console.log("editmode map_disp", editMode)
+        //console.log("editmode map_disp", editMode)
         dispatch(setModifiedPolygons(polygons))
         if (Lines) {
             editRef.current.startPolyline()
@@ -220,7 +220,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
 
     const onDrawingCommit = (shape) => {
         const geoJSON = shape.layer.toGeoJSON()
-        console.log("shape", shape)
+        //console.log("shape", shape)
         geoJSON.properties = {
             name: generateName(),
             IsLine: Lines,
@@ -228,7 +228,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
             id: uuidv4()
         }
         if (geoJSON.properties.IsLine){
-            console.log("line", geoJSON)
+            //console.log("line", geoJSON)
         }
         shape.layer.remove()
         if (!intersectSelf(geoJSON)) {
@@ -255,15 +255,15 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     }
 
     const saveEdits = async () => {
-        console.log("canceledit", calcelEditIds)
-        console.log(modifiedPolygons)
-        console.log(deleteIds)
+        //console.log("canceledit", calcelEditIds)
+        console.log("modified polygons", modifiedPolygons)
+        console.log("delete ids", deleteIds)
         dispatch(changeListView(null));
         const added = Object.values(modifiedPolygons).filter(zone => 
             Object.keys(sendIds).includes(String(zone.properties.id)) &&
             !Object.keys(calcelEditIds).includes(String(zone.properties.id))
         );
-        console.log(added)
+        console.log("added", added)
         
         editRef.current.props.map.editTools.stopDrawing()
         await ChangePolygons(added, Object.keys(deleteIds))
@@ -283,7 +283,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
         }
         dispatch(changeListView(properties.id));
         
-        console.log("clicked",isOpen, properties)
+        //console.log("clicked",isOpen, properties)
       };
     
       const setupClickListener = (layer) => {
@@ -295,9 +295,9 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
       };
     
       const enableLayerEdits = () => {
-        console.log("enabled edit start");
+        //console.log("enabled edit start");
         if (editingZonesRef.current !== null) {
-          console.log(editingZonesRef.current.getLayers());
+          //console.log(editingZonesRef.current.getLayers());
           editingZonesRef.current.getLayers().forEach((layer) => {
             //console.log(layer);
             layer.disableEdit();
@@ -305,15 +305,17 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     
             if (!layer.listens("editable:vertex:dragend")) {
               layer.on("editable:vertex:dragend", (e) => {
-                const { name, type, id, IsLine } = e.layer.options;
+                const { name, type, id, IsLine, effectValue } = e.layer.options;
                 const geoJSON = e.layer.toGeoJSON();
-                console.log("dragend", e);
+                //console.log("dragend", e);
                 //onClickHandler(e.layer.options);
     
                 geoJSON.properties = {
-                  name, type, id, IsLine
+                  name, type, id, IsLine, effectValue
                 };
+                //console.log("editmode new",geoJSON)
                 if(!intersectSelf(geoJSON)){
+                    console.log("dispatching map")
                 dispatch(modifyPolygon(geoJSON));
                 }
               });
@@ -332,12 +334,12 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
             }
           }
         }
-        console.log("enabled edit complete");
+        //console.log("enabled edit complete");
       };
     
       useEffect(() => {
         if (zonesRef.current !== null) {
-            console.log("setting up click listeners");
+            //console.log("setting up click listeners");
           zonesRef.current.getLayers().forEach(setupClickListener);
         }
       }, [polygons, modifiedPolygons, editingZonesRef.current, mountingHelper]);
@@ -345,12 +347,12 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     useEffect(enableLayerEdits)
 
     const geoJsonStyle = (feature) => {
-        console.log(feature.properties)
+        //console.log(feature.properties)
         let {color, opacity} = getColorAndOpacity(feature.properties.type, feature.properties.effect_value);
         if(!Number(opacity)){
             opacity=0.5
         }
-        console.log(opacity)
+        //console.log(opacity)
         return {
           color: color,
           fillOpacity: opacity
@@ -374,7 +376,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
         editRef.current.startPolyline()
     }
     const ChangedrawPolygons= () => {
-        console.log(Lines)
+        //console.log(Lines)
         setLines(0)
         editRef.current.props.map.editTools.stopDrawing()
         editRef.current.startPolygon()
@@ -415,7 +417,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                     dispatch(setStartPosition(startposition));
                     
                     setRoute([startposition, destinationposition]);
-                    console.log(startposition, destinationposition)
+                    //console.log(startposition, destinationposition)
             } else if (markerCount === 1) {
                     markercount++;
                     setMarkerCount(prevCount => prevCount + 1);
@@ -427,9 +429,9 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                     
                     destinationposition={lat:lat,long:lng }
                     dispatch(setEndPosition(destinationposition));
-                    console.log("secondoneadded",startposition, destinationposition)
+                    //console.log("secondoneadded",startposition, destinationposition)
                     setRoute([startposition, destinationposition]);
-                    console.log(route)
+                    //console.log(route)
                     
                             dispatch(fetchRouteLine());
           }
@@ -511,8 +513,16 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
 
                 <Polyline key={index} positions={route.route} color={route.color} pathOptions={{
             color: route.color, 
-            zIndex: route.color === 'blue' ? 10000 : undefined
-          }}  />
+            zIndex: route.color === 'blue' ? 10000000 : 10000,
+            weight: 7,
+          }}
+          eventHandlers={{
+            add: (e) => {
+                if (route.color === 'blue') {
+                    e.target.bringToFront();
+                }
+            },
+        }}  />
             ))}
             {segments.map((segment, index) => (
                 
@@ -533,7 +543,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
             <FeatureGroup ref={editingZonesRef}>
                 {(Object.values(modifiedPolygons).map((polygon, index) => {
                      const { color, opacity } = getColorAndOpacity(polygon.properties.type, polygon.properties.effectValue);
-                    //console.log("jepoe", polygon, polygon.geometry.coordinates[0].map(coord => [coord[1], coord[0]]))
+                    console.log("opacity change??", opacity, polygon.properties.effectValue)
                     if (polygon.properties.IsLine === 1) {
                     return (
                        
@@ -543,6 +553,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                             id={polygon.properties.id}
                             name={polygon.properties.name}
                             type={polygon.properties.type}
+                            effectValue={polygon.properties.effectValue}
                             IsLine={polygon.properties.IsLine}
                             positions={polygon.geometry.coordinates.map(coord => [coord[1], coord[0]])}
                             color={color}
@@ -567,6 +578,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                             id={polygon.properties.id}
                             name={polygon.properties.name}
                             type={polygon.properties.type}
+                            effectValue={polygon.properties.effectValue}
                             positions={polygon.geometry.coordinates[0].map(coord => [coord[1], coord[0]])}
                             color={color}
                             fillOpacity={0.5}
@@ -585,7 +597,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                     )};
                 mountingHelper=1;
                 }))}
-                {console.log("Completed rendering all polygons for this round.")}
+                {/*console.log("Completed rendering all polygons for this round.")*/}
             </FeatureGroup>
             :
             <FeatureGroup ref={zonesRef}>
