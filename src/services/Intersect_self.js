@@ -40,3 +40,4 @@ export const intersectSelf = (object) => {
   export const zoomFit =(geom) => {
     return Math.min(Math.max(23-0.7*Math.log(turf.area(turf.polygon(geom.coordinates))),14), 18);
   }
+

@@ -56,10 +56,17 @@ const PolygonDisplay = ({ type, geometry, properties, isOpen }) => {
             <h2>{properties.name}</h2>
             <p>{translator[properties.type]}</p>
             {properties.type !== 'roadblock' && (
+<<<<<<< HEAD
               <p>
                 {properties.effect_value}
                 {properties.type === 'factor' ? ' (multiplier)' : ' (Km/h)'}
               </p>
+=======
+                <p>
+                  {properties.effect_value}
+                  {properties.type === 'factor' ? ' (multiplier)' : ' (Km/h)'}
+                </p>
+>>>>>>> c0afcd9 (better display on list)
             )}
             <button onClick={toggleExpansion} className="clickable-icon">
               {isExpanded ? "Hide" : "Show"} Coordinates

@@ -317,6 +317,8 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                 if(!intersectSelf(geoJSON)){
                     console.log("dispatching map")
                 dispatch(modifyPolygon(geoJSON));
+                } else {
+                    showTimedAlert({ text: 'Polygon cannot intersect itself', variant: 'failure'});
                 }
               });
             }
