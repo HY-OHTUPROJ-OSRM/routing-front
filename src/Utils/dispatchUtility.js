@@ -20,7 +20,7 @@ export const RefetchPolygons = () => {
 };
 
 export const UpdateRouteInfoUtil = (info) => {
-    console.log("info", info)
+    //console.log("info", info)
     store.dispatch(UpdateRouteInfo(info));
 }
 

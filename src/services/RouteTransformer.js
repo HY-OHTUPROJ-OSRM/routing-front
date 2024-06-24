@@ -14,7 +14,7 @@ const fetchroute = async () => {
     jsonData.routes.forEach((route, routeIndex) => {
       routes.push({distance: route.distance, duration: route.duration});
       })
-      console.log("extractedinfo: ",routes)
+      //console.log("extractedinfo: ",routes)
       return routes
   }
 

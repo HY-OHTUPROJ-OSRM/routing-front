@@ -38,7 +38,7 @@ export const fetchRouteLine = (coords) => {
     }
 
     if (coords) {
-        console.log("coords", coords);
+        //console.log("coords", coords);
       const routeLine = await getRoute(coords);
       //console.log("routeLine", routeLine);
       dispatch(setRouteLine(routeLine));

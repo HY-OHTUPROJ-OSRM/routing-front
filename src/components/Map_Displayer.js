@@ -517,6 +517,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
             color: route.color, 
             zIndex: route.color === 'blue' ? 10000000 : 10000,
             weight: 7,
+<<<<<<< HEAD
           }}
           eventHandlers={{
             add: (e) => {
@@ -525,6 +526,13 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                 }
             },
         }}  />
+=======
+            
+          }} 
+          eventHandlers={{
+            add: (e) => e.target.bringToFront(),
+        }} />
+>>>>>>> cfe8ac8 (remove console logs and place route always on top)
             ))}
             {segments.map((segment, index) => (
                 
