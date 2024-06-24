@@ -31,6 +31,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
         lat: 60.205,
         zoom: 15
     };
+    let [editHover, setEditHover]=useState(false)
     const routedata = useSelector((state) => state.routeLine.routeLine);
     const calcelEditIds = useSelector((state) => state.modifiedPolygons.cancelSendIds);
     const cansave =useSelector((state) => state.modifiedPolygons.faultval)
@@ -401,10 +402,12 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     
 
       const ClickHandler = () => {
+
         useMapEvent('click', (event) => {
            let {lat, lng} = event.latlng;
            const map = mapRef.current;
-           if (editMode){
+           console.log(editHover, editMode)
+           if (editMode || editHover){
             return null
            } 
             if (markerCount ===0){
@@ -454,7 +457,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                 map.eachLayer((layer) => {
                     //console.log(layer)
                     if (layer instanceof L.Polyline) {
-                        console.log("bring to fron layer:", layer)
+                        //console.log("bring to front layer:", layer)
                         if (layer._latlngs.length > 2 && layer.options.weight === 7){
                         layer.bringToFront();
                         }
@@ -468,7 +471,15 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     
             // Listen for the map's moveend event to bring blue polylines to the front
             
-        }, [routedata]);    
+        }, [routedata]);  
+        
+        const handleEditMouseOver = () => {
+            setEditHover(true);
+          };
+          
+          const handleEditMouseOut = () => {
+            setEditHover(false);
+          };
 
     return (
         <ReactLeafletEditable
@@ -491,6 +502,8 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                 <button
                     hidden={editing}
                     onClick={enableEditMode}
+                    onMouseOver={handleEditMouseOver}
+                    onMouseOut={handleEditMouseOut}
                     className="edit-button"
                 >Edit</button>
                 {cansave !== 0 && (
