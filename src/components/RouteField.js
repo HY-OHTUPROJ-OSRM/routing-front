@@ -2,11 +2,12 @@ import React, { useState, useContext, useEffect } from 'react';
 import './RouteField.css';
 import { validateCoordinate } from '../services/FormValidationService';
 import { RouteContext } from './CoordinatesContext';
-import { getRoute } from '../services/RouteService';
 import { useDispatch } from 'react-redux';
 import { fetchRouteLine } from '../features/routes/routeSlice';
 import { fetchSegments } from '../features/segments/segmentSlice';
 import { useSelector } from 'react-redux';
+
+// Form for routing. Can receive coordinates from the map component when user has placed start and destination position. The form is validated and the route is fetched when the user clicks submit. The form is reset after submission.
 function Routing_form() {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
@@ -21,7 +22,6 @@ function Routing_form() {
   const destpos=useSelector((state) => state.routeLine.endPosition);
   
   useEffect(() => {
-    //console.log('startpos', startpos, destpos);
     if (startpos && destpos) {
       setFormData({
         coordinates: [
@@ -56,9 +56,8 @@ function Routing_form() {
       setRoute([]);
     }
   };
-
+  //Can be used to fetch blocked segments from backend. Currently replaced with automatic road segment speed display on map component
   const handleGetBlockedSegments = () => {
-    //console.log('Get Blocked Segments button clicked');
     dispatch(fetchSegments());
   };
 

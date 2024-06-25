@@ -7,10 +7,14 @@ import { fetchRouteLine } from "../features/routes/routeSlice"
 import { useSelector } from 'react-redux';
 import { getCentroid, zoomFit } from "../services/Intersect_self";
 import {changeMapView} from "../features/view/ViewSlice";
+
+/*
+List component used to display info of all created polygons while outside of editmode
+
+*/
 const PolygonDisplay = ({ type, geometry, properties, isOpen, index }) => {
   const [highlightedId, setHighlightedId] = useState(null);
   const listViewId = useSelector((state) => state.view.listView);
-        //console.log(type, geometry, properties)
         const dispatch = useDispatch()
 
         const [isExpanded, setIsExpanded] = useState(false);
@@ -27,18 +31,15 @@ const PolygonDisplay = ({ type, geometry, properties, isOpen, index }) => {
        }
 
       const translator={"cap": "Speed limit (Km/h)", "roadblock": "roadblock", "constant": "Custom speed", "offset": "Modified speed +-(Km/h", "factor": "Modified speed (multiplier)"}
+      
       const flyOver = () => {
-        //console.log("flyOver", geometry);
         const centroid = getCentroid(geometry);
-        //console.log(zoomFit(geometry))
         dispatch(changeMapView({ center: [centroid[1], centroid[0]], zoom: zoomFit(geometry) }))
       }
 
        const scrollToElement = () => {
-        //console.log("scrollToElement", listViewId)
         if (listViewId) {
           const element = document.getElementById(listViewId);
-          //console.log("isopen",isOpen)
           if (element && isOpen) {
             setHighlightedId(listViewId);
             element.scrollIntoView({ behavior: "smooth" });
@@ -49,8 +50,6 @@ const PolygonDisplay = ({ type, geometry, properties, isOpen, index }) => {
       useEffect(() => {
         scrollToElement();
       }, [listViewId]);
-        //const { editMode, post } = this.state;
-        //console.log("publicurl",process.env.PUBLIC_URL)
         return (
           <div  className={highlightedId === properties.id ? 'highlight' : 'polygon'} id={properties.id}>
             <h2>{properties.name}</h2>
@@ -78,7 +77,6 @@ const PolygonDisplay = ({ type, geometry, properties, isOpen, index }) => {
             {isExpanded && (
               <ul>
                 {geometry.coordinates[0].map((cord, index) => (
-                  //console.log(cord),
                   <li key={index}>
                     Latitude: {cord[1].toFixed(6)}, Longitude: {cord[0].toFixed(6)}
                   </li>

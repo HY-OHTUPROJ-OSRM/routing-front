@@ -3,9 +3,13 @@ import "./Polygon.css"; // Import the CSS file
 import { useDispatch } from "react-redux";
 import { modifyPolygon, setFaults, setCanceledits } from "../features/polygons/modifiedPolygonsSlice";
 import { validateName, validateType, validateEffectValue } from "../services/FormValidationService"; // Import the validation functions
-import { convertToGeoJSON } from "../services/JSONToGeoJSON";
-import { UpdatePolygon } from "../services/PolygonService";
 import { useSelector } from 'react-redux';
+
+/*
+Another version of polygon list component used in editmode. enables the editing of names, types and values of drawn polygons
+Uses similar validation functions as the CreatePolygon component
+
+*/
 const ModifiedPolygonDisplay = (p, isOpen) => {
   const [highlightedId, setHighlightedId] = useState(null);
   const listViewId = useSelector((state) => state.view.listView);
@@ -21,13 +25,12 @@ const ModifiedPolygonDisplay = (p, isOpen) => {
       lat: cord[1],
       long: cord[0],
     })),
-    severity: p.properties.severity || '', // Add severity to formData
+    severity: p.properties.severity || '', // Severity is optional and replaced by effectValue in the form
   });
 
   const [errors, setErrors] = useState({});
 
   const scrollToElement = () => {
-    console.log("scrollToElement", listViewId)
     if (listViewId) {
       const element = document.getElementById(listViewId);
       if (element && isOpen) {

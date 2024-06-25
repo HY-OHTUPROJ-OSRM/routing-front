@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
 import './CreatePolygon.css';
-import { addPolygon } from '../services/PolygonAddService';
 import { CoordinatesContext } from './CoordinatesContext';
 import { validateName, validateType, validateCoordinate, validateEffectValue } from '../services/FormValidationService';
 import { CreatePolygon } from '../services/PolygonService';
@@ -10,7 +9,8 @@ import { convertToGeoJSON } from '../services/JSONToGeoJSON';
 import { fetchRouteLine } from '../features/routes/routeSlice';
 import { generateName } from '../services/nameGiverService';
 
-// Form for creating polygons. Can receive coordinates from the map component when user draws a new polygon.
+// Form for creating polygons. Can receive coordinates from the map component when user draws a new polygon using the polygon icon displayed.
+// The form is validated and the polygon is created when the user clicks submit. The form is reset after submission.
 function CreatePolygons() {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
@@ -22,6 +22,8 @@ function CreatePolygons() {
   const [errors, setErrors] = useState({});
   const { coordinates, setCoordinates } = useContext(CoordinatesContext);
 
+  //Update form on given input
+
   const handleChange = (index, e) => {
     const { name, value } = e.target;
     const newCoordinates = [...formData.coordinates];
@@ -30,13 +32,14 @@ function CreatePolygons() {
     validateField(name, value, index);
   };
 
+  //Add a new coordinate field to the form
   const handleAddField = () => {
     setFormData({
       ...formData,
       coordinates: [...formData.coordinates, { lat: '', long: '' }]
     });
   };
-
+  //Submit the form and create a new polygon. Reset the form after submission. If given polygon is not valid it cannot be submitted
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
@@ -50,11 +53,14 @@ function CreatePolygons() {
 
       await CreatePolygon(convertToGeoJSON(copy));
       setErrors({});
+
+      //fetch from backend polygons and route line after creating a new polygon
+
       dispatch(fetchPolygons());
       dispatch(fetchRouteLine());
     }
   };
-
+  // Validate updated field. if not valid add an error to error list. If list is empty, the form can be submitted
   const validateField = (name, value, index = null) => {
     let errorMsg = '';
     if (name === 'name' && !validateName(value)) {
@@ -125,6 +131,8 @@ function CreatePolygons() {
     return Object.keys(newErrors).length === 0;
   };
 
+  //Let user click submit only if form is valid
+
   const canClick = () => {
     if (!validateName(formData.name)) {
       return false;
@@ -143,7 +151,7 @@ function CreatePolygons() {
     }
     return true;
   };
-
+  //useEffect to update form data when user draws a polygon in map component (not in editmode)
   useEffect(() => {
     if (coordinates.length > 0) {
       setFormData({ ...formData, coordinates: coordinates });

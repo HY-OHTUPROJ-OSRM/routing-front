@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { getPolygons } from "../../services/PolygonService";
-
+//redux slice for polygons. used to fetch polygons from backend
 export const polygonsSlice = createSlice({
     name: "polygons",
     initialState: [],

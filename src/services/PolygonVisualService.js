@@ -1,6 +1,5 @@
 export const getColorAndOpacity =(type, val) =>{
     let color, opacity;
-    //console.log("val",val)
     // Determine color based on type and value
     switch (type) {
       case 'roadblock':
@@ -9,7 +8,7 @@ export const getColorAndOpacity =(type, val) =>{
         break;
       case 'cap':
         color = 'grey';
-        opacity = Math.min(0.5, Math.max(0, (val - 1) / 9));  // Cap standardized between 1 to 10
+        opacity = Math.min(0.5, Math.max(0, Math.abs(val) / 100));  // Cap standardized between 0 to 100
         break;
       case 'constant':
         color = 'yellow';
@@ -28,7 +27,7 @@ export const getColorAndOpacity =(type, val) =>{
         opacity = 0.5;
         break;
     }
-    //console.log(opacity, color)
+    //Instead of scaling opacity, we can use a constant value
     const op=0.5
     return { color, op };
   }

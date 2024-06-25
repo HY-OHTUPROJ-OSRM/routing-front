@@ -1,25 +1,15 @@
-const fetchroute = async () => {
-    try {
-      const response = await fetch("polyline.json"); // Assuming data.json is in the public folder
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Error fetching routedata:", error);
-      return [];
-    }
-  };
-  
-  function routeInfoExtractor(jsonData) {
+
+//Get duration and distance from received route data  
+function routeInfoExtractor(jsonData) {
     let routes = [];
     jsonData.routes.forEach((route, routeIndex) => {
       routes.push({distance: route.distance, duration: route.duration});
       })
-      //console.log("extractedinfo: ",routes)
       return routes
   }
-
-  function routeTransformer(jsonData) {
-    console.log("received route data:", jsonData);
+//extract route data from received json data to be displyed on map
+function routeTransformer(jsonData) {
+    //console.log("received route data:", jsonData);
     let routes = [];
     
     jsonData.routes.forEach((route, routeIndex) => {
@@ -36,11 +26,10 @@ const fetchroute = async () => {
         
         routes.push({
             route: routeFlip(locations),
+            //color coding for primary and alternative routes
             color: routeIndex === 0 ? "#661e87":"#da72fc"
         });
     });
-    
-    //console.log(routes);
     return routes;
 }
 
@@ -52,5 +41,5 @@ function routeFlip(arr) {
 function routeGiver(coords) {
     return `${coords[0].long},${coords[0].lat};${coords[1].long},${coords[1].lat}`;
 }
-export {fetchroute, routeTransformer, routeGiver, routeFlip, routeInfoExtractor};
+export {routeTransformer, routeGiver, routeFlip, routeInfoExtractor};
 

@@ -3,6 +3,8 @@ import { triggerTimedAlert, removeTimedAlert } from '../features/messages/timedA
 import { fetchRouteLine, UpdateRouteInfo } from '../features/routes/routeSlice';
 import { fetchPolygons } from '../features/polygons/polygonsSlice';
 import { changeListView } from '../features/view/ViewSlice';
+
+//simple utilities for dispatching actions outside of react components
 export const showTimedAlert = (msg) => {
     store.dispatch(triggerTimedAlert(msg));
 };
@@ -20,7 +22,6 @@ export const RefetchPolygons = () => {
 };
 
 export const UpdateRouteInfoUtil = (info) => {
-    //console.log("info", info)
     store.dispatch(UpdateRouteInfo(info));
 }
 

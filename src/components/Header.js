@@ -1,7 +1,9 @@
 import React from "react";
 import HeadLine from "./HeadLine";
 import "./comp_styles.scss";
-import TimedAlert from "./TimedAlert";
+
+// Header component. Headline given its own component if three.js is added to the project for cool 3d modelling on headline
+//Responsible for the menu icons and their functionalities
 const Header = props => {
   return (
     <header style={{position: "fixed", marginBottom: "100px"}}>

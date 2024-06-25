@@ -49,11 +49,9 @@ export const modifiedPolygonsSlice = createSlice({
         },
 
         // takes in id and type of actions eg. to be added due to fault in input or removed as input is fixed
-        // type 0 when fixed type 1 if wrong
+        // type 0 when fixed type 1 if wrong, type 2 to reset all tracked faults
         setFaults: (state, action) => {
             const { id, type } = action.payload;
-            //console.log("debug", id, type, state.faults, state.faultval);
-            
             if (type === 2) {
                 state.faults = {};
                 state.faultval = 0;
@@ -66,11 +64,9 @@ export const modifiedPolygonsSlice = createSlice({
                     delete state.faults[id];
                 }
             }
-            
-            //console.log(state.faultval);
         },
         setCanceledits: (state, action) => {
-            //const ot change if to be cancelled from possible edit or added back to possible edits
+            //Used to make sure that the polygon is not sent to the server if it is set to be deleted
             const {id, add} = action.payload
             if (add){
                 state.cancelSendIds[id]=true

@@ -1,11 +1,10 @@
 import { ins } from '../api/api';
-import {convertToGeoJSON,convertToJSON, filterUUIDv4} from './JSONToGeoJSON';
+import {filterUUIDv4} from './JSONToGeoJSON';
 import { showTimedAlert, clearTimedAlert } from '../Utils/dispatchUtility';
 import handleAxiosError from './handleAxiosError';
-import { fetchRouteLine } from '../features/routes/routeSlice';
-import { useDispatch } from 'react-redux';
-import { createNarrowPolygon, PolygonToLine } from './LineToPolygon';
 
+import { createNarrowPolygon, PolygonToLine } from './LineToPolygon';
+//get polygons from backend
 const getPolygons = async () => {
   
   const alertId = `loading-${Date.now()}`;
@@ -21,17 +20,14 @@ const getPolygons = async () => {
       return []
     }
 
-    //console.log(response.data.features);
     const convertIfNeeded = (polygon) => {
       if (polygon.properties && polygon.properties.IsLine === 1) {
-        return PolygonToLine(polygon); // Use desired width
+        return PolygonToLine(polygon); 
       }
       return polygon;
     };
   
-    
-      // Convert polygons if needed
-      console.log(response.data)
+      // Convert polygons if needed. If IsLine is 1, convert polygon to line. Currently backend does not keep track of isLine so lines will be displayed as polygons
       const updatedFeatures = response.data.features.map(polygon => {
         if (polygon.properties) {
           polygon.properties.effectValue = polygon.properties.effect_value;
@@ -39,14 +35,13 @@ const getPolygons = async () => {
         return convertIfNeeded(polygon);
       });
       return updatedFeatures
-    //return convertToJSON(response.data);
   } catch (error) {
     clearTimedAlert(alertId);
     handleAxiosError(error);
     return [];
   }
 };
-
+//unused
 const getSegments = async () => {
   
   const alertId = `loading-${Date.now()}`;
@@ -61,10 +56,7 @@ const getSegments = async () => {
     if (response.data.features === null) {
       return []
     }
-
-    //console.log(response.data);
     return response.data;
-    //return convertToJSON(response.data);
   } catch (error) {
     clearTimedAlert(alertId);
     handleAxiosError(error);
@@ -72,28 +64,13 @@ const getSegments = async () => {
   }
 };
 
-const UpdatePolygon = async (object) => {
-  try {
-    const response = await ins({
-      url: `polygons/${object.name}`,
-      method: "put",
-      data: object,
-      headers: { "content-type": "application/json" },
-    });
-    return response.data;
-  } catch (error) {
-    handleAxiosError(error);
-  }
-};
-
+//used in createpolygon form
 const CreatePolygon = async (object) => {
-  //console.log(object);
   const alertId = `loading-${Date.now()}`;
   showTimedAlert({ text: 'Adding polygon...', variant: 'info', id: alertId });
   const data = { added: object.features, deleted: [5225] };
   console.log("data", data)
   try {
-    //const GEOJSON= convertToGeoJSON(object);
     await ins({
       url: 'zones/diff',
       method: "post",
@@ -109,7 +86,7 @@ const CreatePolygon = async (object) => {
     handleAxiosError(error);
   }
 };
-
+//used in editmode save
 const ChangePolygons = async (added, deletedIds) => {
   const alertId = `loading-${Date.now()}`;
   let deleted=filterUUIDv4(deletedIds);
@@ -118,7 +95,7 @@ const ChangePolygons = async (added, deletedIds) => {
   // Function to convert polyline to polygon if IsLine is 1
   const convertIfNeeded = (polygon) => {
     if (polygon.properties && polygon.properties.IsLine === 1) {
-      return createNarrowPolygon(polygon, 10); // Use desired width
+      return createNarrowPolygon(polygon, 10); 
     }
     return polygon;
   };
@@ -126,7 +103,6 @@ const ChangePolygons = async (added, deletedIds) => {
   try {
     // Convert polygons if needed
     const convertedAdded = added.map(convertIfNeeded);
-    //console.log(convertedAdded)
     const data = { added: convertedAdded, deleted };
     console.log("data", data)
 
@@ -142,11 +118,8 @@ const ChangePolygons = async (added, deletedIds) => {
     clearTimedAlert(alertId);
     handleAxiosError(error);
   }
-
-  
-  
 };
-
+//used in polygondisplay delete button (trashcan)
 const DeletePolygon = async (id) => {
   const alertId = `loading-${Date.now()}`;
   showTimedAlert({ text: 'Deleting polygon...', variant: 'info', id: alertId });
@@ -167,4 +140,4 @@ const DeletePolygon = async (id) => {
 };
 
 
-export { getPolygons, CreatePolygon, DeletePolygon, UpdatePolygon, ChangePolygons, getSegments };
+export { getPolygons, CreatePolygon, DeletePolygon, ChangePolygons, getSegments };

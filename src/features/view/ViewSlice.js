@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-
+//tracks list component to be highlighted or the mapview to be flew to
 export const ViewSlice = createSlice({
     name: "view",
     initialState: {

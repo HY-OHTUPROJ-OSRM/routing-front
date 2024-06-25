@@ -1,12 +1,11 @@
 import { showTimedAlert, RefetchPolygons } from '../Utils/dispatchUtility';
-
+//A general service for displaying error messages when someting goes wrong with axios requests
+//If backend responds with a message it is displayed, otherwise a generic message is displayed
 const handleAxiosError = (error) => {
     if (error.response) {
-      //console.log(error.response)
         if (error.message===undefined){
             showTimedAlert({ text: "An unspecified error occured", variant: 'danger' });
         } else {
-          //console.log(error)
             showTimedAlert({ text: error.response.data.message, variant: 'danger' });
         }
     } else if (error.request) {
@@ -15,9 +14,7 @@ const handleAxiosError = (error) => {
       setTimeout(() => RefetchPolygons(), 5000);
     } else {
       showTimedAlert({ text: 'something unexpected happened', variant: 'danger' });
-      //throw new Error(error.message);
       console.log("error:", error)
-
     };
 }
 

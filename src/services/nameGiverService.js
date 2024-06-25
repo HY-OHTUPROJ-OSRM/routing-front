@@ -5,7 +5,7 @@ function capFirst(string) {
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
-
+// Generate a random name for a roadblock. Used as a placeholder name for roadblocks without a name
 function generateName() {
     var adjectives = ['Tukkoinen', 'Tukossa', 'Tukittu', 'Estynyt', 'Pysähtynyt', 'Suljettu', 'Tukahdutettu', 'Tukossa oleva', 'Pysäköity', 'Esteenä oleva', 'Suljettu', 'Katkennut', 'Umpeenkasvanut', 'Tulviva', 'Ruuhkautunut', 'Sulkeutunut', 'Pysäköintikielto', 'Liikennekatko', 'Eristetty', 'Liikennerajoitus', 'Tukossa oleva', 'Ohituskelvoton', 'Tukko', 'Tulvainen', 'Kaatunut', 'Umpeenkasvanut', 'Kiertotie', 'Rakenteilla', 'Työmaa', 'Lumivyöry'];
 

@@ -4,7 +4,7 @@ export const createNarrowPolygon = (polylineGeoJson, width) => {
     const offsetCoordinates = [];
     const offsetCoordinates2 = [];
   
-    // Function to calculate the offset coordinates
+    // Function to calculate the offset coordinates. Used to approximate a polygon from a line
     const getOffsetCoord = (coord, bearing, distance) => {
       const R = 6378137; // Earth’s radius in meters
       const brng = bearing * (Math.PI / 180); // Convert bearing to radians
@@ -44,7 +44,6 @@ export const createNarrowPolygon = (polylineGeoJson, width) => {
     offsetCoordinates2.reverse().forEach(coord => offsetCoordinates.push(coord));
     // Close the polygon by adding the starting points to the end
     offsetCoordinates.push(offsetCoordinates[0]);
-    //console.log(offsetCoordinates)
     return {
       type: "Feature",
       properties: {...polylineGeoJson.properties},
