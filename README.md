@@ -78,8 +78,9 @@ Uses poetry to handle dependencies
 Requires the frontend to be running locally, as well as backend
 
 Commands:
+
 `poetry install` Install dependencies
 
-`poetry shell` Move into virtua lenvironment with dependencies
+`poetry shell` Move into virtual environment with dependencies
 
 `robot robot.main` Run robot tests
