@@ -1,4 +1,6 @@
-{
+import { ROUTING_API_URL } from "./Utils/config"
+
+const roadStyle = {
     "name": "Traffic data",
     "sources": {
         "osm-tiles": {
@@ -8,7 +10,7 @@
         },
         "speed-tiles": {
             "type": "vector",
-            "tiles": ["http://localhost:5000/tile/v1/driving/tile({x},{y},{z}).mvt"]
+            "tiles": [`${ROUTING_API_URL}/tile/v1/driving/tile({x},{y},{z}).mvt`]
         }
     },
     "layers": [
@@ -39,3 +41,5 @@
     ],
     "version": 8
 }
+
+export default roadStyle

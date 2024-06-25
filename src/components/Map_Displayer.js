@@ -21,6 +21,7 @@ import { getColorAndOpacity } from '../services/PolygonVisualService';
 import {startti_icon, desti_icon} from './leafletHTMLIcon';
 import { changeListView } from '../features/view/ViewSlice';
 import VectorTileLayer from "react-leaflet-vector-tile-layer";
+import roadStyle from '../roadStyle';
 
 /* 
 Massive component handling all map functionalities. 
@@ -73,9 +74,8 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     const { route, setRoute } = useContext(RouteContext);
     //Variable for changing map view when new view is requested from list component
     const mapView = useSelector((state) => state.view.mapView);
-    //Style url for the road segment coloring
-    const [styleUrl, setStyleUrl] = useState("/road_style.json")
-    const [key, setKey] = useState(0)
+    // For refreshing the VectorTileLayer
+    const [mapKey, setMapKey] = useState(0)
     let mountingHelper=0
     let startposition=null;
     let maphelp=null
@@ -255,8 +255,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     }
     //Used to update the road segment coloring
     const updateSpeedData = () => {
-        setStyleUrl("/road_style.json?time=" + new Date().getTime())
-        setKey(prevKey => prevKey + 1)
+        setMapKey(prevKey => prevKey + 1)
     }
     //Used when saving edits. sends all added/deleted polygons to the backend and updates the map with new polygons and new route
     const saveEdits = async () => {
@@ -528,8 +527,8 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
             )}
             </div>
             <VectorTileLayer
-                key={key}
-                styleUrl={styleUrl}
+                key={mapKey}
+                styleUrl={roadStyle}
             />
             {routedata.slice().reverse().map((route, index) => (
 
