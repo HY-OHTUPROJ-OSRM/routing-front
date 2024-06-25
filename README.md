@@ -68,3 +68,18 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+# Robot tests
+
+Uses poetry to handle dependencies
+
+## How to run robot tests
+
+Requires the frontend to be running locally, as well as backend
+
+Commands:
+`poetry install` Install dependencies
+
+`poetry shell` Move into virtua lenvironment with dependencies
+
+`robot robot.main` Run robot tests
