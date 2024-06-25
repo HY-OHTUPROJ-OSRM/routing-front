@@ -130,3 +130,12 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+#robot tests
+selenium-screenshot*
+log.html
+output.xml
+report.html
+poetry.lock
+report.html
+
