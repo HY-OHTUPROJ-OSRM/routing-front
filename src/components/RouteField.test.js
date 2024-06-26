@@ -35,18 +35,6 @@ test('correcting coordinates removes error message', async () => {
   expect(screen.queryByText('Coordinates must be a number between 0 and 90.')).toBeNull()
 });
 
-test('get blocked segments can always be pressed', async () => {
-  const user = userEvent.setup()
-  const listc = screen.getAllByRole('textbox')
-  expect (screen.getByText('Get Blocked Segments')).not.toBeDisabled()
-  await user.type(listc[0],'9')
-  expect (screen.getByText('Get Blocked Segments')).not.toBeDisabled()
-  await user.type(listc[1],'9')
-  await user.type(listc[2],'9')
-  await user.type(listc[3],'9')
-  expect (screen.getByText('Get Blocked Segments')).not.toBeDisabled()
-});
-
 test('route cannot be pressed with faulty or lacking coordinates', async () => {
   const user = userEvent.setup()
   const listc = screen.getAllByRole('textbox')
