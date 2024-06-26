@@ -28,17 +28,30 @@ export const modifiedPolygonsSlice = createSlice({
             state.sendIds[polygon.properties.id] = true
         },
         modifyPolygon: (state, action) => {
-            const polygon = action.payload
-            state.polygons[polygon.properties.id] = polygon
-            state.sendIds[polygon.properties.id] = true
-            state.deleteIds[polygon.properties.id] = true
+            const polygon = action.payload;
+            const id = polygon.properties.id;
+            const existingPolygon = state.polygons[id];
+        
+            if (existingPolygon) {
+                // Only change geometry if different
+                if (JSON.stringify(existingPolygon.geometry) !== JSON.stringify(polygon.geometry)) {
+                    state.polygons[id].geometry = polygon.geometry;
+                } else {
+                    state.polygons[id] = polygon;
+                }
+            } else {
+                // Replace all values if polygon doesn't exist
+                state.polygons[id] = polygon;
+            }
+        
+            state.sendIds[id] = true;
+            state.deleteIds[id] = true;
         },
+
         // takes in id and type of actions eg. to be added due to fault in input or removed as input is fixed
-        // type 0 when fixed type 1 if wrong
+        // type 0 when fixed type 1 if wrong, type 2 to reset all tracked faults
         setFaults: (state, action) => {
             const { id, type } = action.payload;
-            //console.log("debug", id, type, state.faults, state.faultval);
-            
             if (type === 2) {
                 state.faults = {};
                 state.faultval = 0;
@@ -51,11 +64,9 @@ export const modifiedPolygonsSlice = createSlice({
                     delete state.faults[id];
                 }
             }
-            
-            //console.log(state.faultval);
         },
         setCanceledits: (state, action) => {
-            //const ot change if to be cancelled from possible edit or added back to possible edits
+            //Used to make sure that the polygon is not sent to the server if it is set to be deleted
             const {id, add} = action.payload
             if (add){
                 state.cancelSendIds[id]=true

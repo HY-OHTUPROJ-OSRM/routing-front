@@ -1,6 +1,9 @@
+
+//largely unused service, as polygon data in other components has been standardized to use geoJSON format already
+
+
 function convertToGeoJSON(dataList) {
     dataList.coordinates.push( dataList.coordinates[0] );
-    console.log(dataList)
     dataList=[dataList] //remove when add functionality is changed to add all polygons on new being created
     const geoJSON = {
         type: "FeatureCollection",
@@ -9,8 +12,8 @@ function convertToGeoJSON(dataList) {
             properties: {
                 name: data.name,
                 type: data.type,
-                id: data.id,
-                speed_effect: data.severity
+                
+                effectValue: data.effectValue
             },
             geometry: {
                 type: "Polygon",
@@ -33,7 +36,6 @@ function convertToJSON(geoJSON) {
         })),
         id: feature.properties.id
     }));
-    console.log('jaa', [data])
     return data;
 }
 

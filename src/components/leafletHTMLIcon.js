@@ -1,7 +1,7 @@
 
 import Leaflet from 'leaflet';
 
-
+//Custom icons for leaflet markers used as start and destination position. Can be modifed as needed
 const myCustomColour = '#148530';
 const endColor = '#9e1b16';
 
