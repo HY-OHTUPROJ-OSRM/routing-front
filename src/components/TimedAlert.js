@@ -27,7 +27,7 @@ export default function TimedAlert() {
             const data = JSON.parse(event.data);
             if (data.status === 'processing') {
                 setPercentage(data.progress.percentage);
-                if (data.progress.estimate){
+                if (data.progress.estimate!==undefined){
                     console.log(data.progress.estimate)
                     setEstimate(formatTime(Math.max((new Date(data.progress.estimate).getTime() - Date.now())/1000, 0)));
                 }
