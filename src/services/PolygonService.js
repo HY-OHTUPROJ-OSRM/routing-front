@@ -76,6 +76,7 @@ const CreatePolygon = async (object) => {
       method: "post",
       data,
       headers: { "content-type": "application/json" },
+      timeout: 0
     });
     
     clearTimedAlert(alertId)
@@ -111,6 +112,7 @@ const ChangePolygons = async (added, deletedIds) => {
       method: "post",
       data,
       headers: { "content-type": "application/json" },
+      timeout: 0
     });
     clearTimedAlert(alertId);
     showTimedAlert({ text: 'Polygons updated successfully', variant: 'success' });
@@ -130,6 +132,7 @@ const DeletePolygon = async (id) => {
       method: "post",
       data,
       headers: { "content-type": "application/json" },
+      timeout: 0
     });
     clearTimedAlert(alertId)
     showTimedAlert({ text: 'Polygon deleted successfully', variant: 'success' });
