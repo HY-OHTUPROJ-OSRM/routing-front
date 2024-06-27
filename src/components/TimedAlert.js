@@ -9,7 +9,7 @@ export default function TimedAlert() {
     const alerts = useSelector(state => state.timedAlert);
     const dispatch = useDispatch();
     const [percentage, setPercentage] = useState(0);
-    const [estimate, setEstimate] = useState(Date.now());
+    const [estimate, setEstimate] = useState(0);
     // Removes alerts after a certain amount of time
     useEffect(() => {
         alerts.forEach(alert => {
@@ -27,7 +27,10 @@ export default function TimedAlert() {
             const data = JSON.parse(event.data);
             if (data.status === 'processing') {
                 setPercentage(data.progress.percentage);
-                setEstimate(formatTime(Math.max((new Date(data.progress.estimate).getTime() - Date.now())/1000, 0)));
+                if (data.progress.estimate!==undefined){
+                    console.log(data.progress.estimate)
+                    setEstimate(formatTime(Math.max((new Date(data.progress.estimate).getTime() - Date.now())/1000, 0)));
+                }
                 console.log(new Date(data.progress.estimate).getTime(), Date.now())
             }
         };
@@ -59,7 +62,7 @@ export default function TimedAlert() {
                     <Alert variant={alert.variant} style={{width: "100%"}}>
                         {alert.text}
                         {alert.progress && <ProgressBar key={percentage} animated now={percentage} label={`${percentage}%`} />}
-                        {alert.progress && <p>Estimated time left: {estimate}</p>}
+                        {alert.progress && estimate!==0 && <p>Estimated time left: {estimate}</p>}
                     </Alert>
             </div>
         ))}
