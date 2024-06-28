@@ -79,9 +79,11 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     let mountingHelper=0
     let startposition=null;
     let maphelp=null
+    let originalLatLngs = 0;
     //{lat: '', lng: ''}
     let destinationposition=null;
     var markercount=0;
+    const [updateFlag, setUpdateFlag] = useState(false);
     //Alternative start icon replaced with html marker
     const start_icon = new L.Icon({
         iconUrl: require('../img/amb.webp'),
@@ -300,7 +302,13 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
           editingZonesRef.current.getLayers().forEach((layer) => {
             layer.disableEdit();
             layer.enableEdit();
-    
+            if (!layer.listens("editable:vertex:dragstart")) {
+            layer.on("editable:vertex:dragstart", (e) => {
+                // Store the original coordinates before drag starts
+               originalLatLngs = layer.getLatLngs();
+               //console.log(layer.getLatLngs(), originalLatLngs)
+              });
+            }
             if (!layer.listens("editable:vertex:dragend")) {
               layer.on("editable:vertex:dragend", (e) => {
                 const { name, type, id, IsLine, effectValue } = e.layer.options;
@@ -311,7 +319,10 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                 if(!intersectSelf(geoJSON)){
                     dispatch(modifyPolygon(geoJSON));
                 } else {
-                    showTimedAlert({ text: 'Polygon cannot intersect itself', variant: 'failure'});
+                    layer.setLatLngs(originalLatLngs);
+                    layer.redraw()
+                    setUpdateFlag((prev) => !prev);
+                    showTimedAlert({ text: "Polygon can't intersect itself", variant: 'failure'});
                 }
               });
             }
