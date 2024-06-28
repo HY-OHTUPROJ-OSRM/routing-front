@@ -91,7 +91,7 @@ const CreatePolygon = async (object) => {
 const ChangePolygons = async (added, deletedIds) => {
   const alertId = `loading-${Date.now()}`;
   let deleted=filterUUIDv4(deletedIds);
-  showTimedAlert({ text: 'Updating roads...', variant: 'info', progress: true, id: alertId });
+  //showTimedAlert({ text: 'Updating roads...', variant: 'info', progress: true, id: alertId });
   
   // Function to convert polyline to polygon if IsLine is 1
   const convertIfNeeded = (polygon) => {
@@ -114,10 +114,10 @@ const ChangePolygons = async (added, deletedIds) => {
       headers: { "content-type": "application/json" },
       timeout: 0
     });
-    clearTimedAlert(alertId);
+    //clearTimedAlert(alertId);
     showTimedAlert({ text: 'Polygons updated successfully', variant: 'success' });
   } catch (error) {
-    clearTimedAlert(alertId);
+    //clearTimedAlert(alertId);
     handleAxiosError(error);
   }
 };

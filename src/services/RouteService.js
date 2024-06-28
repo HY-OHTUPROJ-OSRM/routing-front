@@ -14,6 +14,7 @@ const getRoute = async (coords) => {
         headers: { "content-type": "application/json" },
       });
       setTimeout(() => clearTimedAlert(alertId), 300);
+      console.log(response.data);
       const proper_route=routeTransformer(response.data);
       UpdateRouteInfoUtil(routeInfoExtractor(response.data));
       return proper_route;

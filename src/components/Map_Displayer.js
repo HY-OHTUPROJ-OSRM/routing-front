@@ -22,6 +22,7 @@ import {startti_icon, desti_icon} from './leafletHTMLIcon';
 import { changeListView } from '../features/view/ViewSlice';
 import VectorTileLayer from "react-leaflet-vector-tile-layer";
 import roadStyle from '../roadStyle';
+import { refreshTileLayer } from '../features/map/tileLayerSlice';
 
 /* 
 Massive component handling all map functionalities. 
@@ -75,13 +76,15 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     //Variable for changing map view when new view is requested from list component
     const mapView = useSelector((state) => state.view.mapView);
     // For refreshing the VectorTileLayer
-    const [mapKey, setMapKey] = useState(0)
+    const tileLayer = useSelector((state) => state.tileLayer)
     let mountingHelper=0
     let startposition=null;
     let maphelp=null
+    let originalLatLngs = 0;
     //{lat: '', lng: ''}
     let destinationposition=null;
     var markercount=0;
+    const [updateFlag, setUpdateFlag] = useState(false);
     //Alternative start icon replaced with html marker
     const start_icon = new L.Icon({
         iconUrl: require('../img/amb.webp'),
@@ -253,10 +256,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     const onCancelDrawing = (e) => {
         e.layer.remove()
     }
-    //Used to update the road segment coloring
-    const updateSpeedData = () => {
-        setMapKey(prevKey => prevKey + 1)
-    }
+
     //Used when saving edits. sends all added/deleted polygons to the backend and updates the map with new polygons and new route
     const saveEdits = async () => {
         //console.log("modified polygons", modifiedPolygons)
@@ -274,7 +274,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
         setEditing(false)
         setLines(0)
         setSidebar(false)
-        updateSpeedData()
+        dispatch(refreshTileLayer())
         dispatch(fetchPolygons())
         dispatch(fetchRouteLine())
         cancelEdits()
@@ -300,7 +300,13 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
           editingZonesRef.current.getLayers().forEach((layer) => {
             layer.disableEdit();
             layer.enableEdit();
-    
+            if (!layer.listens("editable:vertex:dragstart")) {
+            layer.on("editable:vertex:dragstart", (e) => {
+                // Store the original coordinates before drag starts
+               originalLatLngs = layer.getLatLngs();
+               //console.log(layer.getLatLngs(), originalLatLngs)
+              });
+            }
             if (!layer.listens("editable:vertex:dragend")) {
               layer.on("editable:vertex:dragend", (e) => {
                 const { name, type, id, IsLine, effectValue } = e.layer.options;
@@ -311,7 +317,10 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                 if(!intersectSelf(geoJSON)){
                     dispatch(modifyPolygon(geoJSON));
                 } else {
-                    showTimedAlert({ text: 'Polygon cannot intersect itself', variant: 'failure'});
+                    layer.setLatLngs(originalLatLngs);
+                    layer.redraw()
+                    setUpdateFlag((prev) => !prev);
+                    showTimedAlert({ text: "Polygon can't intersect itself", variant: 'failure'});
                 }
               });
             }
@@ -527,7 +536,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
             )}
             </div>
             <VectorTileLayer
-                key={mapKey}
+                key={tileLayer}
                 styleUrl={roadStyle}
             />
             {routedata.slice().reverse().map((route, index) => (

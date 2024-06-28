@@ -4,12 +4,19 @@ import { Alert, ProgressBar } from 'react-bootstrap';
 import { removeTimedAlert } from '../features/messages/timedAlertSlice';
 import './TimedAlert.css';
 import { ROUTING_API_URL } from '../Utils/config';
+import { showTimedAlert, clearTimedAlert } from '../Utils/dispatchUtility';
+import { fetchPolygons } from '../features/polygons/polygonsSlice';
+import { fetchRouteLine } from '../features/routes/routeSlice';
+import { refreshTileLayer } from '../features/map/tileLayerSlice';
+
 // A component that displays alerts for a certain amount of time. Displays also a progress bar on editmode saving, which is dynamically updated from backend url /status
 export default function TimedAlert() {
     const alerts = useSelector(state => state.timedAlert);
     const dispatch = useDispatch();
     const [percentage, setPercentage] = useState(0);
     const [estimate, setEstimate] = useState(0);
+    const [alertId, setAlertId] = useState(0);
+
     // Removes alerts after a certain amount of time
     useEffect(() => {
         alerts.forEach(alert => {
@@ -18,21 +25,30 @@ export default function TimedAlert() {
     }, [alerts, dispatch]);
     // Fetches the progress from backend url /status
     useEffect(() => {
-        
-        
         const socket = new EventSource(`${ROUTING_API_URL}/status`);
 
         socket.onmessage = (event) => {
             console.log('WebSocket message received:', event.data)
             const data = JSON.parse(event.data);
+            //console.log(data)
             if (data.status === 'processing') {
+                if (data.progress.percentage===0 && data.status==="processing"){
+                    setAlertId(`loading-${Date.now()}`);
+                    showTimedAlert({ text: 'Updating roads...', variant: 'info', id: 1, progress: true });
+                }
                 setPercentage(data.progress.percentage);
                 if (data.progress.estimate!==undefined){
-                    console.log(data.progress.estimate)
+                    //console.log(data.progress.estimate)
                     setEstimate(formatTime(Math.max((new Date(data.progress.estimate).getTime() - Date.now())/1000, 0)));
                 }
-                console.log(new Date(data.progress.estimate).getTime(), Date.now())
-            }
+                //console.log(new Date(data.progress.estimate).getTime(), Date.now())
+            
+            } else {
+                clearTimedAlert(1)
+                dispatch(refreshTileLayer())
+                dispatch(fetchPolygons())
+                dispatch(fetchRouteLine())
+        }
         };
 
         socket.onerror = (error) => {
