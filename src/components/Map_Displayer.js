@@ -22,6 +22,7 @@ import {startti_icon, desti_icon} from './leafletHTMLIcon';
 import { changeListView } from '../features/view/ViewSlice';
 import VectorTileLayer from "react-leaflet-vector-tile-layer";
 import roadStyle from '../roadStyle';
+import { refreshTileLayer } from '../features/map/tileLayerSlice';
 
 /* 
 Massive component handling all map functionalities. 
@@ -75,7 +76,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     //Variable for changing map view when new view is requested from list component
     const mapView = useSelector((state) => state.view.mapView);
     // For refreshing the VectorTileLayer
-    const [mapKey, setMapKey] = useState(0)
+    const tileLayer = useSelector((state) => state.tileLayer)
     let mountingHelper=0
     let startposition=null;
     let maphelp=null
@@ -255,10 +256,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     const onCancelDrawing = (e) => {
         e.layer.remove()
     }
-    //Used to update the road segment coloring
-    const updateSpeedData = () => {
-        setMapKey(prevKey => prevKey + 1)
-    }
+
     //Used when saving edits. sends all added/deleted polygons to the backend and updates the map with new polygons and new route
     const saveEdits = async () => {
         //console.log("modified polygons", modifiedPolygons)
@@ -276,7 +274,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
         setEditing(false)
         setLines(0)
         setSidebar(false)
-        updateSpeedData()
+        dispatch(refreshTileLayer())
         dispatch(fetchPolygons())
         dispatch(fetchRouteLine())
         cancelEdits()
@@ -538,7 +536,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
             )}
             </div>
             <VectorTileLayer
-                key={mapKey}
+                key={tileLayer}
                 styleUrl={roadStyle}
             />
             {routedata.slice().reverse().map((route, index) => (

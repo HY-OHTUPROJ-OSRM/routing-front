@@ -6,6 +6,7 @@ import timedAlertReducer from "../features/messages/timedAlertSlice"
 import segmentsReducer from "../features/segments/segmentSlice"
 //import segmentsReducer from "../features/segments/segmentsSlice"
 import ViewSliceReducer from "../features/view/ViewSlice"
+import tileLayerReducer from "../features/map/tileLayerSlice"
 
 //store to add all used reducers
 export default configureStore({
@@ -15,6 +16,7 @@ export default configureStore({
         timedAlert: timedAlertReducer,
         modifiedPolygons: modifiedPolygonsReducer,
         segments: segmentsReducer,
-        view: ViewSliceReducer
+        view: ViewSliceReducer,
+        tileLayer: tileLayerReducer
     }
 })

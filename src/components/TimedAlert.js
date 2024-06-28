@@ -5,6 +5,9 @@ import { removeTimedAlert } from '../features/messages/timedAlertSlice';
 import './TimedAlert.css';
 import { ROUTING_API_URL } from '../Utils/config';
 import { showTimedAlert, clearTimedAlert } from '../Utils/dispatchUtility';
+import { fetchPolygons } from '../features/polygons/polygonsSlice';
+import { fetchRouteLine } from '../features/routes/routeSlice';
+import { refreshTileLayer } from '../features/map/tileLayerSlice';
 
 // A component that displays alerts for a certain amount of time. Displays also a progress bar on editmode saving, which is dynamically updated from backend url /status
 export default function TimedAlert() {
@@ -22,8 +25,6 @@ export default function TimedAlert() {
     }, [alerts, dispatch]);
     // Fetches the progress from backend url /status
     useEffect(() => {
-        
-        
         const socket = new EventSource(`${ROUTING_API_URL}/status`);
 
         socket.onmessage = (event) => {
@@ -33,7 +34,7 @@ export default function TimedAlert() {
             if (data.status === 'processing') {
                 if (data.progress.percentage===0 && data.status==="processing"){
                     setAlertId(`loading-${Date.now()}`);
-                    showTimedAlert({ text: 'Loading polygons...', variant: 'info', id: 1, progress: true });
+                    showTimedAlert({ text: 'Updating roads...', variant: 'info', id: 1, progress: true });
                 }
                 setPercentage(data.progress.percentage);
                 if (data.progress.estimate!==undefined){
@@ -43,9 +44,10 @@ export default function TimedAlert() {
                 //console.log(new Date(data.progress.estimate).getTime(), Date.now())
             
             } else {
-                
                 clearTimedAlert(1)
-                showTimedAlert({ text: 'Polygons loaded successfully', variant: 'success' });
+                dispatch(refreshTileLayer())
+                dispatch(fetchPolygons())
+                dispatch(fetchRouteLine())
         }
         };
 
