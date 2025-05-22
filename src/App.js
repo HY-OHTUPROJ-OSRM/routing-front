@@ -13,6 +13,7 @@ import { useDispatch } from "react-redux";
 import { fetchPolygons } from "./features/polygons/polygonsSlice";
 import TimedAlert from "./components/TimedAlert";
 import RouteList from "./components/RouteInfo";
+import TempRoadButton from "./components/TempRoadButton";
 
 function App() {
   const dispatch = useDispatch()
@@ -60,6 +61,7 @@ function App() {
           
           <SideBar isOpen={sidebarOpenP} toggleSidebar={setSidebarOpenP} editMode={editMode} setEditMode={setEditMode}/>
           <CopeSideBar isOpen={sidebarOpenA} toggleSidebar={setSidebarOpenA} />
+          <TempRoadButton />
         </div>
         
       </div>
