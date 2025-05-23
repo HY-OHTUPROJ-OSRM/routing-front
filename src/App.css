@@ -4,8 +4,6 @@
 html, body, #root {
   margin: 0;
   padding: 0;
-  height: 100vh;
-  overflow: hidden;
 }
 
 :root {
@@ -62,10 +60,4 @@ html, body, #root {
   grid-area: sidebar;
   border: 2px solid var(--primary-blue);
   padding: 1rem;
-  transform: translateX(100%);
-  transition: transform 0.3s ease-in-out;
-}
-
-.sidebar.open {
-  transform: translateX(0);
 }
