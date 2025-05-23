@@ -5,20 +5,21 @@ import { useDispatch } from 'react-redux';
 import Header from './components/Header';
 import SideBar from './components/SideBar';
 import CopeSideBar from './components/CopeSideBar';
+import Map_displayer from './components/Map_Displayer';
 import { fetchPolygons } from './features/polygons/polygonsSlice';
 import { AppProviders } from './components/CoordinatesContext';
 
 export default function App() {
   const dispatch = useDispatch();
 
-  // Ladataan listapuolen polygonit heti, ilman että “add”-puolta pitää käyttää ensin
+  // Ladataan polygonit heti kun App renderöityy
   useEffect(() => {
     dispatch(fetchPolygons());
   }, [dispatch]);
 
   const [sidebarState, setSidebarState] = useState({
     isOpen: false,
-    contentType: 'add'   // 'add' näyttää CopeSideBar, 'list' näyttää SideBar
+    contentType: 'add'   // 'add' = CopeSideBar, 'list' = SideBar
   });
   const [editMode, setEditMode] = useState(false);
 
@@ -36,10 +37,6 @@ export default function App() {
     }));
   };
 
-  const toggleSidebar = () => {
-    setSidebarState(s => ({ ...s, isOpen: false }));
-  };
-
   const { isOpen, contentType } = sidebarState;
 
   return (
@@ -48,21 +45,26 @@ export default function App() {
         <Header onClickA={handleAddClick} onClickP={handleListClick} />
 
         <main className="main">
-          {/* Kartta siirretään tänne myöhemmin */}
+          <Map_displayer
+            editMode={editMode}
+            setEditMode={setEditMode}
+            setSidebar={handleListClick}
+            isOpen={isOpen && contentType === 'list'}
+          />
         </main>
 
-        <aside className={isOpen ? 'open' : ''}>
+        <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
           {contentType === 'list' ? (
             <SideBar
               isOpen={isOpen}
-              toggleSidebar={toggleSidebar}
+              toggleSidebar={() => setSidebarState(s => ({ ...s, isOpen: false }))}
               editMode={editMode}
               setEditMode={setEditMode}
             />
           ) : (
             <CopeSideBar
               isOpen={isOpen}
-              toggleSidebar={toggleSidebar}
+              toggleSidebar={() => setSidebarState(s => ({ ...s, isOpen: false }))}
             />
           )}
         </aside>
