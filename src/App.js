@@ -1,12 +1,21 @@
 // src/App.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
+import { useDispatch } from 'react-redux';
 import Header from './components/Header';
-import SideBar from './components/SideBar';          // list‐puoli
-import CopeSideBar from './components/CopeSideBar';  // add‐puoli
-import { AppProviders } from './components/CoordinatesContext'; // vanhan frontin context
+import SideBar from './components/SideBar';
+import CopeSideBar from './components/CopeSideBar';
+import { fetchPolygons } from './features/polygons/polygonsSlice';
+import { AppProviders } from './components/CoordinatesContext';
 
 export default function App() {
+  const dispatch = useDispatch();
+
+  // Ladataan listapuolen polygonit heti, ilman että “add”-puolta pitää käyttää ensin
+  useEffect(() => {
+    dispatch(fetchPolygons());
+  }, [dispatch]);
+
   const [sidebarState, setSidebarState] = useState({
     isOpen: false,
     contentType: 'add'   // 'add' näyttää CopeSideBar, 'list' näyttää SideBar
@@ -27,7 +36,6 @@ export default function App() {
     }));
   };
 
-  // kun halutaan sisäisestä napista sulkea
   const toggleSidebar = () => {
     setSidebarState(s => ({ ...s, isOpen: false }));
   };
@@ -40,10 +48,10 @@ export default function App() {
         <Header onClickA={handleAddClick} onClickP={handleListClick} />
 
         <main className="main">
-          {/* Kartta ym. siirretään tänne myöhemmin */}
+          {/* Kartta siirretään tänne myöhemmin */}
         </main>
 
-        <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+        <aside className={isOpen ? 'open' : ''}>
           {contentType === 'list' ? (
             <SideBar
               isOpen={isOpen}
