@@ -1,20 +1,25 @@
 import React from "react";
-import HeadLine from "./HeadLine";
 import "./comp_styles.scss";
 
-// Header component. Headline given its own component if three.js is added to the project for cool 3d modelling on headline
-//Responsible for the menu icons and their functionalities
-const Header = props => {
+const Header = ({ onClickA, onClickP }) => {
   return (
-    <header style={{position: "fixed", marginBottom: "100px"}}>
-      <HeadLine />
-      
-      <div className="image-container" >
-      
-        <img id="openadd"src={`${process.env.PUBLIC_URL}/add.png`} alt="Add" onClick={props.onClickA} className="menu-iconone" />
-        <img id="openlist" src={`${process.env.PUBLIC_URL}/menu.png`} alt="List" onClick={props.onClickP} className="menu-icontwo" />
+    <div className="header">
+      <h2>Routing app</h2>
+      <div className="header-icons">
+        <img 
+          src="/add.png"
+          alt="Add"
+          onClick={onClickA}
+          className="header-icon"
+        />
+        <img 
+          src="/menu.png"
+          alt="List"
+          onClick={onClickP}
+          className="header-icon"
+        />
       </div>
-    </header>
+    </div>
   );
 };
 
