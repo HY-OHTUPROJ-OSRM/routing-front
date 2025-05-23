@@ -12,14 +12,13 @@ import { AppProviders } from './components/CoordinatesContext';
 export default function App() {
   const dispatch = useDispatch();
 
-  // Ladataan polygonit heti kun App renderöityy
   useEffect(() => {
     dispatch(fetchPolygons());
   }, [dispatch]);
 
   const [sidebarState, setSidebarState] = useState({
     isOpen: false,
-    contentType: 'add'   // 'add' = CopeSideBar, 'list' = SideBar
+    contentType: 'add'
   });
   const [editMode, setEditMode] = useState(false);
 
@@ -53,22 +52,23 @@ export default function App() {
           />
         </main>
 
-        <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
-          {contentType === 'list' ? (
-            <SideBar
-              isOpen={isOpen}
-              toggleSidebar={() => setSidebarState(s => ({ ...s, isOpen: false }))}
-              editMode={editMode}
-              setEditMode={setEditMode}
-            />
-          ) : (
-            <CopeSideBar
-              isOpen={isOpen}
-              toggleSidebar={() => setSidebarState(s => ({ ...s, isOpen: false }))}
-            />
-          )}
+        <aside className={`inner ${isOpen ? 'open' : ''}`}>     
+          {contentType === 'list'
+            ? <SideBar
+                isOpen={isOpen}
+                editMode={editMode}
+                setEditMode={setEditMode}
+                // kutsu toggleSidebar sisäisistä komponenteista
+                toggleSidebar={() => setSidebarState(s => ({ ...s, isOpen: false }))}
+              />
+            : <CopeSideBar
+                isOpen={isOpen}
+                toggleSidebar={() => setSidebarState(s => ({ ...s, isOpen: false }))}
+              />
+          }
         </aside>
       </div>
     </AppProviders>
   );
 }
+

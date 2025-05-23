@@ -1,6 +1,5 @@
 @import '~leaflet/dist/leaflet.css';
 
-/* Reset and base styles */
 html, body, #root {
   margin: 0;
   padding: 0;
@@ -54,10 +53,23 @@ html, body, #root {
   grid-area: main;
   border: 2px solid var(--primary-blue);
   padding: 1rem;
+  overflow: auto;
+  min-height: 0;
 }
 
 .sidebar {
   grid-area: sidebar;
   border: 2px solid var(--primary-blue);
   padding: 1rem;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  overflow: auto;
+}
+
+.inner {
+  overflow: auto;
+}
+
+.sidebar.open {
+  transform: translateX(0);
 }
