@@ -3,26 +3,27 @@ import './App.css';
 import Header from './components/Header';
 
 function App() {
-  const [addSidebarOpen, setAddSidebarOpen] = useState(false);
-  const [listSidebarOpen, setListSidebarOpen] = useState(false);
+  const [sidebarState, setSidebarState] = useState({
+    isOpen: true,
+    contentType: 'add'
+  });
 
-  const handleAddClick = () => {
-    setListSidebarOpen(false);
-    setAddSidebarOpen(!addSidebarOpen);
-  };
+  const handleAddClick = () => setSidebarState(prev => ({
+    isOpen: prev.contentType !== 'add' ? true : !prev.isOpen,
+    contentType: 'add'
+  }));
 
-  const handleListClick = () => {
-    setAddSidebarOpen(false);
-    setListSidebarOpen(!listSidebarOpen);
-  };
+  const handleListClick = () => setSidebarState(prev => ({
+    isOpen: prev.contentType !== 'list' ? true : !prev.isOpen,
+    contentType: 'list'
+  }));
 
   return (
     <div className="app-layout">
       <Header onClickA={handleAddClick} onClickP={handleListClick} />
-      <main className="main">
-      </main>
-      <aside className="sidebar">
-        {addSidebarOpen ? "Add Content" : listSidebarOpen ? "List Content" : null}
+      <main className="main" />
+      <aside className={`sidebar ${sidebarState.isOpen ? 'open' : ''}`}>
+        {sidebarState.contentType === 'add' ? 'Add Content' : 'List Content'}
       </aside>
     </div>
   );
