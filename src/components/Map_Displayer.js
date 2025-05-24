@@ -641,19 +641,20 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                     />
                 ))}
                 <EditControl
-                    position="topright"
-                    onCreated={onDrawCreated}
-                    draw={{
-                        rectangle: false,
-                        polyline: false,
-                        circle: false,
-                        circlemarker: false,
-                        marker: false 
-                        //old code used before markers were placed by clicking on map
-                        //markerCount < 2 ? {
-                        //    icon: placehold_icon
-                        //} : false // Allow drawing markers only if there are less than 2 markers
-                    }}
+                position="topright"
+                onCreated={onDrawCreated}
+                draw={{
+                    polygon: true,
+                    rectangle: false,
+                    polyline: false,
+                    circle: false,
+                    circlemarker: false,
+                    marker: false
+                }}
+                edit={{
+                    edit: false,
+                    remove: false
+                }}
                 />
             </FeatureGroup>}
         <ClickHandler onClick={handleClick} />

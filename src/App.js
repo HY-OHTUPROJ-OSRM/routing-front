@@ -45,10 +45,7 @@ export default function App() {
 
         <main className="main">
           <Map_displayer
-            editMode={editMode}
-            setEditMode={setEditMode}
-            setSidebar={handleListClick}
-            isOpen={isOpen && contentType === 'list'}
+
           />
         </main>
 
