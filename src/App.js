@@ -29,6 +29,14 @@ export default function App() {
     }));
   };
 
+  // kartalta klikkauksen kautta avaa list‐sidebar ilman scrollin resettiä
+  const openListSidebar = () => {
+    setSidebarState(prev => {
+     // jos ollaan jo list‐tilassa auki, älä päivitä tilaa → scroll säilyy
+    if (prev.contentType === 'list' && prev.isOpen) return prev;
+    return { isOpen: true, contentType: 'list' };
+   });};
+
   const handleListClick = () => {
     setSidebarState(prev => ({
       isOpen: prev.contentType !== 'list' ? true : !prev.isOpen,
@@ -45,7 +53,10 @@ export default function App() {
 
         <main className="main">
           <Map_displayer
-
+            editMode={editMode}
+            setEditMode={setEditMode}
+            setSidebar={openListSidebar}
+            isOpen={isOpen && contentType === 'list'}
           />
         </main>
 
