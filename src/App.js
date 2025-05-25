@@ -8,6 +8,9 @@ import CopeSideBar from './components/CopeSideBar';
 import Map_displayer from './components/Map_Displayer';
 import { fetchPolygons } from './features/polygons/polygonsSlice';
 import { AppProviders } from './components/CoordinatesContext';
+import Routing_form from "./components/RouteField";
+import RouteList from "./components/RouteInfo";
+import TimedAlert from "./components/TimedAlert";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -50,6 +53,7 @@ export default function App() {
     <AppProviders>
       <div className="app-layout">
         <Header onClickA={handleAddClick} onClickP={handleListClick} />
+        <TimedAlert />
 
         <main className="main">
           <Map_displayer
@@ -58,6 +62,8 @@ export default function App() {
             setSidebar={openListSidebar}
             isOpen={isOpen && contentType === 'list'}
           />
+          <Routing_form/>
+          <RouteList/>
         </main>
 
         <aside className={`inner ${isOpen ? 'open' : ''}`}>     
