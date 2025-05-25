@@ -9,7 +9,6 @@ import Map_displayer from './components/Map_Displayer';
 import { fetchPolygons } from './features/polygons/polygonsSlice';
 import { AppProviders } from './components/CoordinatesContext';
 import Routing_form from "./components/RouteField";
-import RouteList from "./components/RouteInfo";
 import TimedAlert from "./components/TimedAlert";
 
 export default function App() {
@@ -63,7 +62,6 @@ export default function App() {
             isOpen={isOpen && contentType === 'list'}
           />
           <Routing_form/>
-          <RouteList/>
         </main>
 
         <aside className={`inner ${isOpen ? 'open' : ''}`}>     

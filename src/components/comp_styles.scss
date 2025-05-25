@@ -9,6 +9,12 @@
   background-color: cyan;
 }
 
+.route-info {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
 .timed-alert {
   font-weight: bold;
   display: flex;
@@ -17,7 +23,7 @@
   justify-content: space-between;
   width: 20%;
   position: absolute;
-  top: 50%;
+  top: 5%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 1000;

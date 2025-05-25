@@ -1,38 +1,72 @@
 .new-component {
-    width: 30%;
-    margin: 0 auto;
-    margin-left: 70%;
-    margin-top: 100px;
-  }
-  
-  .new-component h2 {
-    text-align: center;
-  }
-  
-  .form-group {
-    margin-bottom: 20px;
-  }
-  
-  .error {
-    color: rgb(27, 25, 25);
-    font-size: 12px;
-  }
-  
-  .input-error {
-    border: 1px solid red;
-  }
-  
-  .coordinate-group {
-    margin-bottom: 10px;
-  }
-  
-  .new-component button {
-    display: block;
-    margin: 20px auto;
-  }
-  
-  .btn-disabled {
-    background-color: #ccc;
-    color: #666;
-    cursor: not-allowed;
-  }
+  position: absolute;
+  bottom: 5%;
+  left: 20%;
+  right: 20%;
+  height: auto;
+  width: auto;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column; /* muutettu tähän */
+  align-items: center; /* keskittää sisällön vaakasuuntaan */
+  gap: 10px; /* pieni väli elementtien välillä */
+}
+
+.form-horizontal {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* lomakkeen kentät keskitettyinä */
+  gap: 20px; /* selkeä väli kenttien välillä */
+  width: 100%;
+}
+
+.coordinate-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 0; /* poistettu ylimääräinen marginaali */
+}
+
+.error {
+  color: rgb(27, 25, 25);
+  font-size: 12px;
+}
+
+.input-error {
+  border: 1px solid red;
+}
+
+.new-component button {
+  margin: 0; /* nappi ilman ylimääräistä automaattista marginaalia */
+  padding: 8px 16px;
+}
+
+.btn-disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.route-list-container {
+  width: 100%;
+  margin-top: 10px;
+  border-top: 1px solid #ddd; /* erottaa visuaalisesti lomakkeen ja tiedot */
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* tiedot keskitettyinä */
+}
+
+.route-info {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+strong {
+  display: block;
+  text-align: center;
+}

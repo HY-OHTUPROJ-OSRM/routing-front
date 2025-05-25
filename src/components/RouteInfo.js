@@ -1,6 +1,8 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
+import './comp_styles.scss';
 //Component for displaying info about generated routes, such as their distance and duration
+
 const RouteList = () => {
   const routedata = useSelector((state) => state.routeLine.routeInfo);
   const formatDistance = (distance) => {
@@ -16,10 +18,21 @@ const RouteList = () => {
   return (
     <div>
       {routedata.map((route, index) => (
-        <div key={index} style={{ marginBottom: '20px', marginLeft: '73%' }}>
-          <h3>{index % 2 === 0 ? 'Primary Route' : 'Secondary Route'} </h3>
-          <p id='distval'>Distance: {formatDistance(route.distance)} km</p>
-          <p id='durval'>Duration: {formatDuration(route.duration)}</p>
+        <div
+          key={index}
+          style={{
+            marginBottom: '20px',
+            marginLeft: '73%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}
+        >
+          <strong>{index % 2 === 0 ? 'Primary Route' : 'Secondary Route'}</strong>
+          <div className="route-info">
+            <p id='distval'>Distance: {formatDistance(route.distance)} km</p>
+            <p id='durval'>Duration: {formatDuration(route.duration)}</p>
+          </div>
         </div>
       ))}
     </div>
