@@ -62,8 +62,6 @@ html, body, #root {
   grid-area: sidebar;
   border: 2px solid var(--primary-blue);
   padding: 1rem;
-  transform: translateX(100%);
-  transition: transform 0.3s ease-in-out;
   overflow: auto;
 }
 
@@ -71,6 +69,3 @@ html, body, #root {
   overflow: auto;
 }
 
-.sidebar.open {
-  transform: translateX(0);
-}

@@ -1,4 +1,3 @@
-// src/App.js
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { useDispatch } from 'react-redux';
@@ -18,35 +17,21 @@ export default function App() {
     dispatch(fetchPolygons());
   }, [dispatch]);
 
-  const [sidebarState, setSidebarState] = useState({
-    isOpen: false,
-    contentType: 'add'
-  });
+  const [sidebarType, setSidebarType] = useState(null); // 'list' | 'add' | null
   const [editMode, setEditMode] = useState(false);
 
   const handleAddClick = () => {
-    setSidebarState(prev => ({
-      isOpen: prev.contentType !== 'add' ? true : !prev.isOpen,
-      contentType: 'add'
-    }));
+    setSidebarType(prev => (prev === 'add' ? null : 'add'));
   };
-
-  // kartalta klikkauksen kautta avaa list‐sidebar ilman scrollin resettiä
-  const openListSidebar = () => {
-    setSidebarState(prev => {
-     // jos ollaan jo list‐tilassa auki, älä päivitä tilaa → scroll säilyy
-    if (prev.contentType === 'list' && prev.isOpen) return prev;
-    return { isOpen: true, contentType: 'list' };
-   });};
 
   const handleListClick = () => {
-    setSidebarState(prev => ({
-      isOpen: prev.contentType !== 'list' ? true : !prev.isOpen,
-      contentType: 'list'
-    }));
+    setSidebarType(prev => (prev === 'list' ? null : 'list'));
   };
 
-  const { isOpen, contentType } = sidebarState;
+  const openListSidebar = () => {
+    if (sidebarType === 'list') return; // jo auki → ei tehdä mitään
+    setSidebarType('list');
+  };
 
   return (
     <AppProviders>
@@ -59,28 +44,28 @@ export default function App() {
             editMode={editMode}
             setEditMode={setEditMode}
             setSidebar={openListSidebar}
-            isOpen={isOpen && contentType === 'list'}
+            isOpen={sidebarType === 'list'}
           />
-          <Routing_form/>
+          <Routing_form />
         </main>
 
-        <aside className={`inner ${isOpen ? 'open' : ''}`}>     
-          {contentType === 'list'
-            ? <SideBar
-                isOpen={isOpen}
-                editMode={editMode}
-                setEditMode={setEditMode}
-                // kutsu toggleSidebar sisäisistä komponenteista
-                toggleSidebar={() => setSidebarState(s => ({ ...s, isOpen: false }))}
-              />
-            : <CopeSideBar
-                isOpen={isOpen}
-                toggleSidebar={() => setSidebarState(s => ({ ...s, isOpen: false }))}
-              />
-          }
+        <aside className={`inner ${sidebarType ? 'open' : ''}`}>
+          {sidebarType === 'list' && (
+            <SideBar
+              isOpen={true}
+              editMode={editMode}
+              setEditMode={setEditMode}
+              toggleSidebar={() => setSidebarType(null)}
+            />
+          )}
+          {sidebarType === 'add' && (
+            <CopeSideBar
+              isOpen={true}
+              toggleSidebar={() => setSidebarType(null)}
+            />
+          )}
         </aside>
       </div>
     </AppProviders>
   );
 }
-
