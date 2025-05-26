@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./comp_styles.scss";
 
-const Header = ({ onClickA, onClickP, onClickGuide, handleToolsClick }) => {
+const Header = ({ onClickA, onClickP, onClickGuide, handleToolsClick, handleShowProfileModal, selectedProfile }) => {
   const [selectedTool, setSelectedTool] = useState("None");
 
   const handleChange = (e) => {
@@ -10,22 +10,28 @@ const Header = ({ onClickA, onClickP, onClickGuide, handleToolsClick }) => {
 
     if (value === "iceroad") {
       handleToolsClick();
-    } else {
+    }
+    if (value === 'select-profile') {
+      handleShowProfileModal();
+    } 
+    else {
     }
   };
 
   return (
     <div className="header">
       <h2>Routing app</h2>
+      <div className="profile-display">{selectedProfile}</div>
       <div className="header-icons">
 
         <label className="header-select-wrapper">
           <span className="tools-label">Tools ▾</span>
-          <select className="header-select" value="None" onChange={handleChange}>
+          <select className="header-select" value={selectedTool} onChange={handleChange}>
             <option disabled value="None">Tools ▾</option>
             <option value="iceroad">Ice roads</option>
-            <option value="elevation">Elevation</option>
-            <option value="export">Export</option>
+            <option value="select-profile">Select profile</option>
+            <option value="elevation">example</option>
+            <option value="export">example2</option>
           </select>
         </label>
 

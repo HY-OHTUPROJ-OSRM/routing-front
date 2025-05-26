@@ -5,6 +5,7 @@ import Header from './components/Header';
 import SideBar from './components/SideBar';
 import CopeSideBar from './components/CopeSideBar';
 import IceRoadSidebar from './components/ToolsSidebar';
+import SelectProfile from './components/SelectProfile';
 import Map_displayer from './components/Map_Displayer';
 import { fetchPolygons } from './features/polygons/polygonsSlice';
 import { AppProviders } from './components/CoordinatesContext';
@@ -18,8 +19,10 @@ export default function App() {
     dispatch(fetchPolygons());
   }, [dispatch]);
 
-  const [sidebarType, setSidebarType] = useState(null); // 'list' | 'add' | 'iceRoad' | null
+  const [sidebarType, setSidebarType] = useState(null); // 'list' | 'add' | 'temproad' | null
   const [editMode, setEditMode] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState("No profile");
+
 
   const handleSidebarClick = (type) => {
     setSidebarType(prev => (prev === type ? null : type));
@@ -34,6 +37,13 @@ export default function App() {
     setSidebarType('list');
   };
 
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const handleProfileSelect = (profile) => {
+    setSelectedProfile(profile);
+    setShowProfileModal(false);
+    console.log("Selected profile:", profile);
+  };
+
   return (
     <AppProviders>
       <div className="app-layout">
@@ -41,6 +51,8 @@ export default function App() {
             onClickA={handleAddClick}
             onClickP={handleListClick}
             handleToolsClick={handleToolsClick}
+            handleShowProfileModal={() => setShowProfileModal(true)}
+            selectedProfile={selectedProfile}
           />
         <TimedAlert />
 
@@ -78,6 +90,11 @@ export default function App() {
             )}
           </aside>
       </div>
+      <SelectProfile
+      isOpen={showProfileModal}
+      onClose={() => setShowProfileModal(false)}
+      onSelect={handleProfileSelect}
+    />
     </AppProviders>
   );
 }
