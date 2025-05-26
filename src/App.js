@@ -13,11 +13,13 @@ import { useDispatch } from "react-redux";
 import { fetchPolygons } from "./features/polygons/polygonsSlice";
 import TimedAlert from "./components/TimedAlert";
 import RouteList from "./components/RouteInfo";
+import ToolSideBar from "./components/ToolSideBar";
 
 function App() {
   const dispatch = useDispatch()
   const [sidebarOpenP, setSidebarOpenP] = useState(false);
   const [sidebarOpenA, setSidebarOpenA] = useState(false);
+  const [sidebarOpenC, setSidebarOpenC] = useState(false);
   const [editMode, setEditMode] = useState(false);
   useEffect(() => {
     dispatch(fetchPolygons())
@@ -27,6 +29,9 @@ function App() {
     if (sidebarOpenA) {
       setSidebarOpenA(false);
     }
+    if (sidebarOpenC) {
+      setSidebarOpenC(false);
+    }
     setSidebarOpenP(!sidebarOpenP);
   };
 
@@ -35,7 +40,21 @@ function App() {
     if (sidebarOpenP) {
       setSidebarOpenP(false);
     }
+    if (sidebarOpenC) {
+      setSidebarOpenC(false);
+    }
     setSidebarOpenA(!sidebarOpenA);
+  };
+
+  //Toggle sidebar for seeing tools
+  const toggleSidebarc = () => {
+    if (sidebarOpenP) {
+      setSidebarOpenP(false);
+    }
+    if (sidebarOpenA) {
+      setSidebarOpenA(false);
+    }
+    setSidebarOpenC(!sidebarOpenC);
   };
 
   /*
@@ -56,10 +75,11 @@ function App() {
       
         <div style={{zIndex: "10", marginBottom: "40px"}}>
           <TimedAlert />
-          <Header onClickP={toggleSidebarp} onClickA={toggleSidebara} className="App-header"  />
-          
+          <Header onClickP={toggleSidebarp} onClickA={toggleSidebara} onClickC={toggleSidebarc} className="App-header"  />          
+
           <SideBar isOpen={sidebarOpenP} toggleSidebar={setSidebarOpenP} editMode={editMode} setEditMode={setEditMode}/>
           <CopeSideBar isOpen={sidebarOpenA} toggleSidebar={setSidebarOpenA} />
+          <ToolSideBar isOpen={sidebarOpenC} toggleSidebar={setSidebarOpenC} />
         </div>
         
       </div>
