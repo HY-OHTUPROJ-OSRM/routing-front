@@ -13,6 +13,7 @@ const Header = props => {
       
         <img id="openadd"src={`${process.env.PUBLIC_URL}/add.png`} alt="Add" onClick={props.onClickA} className="menu-iconone" />
         <img id="openlist" src={`${process.env.PUBLIC_URL}/menu.png`} alt="List" onClick={props.onClickP} className="menu-icontwo" />
+        <img id="opentools" src={`${process.env.PUBLIC_URL}/tools.png`} alt="Tools" onClick={props.onClickC} className="menu-iconthree" />
       </div>
     </header>
   );
