@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import Header from './components/Header';
 import SideBar from './components/SideBar';
 import CopeSideBar from './components/CopeSideBar';
+import IceRoadSidebar from './components/ToolsSidebar';
 import Map_displayer from './components/Map_Displayer';
 import { fetchPolygons } from './features/polygons/polygonsSlice';
 import { AppProviders } from './components/CoordinatesContext';
@@ -17,16 +18,16 @@ export default function App() {
     dispatch(fetchPolygons());
   }, [dispatch]);
 
-  const [sidebarType, setSidebarType] = useState(null); // 'list' | 'add' | null
+  const [sidebarType, setSidebarType] = useState(null); // 'list' | 'add' | 'iceRoad' | null
   const [editMode, setEditMode] = useState(false);
 
-  const handleAddClick = () => {
-    setSidebarType(prev => (prev === 'add' ? null : 'add'));
+  const handleSidebarClick = (type) => {
+    setSidebarType(prev => (prev === type ? null : type));
   };
 
-  const handleListClick = () => {
-    setSidebarType(prev => (prev === 'list' ? null : 'list'));
-  };
+  const handleAddClick = () => handleSidebarClick('add');
+  const handleListClick = () => handleSidebarClick('list');
+  const handleToolsClick = () => handleSidebarClick('iceRoad');
 
   const openListSidebar = () => {
     if (sidebarType === 'list') return; // jo auki → ei tehdä mitään
@@ -36,7 +37,11 @@ export default function App() {
   return (
     <AppProviders>
       <div className="app-layout">
-        <Header onClickA={handleAddClick} onClickP={handleListClick} />
+        <Header
+            onClickA={handleAddClick}
+            onClickP={handleListClick}
+            handleToolsClick={handleToolsClick}
+          />
         <TimedAlert />
 
         <main className="main">
@@ -48,23 +53,30 @@ export default function App() {
           />
           <Routing_form />
         </main>
+          <aside className={`inner ${sidebarType ? 'open' : ''}`}>
+            {sidebarType === 'list' && (
+              <SideBar
+                isOpen={true}
+                editMode={editMode}
+                setEditMode={setEditMode}
+                toggleSidebar={() => setSidebarType(null)}
+              />
+            )}
 
-        <aside className={`inner ${sidebarType ? 'open' : ''}`}>
-          {sidebarType === 'list' && (
-            <SideBar
-              isOpen={true}
-              editMode={editMode}
-              setEditMode={setEditMode}
-              toggleSidebar={() => setSidebarType(null)}
-            />
-          )}
-          {sidebarType === 'add' && (
-            <CopeSideBar
-              isOpen={true}
-              toggleSidebar={() => setSidebarType(null)}
-            />
-          )}
-        </aside>
+            {sidebarType === 'add' && (
+              <CopeSideBar
+                isOpen={true}
+                toggleSidebar={() => setSidebarType(null)}
+              />
+            )}
+
+            {sidebarType === 'iceRoad' && (
+              <IceRoadSidebar
+                isOpen={true}
+                toBeDisplayed={() => <div>Ice road content placeholder</div>}
+              />
+            )}
+          </aside>
       </div>
     </AppProviders>
   );

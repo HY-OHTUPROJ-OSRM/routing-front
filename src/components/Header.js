@@ -1,32 +1,33 @@
 import React, { useState } from "react";
 import "./comp_styles.scss";
 
-const Header = ({ onClickA, onClickP, onClickGuide }) => {
+const Header = ({ onClickA, onClickP, onClickGuide, handleToolsClick }) => {
   const [selectedTool, setSelectedTool] = useState("None");
-  const [showTools, setShowTools] = useState(false);
 
-  const tools = ["Measure", "Elevation", "Export"];
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setSelectedTool("None");
 
-  const toggleToolsMenu = () => setShowTools(prev => !prev);
-  const handleToolSelect = (tool) => {
-    setSelectedTool(tool);
-    setShowTools(false);
+    if (value === "iceroad") {
+      handleToolsClick();
+    } else {
+    }
   };
 
   return (
     <div className="header">
       <h2>Routing app</h2>
       <div className="header-icons">
-        <select
-          className="header-icon"
-          value={selectedTool}
-          onChange={(e) => setSelectedTool(e.target.value)}
-        >
-          <option disabled value="None">Tools ▾</option>
-          <option value="Measure">Measure</option>
-          <option value="Elevation">Elevation</option>
-          <option value="Export">Export</option>
-        </select>
+
+        <label className="header-select-wrapper">
+          <span className="tools-label">Tools ▾</span>
+          <select className="header-select" value="None" onChange={handleChange}>
+            <option disabled value="None">Tools ▾</option>
+            <option value="iceroad">Ice roads</option>
+            <option value="elevation">Elevation</option>
+            <option value="export">Export</option>
+          </select>
+        </label>
 
         <img 
           src="/add.png"
@@ -46,8 +47,6 @@ const Header = ({ onClickA, onClickP, onClickGuide }) => {
           src="/guide.png"
           alt="Guide"
         />
-
-        
       </div>
     </div>
   );
