@@ -9,10 +9,37 @@
   background-color: cyan;
 }
 
+.route-list-container {
+  display: flex;
+  flex-direction: row;
+  gap: 40px; 
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.route-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: auto; // Tämä takaa keskityksen riippumatta sisällön määrästä
+  margin-bottom: 10px;
+
+  strong {
+    margin-bottom: 5px;
+  }
+}
+
 .route-info {
   display: flex;
-  justify-content: center;
   gap: 20px;
+  justify-content: center;
+
+  p {
+    margin: 0;
+  }
 }
 
 .timed-alert {

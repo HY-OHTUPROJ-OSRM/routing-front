@@ -5,10 +5,8 @@ import './comp_styles.scss';
 
 const RouteList = () => {
   const routedata = useSelector((state) => state.routeLine.routeInfo);
-  const formatDistance = (distance) => {
-    return (distance / 1000).toFixed(2); // Convert meters to kilometers and round to 2 decimal places
-  };
 
+  const formatDistance = (distance) => (distance / 1000).toFixed(2);
   const formatDuration = (duration) => {
     const minutes = Math.floor(duration / 60);
     const seconds = (duration % 60).toFixed(0);
@@ -16,22 +14,13 @@ const RouteList = () => {
   };
 
   return (
-    <div>
+    <div className="route-list-container">
       {routedata.map((route, index) => (
-        <div
-          key={index}
-          style={{
-            marginBottom: '20px',
-            marginLeft: '73%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center'
-          }}
-        >
+        <div key={index} className="route-item">
           <strong>{index % 2 === 0 ? 'Primary Route' : 'Secondary Route'}</strong>
           <div className="route-info">
-            <p id='distval'>Distance: {formatDistance(route.distance)} km</p>
-            <p id='durval'>Duration: {formatDuration(route.duration)}</p>
+            <p>Distance: {formatDistance(route.distance)} km</p>
+            <p>Duration: {formatDuration(route.duration)}</p>
           </div>
         </div>
       ))}

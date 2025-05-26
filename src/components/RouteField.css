@@ -10,24 +10,41 @@
   border-radius: 8px;
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
   display: flex;
-  flex-direction: column; /* muutettu tähän */
-  align-items: center; /* keskittää sisällön vaakasuuntaan */
-  gap: 10px; /* pieni väli elementtien välillä */
+  flex-direction: column; /* sisältö pystysuuntaan */
+  align-items: center; /* keskittää kaiken sisällön */
+  gap: 10px;
 }
 
 .form-horizontal {
   display: flex;
   align-items: center;
-  justify-content: center; /* lomakkeen kentät keskitettyinä */
-  gap: 20px; /* selkeä väli kenttien välillä */
+  justify-content: center;
+  gap: 20px;
   width: 100%;
 }
 
 .coordinate-group {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 4px;
-  margin-bottom: 0; /* poistettu ylimääräinen marginaali */
+  margin-bottom: 0;
+}
+
+.coordinate-group label {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.new-component button {
+  margin: 0;
+}
+
+.btn-disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
 }
 
 .error {
@@ -37,36 +54,4 @@
 
 .input-error {
   border: 1px solid red;
-}
-
-.new-component button {
-  margin: 0; /* nappi ilman ylimääräistä automaattista marginaalia */
-  padding: 8px 16px;
-}
-
-.btn-disabled {
-  background-color: #ccc;
-  color: #666;
-  cursor: not-allowed;
-}
-
-.route-list-container {
-  width: 100%;
-  margin-top: 10px;
-  border-top: 1px solid #ddd; /* erottaa visuaalisesti lomakkeen ja tiedot */
-  padding-top: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* tiedot keskitettyinä */
-}
-
-.route-info {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
-strong {
-  display: block;
-  text-align: center;
 }
