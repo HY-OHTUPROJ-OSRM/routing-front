@@ -1,34 +1,83 @@
+:root {
+  --primary-blue: #166FE5;
+}
 
+#body {
+  min-height: 250px;
+  height: 100vh;
+  position: relative;
+  background-color: cyan;
+}
 
-#header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 200px;
-    padding: 0 25px; /* Optional: add some padding for spacing */
-  }
-  
-.menu-iconone{
-    width: 50px;
-    height: 50px;
-    margin-left: 85%;
-    margin-top: 3px;
-    cursor: pointer;
-  }
+.route-list-container {
+  display: flex;
+  flex-direction: row;
+  gap: 40px; 
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 10px;
+}
 
-  .menu-icontwo{
-    width: 50px;
-    height: 50px;
-    margin-left: 1%;
-    margin-top: 3px;
-    cursor: pointer;
-  }
+.route-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: auto; // Tämä takaa keskityksen riippumatta sisällön määrästä
+  margin-bottom: 10px;
 
-  #body {
-    min-height: 250px;
-    height: 100vh;
-    position: relative;
-    background-color: cyan;
+  strong {
+    margin-bottom: 5px;
   }
-  
-  
+}
+
+.route-info {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+
+  p {
+    margin: 0;
+  }
+}
+
+.timed-alert {
+  font-weight: bold;
+  display: flex;
+  grid-area: header;
+  align-items: center;
+  justify-content: space-between;
+  width: 20%;
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+}
+
+.image-container {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  z-index: 1001; // Ensure icons are above other elements
+}
+
+.menu-iconone,
+.menu-icontwo {
+  display: block; // Ensure proper display
+  width: 45px;
+  height: 45px;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+

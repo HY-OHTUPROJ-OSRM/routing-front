@@ -1,144 +1,76 @@
-
 @import '~leaflet/dist/leaflet.css';
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+html, body, #root {
+  margin: 0;
+  padding: 0;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+:root {
+  --primary-blue: #166FE5;
 }
 
-.App-header {
-  background-color: #5e8a91;
-  min-height: 100vh;
+.app-layout {
+  display: grid;
+  grid-template-areas: 
+    "header header"
+    "main sidebar";
+  grid-template-columns: 1fr 300px;
+  grid-template-rows: 60px 1fr;
+  height: 100vh;
+  gap: 1px;
+}
+
+.header {
+  grid-area: header;
+  border: none;
+  padding: 1rem;
   display: flex;
-  flex-direction: column;
+  background-color: var(--primary-blue);
+  justify-content: space-between;
+  position: relative;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
   color: white;
-  position: fixed;
-  top: 0;          
-  width: 100%;     
-  z-index: 1000;   /* Add this line to ensure it stays above other content */
 }
 
-.App-link {
-  color: #61dafb;
+.header-icons {
+  display: flex;
+  gap: 16px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.header-icon {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.2s;
+  filter: brightness(0) invert(1);
+}
+
+.header-icon:hover {
+  opacity: 0.8;
+}
+
+.main {
+  grid-area: main;
+  border: 2px solid var(--primary-blue);
+  padding: 1rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.sidebar {
+  grid-area: sidebar;
+  border: 2px solid var(--primary-blue);
+  padding: 1rem;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  overflow: auto;
+}
+
+.inner {
+  overflow: auto;
 }
 
 .sidebar.open {
-  right: 0;
-}
-.content.open {
-  right: 15vw;
-}
-
-header {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 60px;
-  background-color: rgb(72, 96, 128);
-}
-.sidebar {
-  position: absolute;
-  top: 60px;
-  right: -30vw;
-  height: 95%;
-  width: 30vw;
-  transition: right;
-  background-color: rgb(104, 126, 158);
-}
-.sidebar-toggle {
-  position: absolute;
-  top: 20%;
-  right: 60px;
-  height: 60px;
-  width: 60px;
-  z-index: r;
-}
-.content {
-  position: absolute;
-  top: 60px;
-  left: 0;
-  right: 0;
-  height: 100%;
-  transition: left 0.3s ease-in-out;
-  background-color: lightgray;
-}
-
-.MapAndForm {
-  display: flexbox;
-  margin: -10px;
-}
-
-.box {
-  clear: both;
-}
-.MapAndForm > * {
-  flex: l;
-  margin-right: 10px; /* Adjust spacing between components */
-}
-
-.MapAndForm > *:last-child {
-  margin-right: 0; /* Remove margin from last child */
-}
-.first{
-  padding: auto;
-  margin-right: 100px;
-}
-.second{
-  padding: auto;
-  margin-top: 0;
-  margin-right: -100;
-}
-html,
-body {
-	padding: 0;
-	margin: 0;
-	height: 90%;
-  overflow-y: initial;
-  overflow-x: initial;
-}
-.leaflet-container {
-	position: absolute;
-
-	height: 100%;
-	width: 100%;
-}
-#root {
-	width: 100%;
-	height: 100%;
-}
-.map-wrapper {
-  margin-top: 100px;
-	position: relative;
-	width: 60%;
-	height: 90%;
-}
-#map {
-  width: 60%;
-  height: 100%;
-}
-
-.edit-pane {
-  z-index: 9999;
-  position: absolute;
-  right: 60px;
-  top: 12px;
+  transform: translateX(0);
 }

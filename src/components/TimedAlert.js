@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Alert, ProgressBar } from 'react-bootstrap';
 import { removeTimedAlert } from '../features/messages/timedAlertSlice';
-import './TimedAlert.css';
+import './comp_styles.scss';
 import { ROUTING_API_URL } from '../Utils/config';
 import { showTimedAlert, clearTimedAlert } from '../Utils/dispatchUtility';
 import { fetchPolygons } from '../features/polygons/polygonsSlice';

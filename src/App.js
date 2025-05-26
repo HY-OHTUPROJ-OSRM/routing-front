@@ -1,55 +1,47 @@
-import React, { useEffect, useState} from "react";
-
-import SideBar from "./components/SideBar";
-import Header from "./components/Header";
+// src/App.js
+import React, { useState, useEffect } from 'react';
 import './App.css';
-import CopeSideBar from "./components/CopeSideBar";
-import Map_displayer from "./components/Map_Displayer";
-import { AppProviders } from "./components/CoordinatesContext";
+import { useDispatch } from 'react-redux';
+import Header from './components/Header';
+import SideBar from './components/SideBar';
+import CopeSideBar from './components/CopeSideBar';
+import Map_displayer from './components/Map_Displayer';
+import { fetchPolygons } from './features/polygons/polygonsSlice';
+import { AppProviders } from './components/CoordinatesContext';
 import Routing_form from "./components/RouteField";
-import 'leaflet-draw/dist/leaflet.draw.css';
-import 'leaflet/dist/leaflet.css';
-import { useDispatch } from "react-redux";
-import { fetchPolygons } from "./features/polygons/polygonsSlice";
 import TimedAlert from "./components/TimedAlert";
 import RouteList from "./components/RouteInfo";
-import TempRoadButton from "./components/TempRoadButton";
 
 function App() {
   const dispatch = useDispatch()
   const [sidebarOpenP, setSidebarOpenP] = useState(false);
   const [sidebarOpenA, setSidebarOpenA] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  useEffect(() => {
-    dispatch(fetchPolygons())
-  }, [dispatch])
-  //Toggle sidebar for viewing all added polygon
-  const toggleSidebarp = () => {
-    if (sidebarOpenA) {
-      setSidebarOpenA(false);
-    }
-    setSidebarOpenP(!sidebarOpenP);
+
+  const handleAddClick = () => {
+    setSidebarState(prev => ({
+      isOpen: prev.contentType !== 'add' ? true : !prev.isOpen,
+      contentType: 'add'
+    }));
   };
 
-  //Toggle sidebar for adding a polygon with input fields
-  const toggleSidebara = () => {
-    if (sidebarOpenP) {
-      setSidebarOpenP(false);
-    }
-    setSidebarOpenA(!sidebarOpenA);
+  // kartalta klikkauksen kautta avaa list‐sidebar ilman scrollin resettiä
+  const openListSidebar = () => {
+    setSidebarState(prev => {
+     // jos ollaan jo list‐tilassa auki, älä päivitä tilaa → scroll säilyy
+    if (prev.contentType === 'list' && prev.isOpen) return prev;
+    return { isOpen: true, contentType: 'list' };
+   });};
+
+  const handleListClick = () => {
+    setSidebarState(prev => ({
+      isOpen: prev.contentType !== 'list' ? true : !prev.isOpen,
+      contentType: 'list'
+    }));
   };
 
-  /*
-  General functionalities:
-  TimedAlert: Displays a timed alert message. uses a redux for adding / deleting timed alerts in other components as needed
-  Header: Contains the header of the application. Contains the menu icons for the sidebar
-  SideBar: Contains the sidebar for viewing all added polygons
-  CopeSideBar: Contains the sidebar for adding a polygon with input fields
-  Map_displayer: Contains the map functionalities. Uses react-leaflet library as a base. The largest component in the application. 
-  Routing_form: Contains the form for adding a route with text inputs. Map functionalities make this a little useless, but could be updated to use street names instead of coordinates
-  Routelist: Contains the info of ofund routes, such as their duration and distance. Could be updated to include driving instructions extracted from the osrm routeinfo bearing property
-   
-  */
+  const { isOpen, contentType } = sidebarState;
+
   return (
     <div>
       <AppProviders>
@@ -61,7 +53,6 @@ function App() {
           
           <SideBar isOpen={sidebarOpenP} toggleSidebar={setSidebarOpenP} editMode={editMode} setEditMode={setEditMode}/>
           <CopeSideBar isOpen={sidebarOpenA} toggleSidebar={setSidebarOpenA} />
-          <TempRoadButton />
         </div>
         
       </div>
@@ -73,10 +64,7 @@ function App() {
       <Routing_form/>
       <RouteList/>
       </div>
-      </AppProviders>
-    </div>
-    
+    </AppProviders>
   );
 }
 
-export default App;

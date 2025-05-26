@@ -484,7 +484,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
             center={position}
             zoom={initialState.zoom}
             scrollWheelZoom={true}
-            style={{ flex: 1, width: '70%', height: "95%", marginTop: "-40px", zIndex: 0,}}
+            style={{ flex: 1, width: "100%", height: "100%", zIndex: 0,}}
             whenCreated={(map) => { mapRef.current = map; }}
             ref={mapRef}
         >   
@@ -641,19 +641,20 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                     />
                 ))}
                 <EditControl
-                    position="topright"
-                    onCreated={onDrawCreated}
-                    draw={{
-                        rectangle: false,
-                        polyline: false,
-                        circle: false,
-                        circlemarker: false,
-                        marker: false 
-                        //old code used before markers were placed by clicking on map
-                        //markerCount < 2 ? {
-                        //    icon: placehold_icon
-                        //} : false // Allow drawing markers only if there are less than 2 markers
-                    }}
+                position="topright"
+                onCreated={onDrawCreated}
+                draw={{
+                    polygon: true,
+                    rectangle: false,
+                    polyline: false,
+                    circle: false,
+                    circlemarker: false,
+                    marker: false
+                }}
+                edit={{
+                    edit: false,
+                    remove: false
+                }}
                 />
             </FeatureGroup>}
         <ClickHandler onClick={handleClick} />
