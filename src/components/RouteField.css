@@ -1,8 +1,12 @@
+:root {
+  --primary-blue: #166FE5;
+}
+
 .new-component {
   position: absolute;
   bottom: 5%;
-  left: 20%;
-  right: 20%;
+  left: 5%;
+  right: 5%;
   height: auto;
   width: auto;
   padding: 10px;
@@ -13,6 +17,25 @@
   flex-direction: column; /* sisältö pystysuuntaan */
   align-items: center; /* keskittää kaiken sisällön */
   gap: 10px;
+  transform: translateY(95%);
+  transition: transform 0.4s ease;
+}
+
+.new-component.visible {
+  transform: translateY(0);
+}
+
+.toggle-button {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  z-index: 10;
+  background-color: #eee;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--primary-blue)
 }
 
 .form-horizontal {

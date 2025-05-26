@@ -5,7 +5,6 @@ import { RouteContext } from './CoordinatesContext';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchRouteLine } from '../features/routes/routeSlice';
 import RouteList from './RouteInfo';
-// Form for routing. Can receive coordinates from the map component when user has placed start and destination position. The form is validated and the route is fetched when the user clicks submit. The form is reset after submission.
 
 function RoutingForm() {
   const dispatch = useDispatch();
@@ -20,6 +19,7 @@ function RoutingForm() {
   const { setRoute } = useContext(RouteContext);
   const startpos = useSelector(state => state.routeLine.startPosition);
   const destpos = useSelector(state => state.routeLine.endPosition);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     if (startpos && destpos) {
@@ -72,49 +72,58 @@ function RoutingForm() {
     }
   };
 
+  const toggleForm = () => {
+    setIsVisible(!isVisible);
+  };
+
   return (
-    <div className="new-component">
-      <form className="form-horizontal" onSubmit={handleSubmit}>
-        <div className="coordinate-group">
-          <label>Starting Position</label>
-          <input
-            name="lat"
-            value={formData.coordinates[0].lat}
-            onChange={(e) => handleChange(0, e)}
-            placeholder="Latitude"
-          />
-          <input
-            name="long"
-            value={formData.coordinates[0].long}
-            onChange={(e) => handleChange(0, e)}
-            placeholder="Longitude"
-          />
-        </div>
+    <div className={`new-component ${isVisible ? 'visible' : ''}`}>
+      <button className="toggle-button" onClick={toggleForm}>
+        {isVisible ? '↓' : '↑'}
+      </button>
+        <>
+          <form className="form-horizontal" onSubmit={handleSubmit}>
+            <div className="coordinate-group">
+              <label>Starting Position</label>
+              <input
+                name="lat"
+                value={formData.coordinates[0].lat}
+                onChange={(e) => handleChange(0, e)}
+                placeholder="Latitude"
+              />
+              <input
+                name="long"
+                value={formData.coordinates[0].long}
+                onChange={(e) => handleChange(0, e)}
+                placeholder="Longitude"
+              />
+            </div>
 
-        <div className="coordinate-group">
-          <label>Destination</label>
-          <input
-            name="lat"
-            value={formData.coordinates[1].lat}
-            onChange={(e) => handleChange(1, e)}
-            placeholder="Latitude"
-          />
-          <input
-            name="long"
-            value={formData.coordinates[1].long}
-            onChange={(e) => handleChange(1, e)}
-            placeholder="Longitude"
-          />
-        </div>
+            <div className="coordinate-group">
+              <label>Destination</label>
+              <input
+                name="lat"
+                value={formData.coordinates[1].lat}
+                onChange={(e) => handleChange(1, e)}
+                placeholder="Latitude"
+              />
+              <input
+                name="long"
+                value={formData.coordinates[1].long}
+                onChange={(e) => handleChange(1, e)}
+                placeholder="Longitude"
+              />
+            </div>
 
-        <button type="submit" disabled={!validateForm()} className={!validateForm() ? 'btn-disabled' : ''}>
-          Route
-        </button>
-      </form>
+            <button type="submit" disabled={!validateForm()} className={!validateForm() ? 'btn-disabled' : ''}>
+              Route
+            </button>
+          </form>
 
-      <div className="route-list-container">
-        <RouteList />
-      </div>
+          <div className="route-list-container">
+            <RouteList />
+          </div>
+        </>
     </div>
   );
 }
