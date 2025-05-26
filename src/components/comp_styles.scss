@@ -9,6 +9,24 @@
   background-color: cyan;
 }
 
+.header-icons {
+  display: flex;
+  gap: 16px;
+}
+
+.header-icon {
+  width: 45px;
+  height: 45px;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.2s;
+  filter: brightness(0) invert(1);
+}
+
+.header-icon:hover {
+  opacity: 0.8;
+}
+
 .route-list-container {
   display: flex;
   flex-direction: row;
@@ -67,17 +85,13 @@
   z-index: 1001; // Ensure icons are above other elements
 }
 
-.menu-iconone,
-.menu-icontwo {
-  display: block; // Ensure proper display
-  width: 45px;
-  height: 45px;
-  cursor: pointer;
-  opacity: 1;
-  transition: opacity 0.2s;
-
-  &:hover {
-    opacity: 0.8;
-  }
+.tools-menu {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  padding: 5px 0;
+  top: 100%;
+  right: 0;
+  min-width: 120px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
-
