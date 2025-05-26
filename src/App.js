@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import Header from './components/Header';
 import SideBar from './components/SideBar';
 import CopeSideBar from './components/CopeSideBar';
-import IceRoadSidebar from './components/ToolsSidebar';
+import TempRoadSidebar from './components/ToolsSidebar';
 import Map_displayer from './components/Map_Displayer';
 import { fetchPolygons } from './features/polygons/polygonsSlice';
 import { AppProviders } from './components/CoordinatesContext';
@@ -18,7 +18,7 @@ export default function App() {
     dispatch(fetchPolygons());
   }, [dispatch]);
 
-  const [sidebarType, setSidebarType] = useState(null); // 'list' | 'add' | 'iceRoad' | null
+  const [sidebarType, setSidebarType] = useState(null); // 'list' | 'add' | 'TempRoad' | null
   const [editMode, setEditMode] = useState(false);
 
   const handleSidebarClick = (type) => {
@@ -27,7 +27,7 @@ export default function App() {
 
   const handleAddClick = () => handleSidebarClick('add');
   const handleListClick = () => handleSidebarClick('list');
-  const handleToolsClick = () => handleSidebarClick('iceRoad');
+  const handleToolsClick = () => handleSidebarClick('TempRoad');
 
   const openListSidebar = () => {
     if (sidebarType === 'list') return; // jo auki → ei tehdä mitään
@@ -74,10 +74,10 @@ export default function App() {
               />
             )}
 
-            {sidebarType === 'iceRoad' && (
-              <IceRoadSidebar
+            {sidebarType === 'TempRoad' && (
+              <TempRoadSidebar
                 isOpen={true}
-                toBeDisplayed={() => <div>Ice road content placeholder</div>}
+                toBeDisplayed={() => <div>Temp road content placeholder</div>}
               />
             )}
           </aside>

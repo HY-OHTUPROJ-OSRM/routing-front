@@ -1,14 +1,14 @@
 import React from "react";
+import TempRoads from "./TempRoad"; // Import the updated TempRoad component
 
-const IceRoadSidebar = (props) => {
+const ToolsSidebar = (props) => {
   const sidebarClass = props.isOpen ? "sidebar open" : "sidebar";
-  const ComponentToDisplay = props.toBeDisplayed;
 
   return (
-    <div className={sidebarClass} style={{ overflow: "auto" }}>
-      <ComponentToDisplay />
+    <div className={sidebarClass} style={{ overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <TempRoads />
     </div>
   );
 };
 
-export default IceRoadSidebar;
+export default ToolsSidebar;

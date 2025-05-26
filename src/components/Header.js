@@ -8,7 +8,7 @@ const Header = ({ onClickA, onClickP, onClickGuide, handleToolsClick }) => {
     const value = e.target.value;
     setSelectedTool("None");
 
-    if (value === "iceroad") {
+    if (value === "temproad") {
       handleToolsClick();
     } else {
     }
@@ -23,7 +23,7 @@ const Header = ({ onClickA, onClickP, onClickGuide, handleToolsClick }) => {
           <span className="tools-label">Tools ▾</span>
           <select className="header-select" value="None" onChange={handleChange}>
             <option disabled value="None">Tools ▾</option>
-            <option value="iceroad">Ice roads</option>
+            <option value="temproad">Temporary roads</option>
             <option value="elevation">Elevation</option>
             <option value="export">Export</option>
           </select>
