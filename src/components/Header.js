@@ -1,7 +1,7 @@
 import React from "react";
 import "./comp_styles.scss";
 
-const Header = ({ onClickA, onClickP }) => {
+const Header = ({ onClickA, onClickP, onClickTempRoad }) => {
   return (
     <div className="header">
       <h2>Routing app</h2>
@@ -18,6 +18,13 @@ const Header = ({ onClickA, onClickP }) => {
           onClick={onClickP}
           className="header-icon"
         />
+        <div 
+          className="temp-road-icon"
+          onClick={onClickTempRoad}
+          title="Temporary Roads"
+        >
+          🛣️
+        </div>
       </div>
     </div>
   );

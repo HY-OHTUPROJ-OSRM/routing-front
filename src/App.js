@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import Header from './components/Header';
 import SideBar from './components/SideBar';
 import CopeSideBar from './components/CopeSideBar';
+import TempRoadSidebar from './components/TempRoadSidebar';
 import Map_displayer from './components/Map_Displayer';
 import { fetchPolygons } from './features/polygons/polygonsSlice';
 import { AppProviders } from './components/CoordinatesContext';
@@ -28,15 +29,23 @@ export default function App() {
     setSidebarType(prev => (prev === 'list' ? null : 'list'));
   };
 
+  const handleTempRoadClick = () => {
+    setSidebarType(prev => (prev === 'tempRoad' ? null : 'tempRoad'));
+  };
+
   const openListSidebar = () => {
     if (sidebarType === 'list') return; // jo auki → ei tehdä mitään
     setSidebarType('list');
   };
 
+  const closeSidebar = () => {
+    setSidebarType(null);
+  };
+
   return (
     <AppProviders>
       <div className="app-layout">
-        <Header onClickA={handleAddClick} onClickP={handleListClick} />
+        <Header onClickA={handleAddClick} onClickP={handleListClick} onClickTempRoad={handleTempRoadClick} />
         <TimedAlert />
 
         <main className="main">
@@ -49,22 +58,27 @@ export default function App() {
           <Routing_form />
         </main>
 
-        <aside className={`inner ${sidebarType ? 'open' : ''}`}>
+        <aside className={`inner ${(sidebarType === 'list' || sidebarType === 'add') ? 'open' : ''}`}>
           {sidebarType === 'list' && (
             <SideBar
               isOpen={true}
               editMode={editMode}
               setEditMode={setEditMode}
-              toggleSidebar={() => setSidebarType(null)}
+              toggleSidebar={closeSidebar}
             />
           )}
           {sidebarType === 'add' && (
             <CopeSideBar
               isOpen={true}
-              toggleSidebar={() => setSidebarType(null)}
+              toggleSidebar={closeSidebar}
             />
           )}
         </aside>
+
+        <TempRoadSidebar
+          isOpen={sidebarType === 'tempRoad'}
+          toggleSidebar={closeSidebar}
+        />
       </div>
     </AppProviders>
   );

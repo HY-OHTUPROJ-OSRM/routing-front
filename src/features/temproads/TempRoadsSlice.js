@@ -1,5 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getAllTempRoads, createTempRoad } from '../../services/TempRoadService';
+import { 
+  getAllTempRoads, 
+  createTempRoad, 
+  updateTempRoad, 
+  deleteTempRoad 
+} from '../../services/TempRoadService';
 
 export const fetchTempRoads = createAsyncThunk(
   'tempRoads/fetchTempRoads',
@@ -25,6 +30,30 @@ export const addTempRoad = createAsyncThunk(
   }
 );
 
+export const updateTempRoadAsync = createAsyncThunk(
+  'tempRoads/updateTempRoad',
+  async ({ id, updates }, { rejectWithValue }) => {
+    try {
+      const response = await updateTempRoad(id, updates);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteTempRoadAsync = createAsyncThunk(
+  'tempRoads/deleteTempRoad',
+  async (id, { rejectWithValue }) => {
+    try {
+      await deleteTempRoad(id);
+      return id;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const tempRoadsSlice = createSlice({
   name: 'tempRoads',
   initialState: {
@@ -36,10 +65,17 @@ const tempRoadsSlice = createSlice({
   reducers: {
     selectRoad: (state, action) => {
       state.selectedRoadId = action.payload;
+    },
+    clearSelection: (state) => {
+      state.selectedRoadId = null;
+    },
+    clearError: (state) => {
+      state.error = null;
     }
   },
   extraReducers: (builder) => {
     builder
+      // 获取临时路径
       .addCase(fetchTempRoads.pending, (state) => {
         state.status = 'loading';
       })
@@ -51,12 +87,51 @@ const tempRoadsSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload;
       })
+      // 添加临时路径
+      .addCase(addTempRoad.pending, (state) => {
+        state.status = 'loading';
+      })
       .addCase(addTempRoad.fulfilled, (state, action) => {
+        state.status = 'succeeded';
         state.list.push(action.payload);
+      })
+      .addCase(addTempRoad.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+      // 更新临时路径
+      .addCase(updateTempRoadAsync.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(updateTempRoadAsync.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        const index = state.list.findIndex(road => road.id === action.payload.id);
+        if (index !== -1) {
+          state.list[index] = action.payload;
+        }
+      })
+      .addCase(updateTempRoadAsync.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+      // 删除临时路径
+      .addCase(deleteTempRoadAsync.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(deleteTempRoadAsync.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.list = state.list.filter(road => road.id !== action.payload);
+        if (state.selectedRoadId === action.payload) {
+          state.selectedRoadId = null;
+        }
+      })
+      .addCase(deleteTempRoadAsync.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
       });
   }
 });
 
-export const { selectRoad } = tempRoadsSlice.actions;
+export const { selectRoad, clearSelection, clearError } = tempRoadsSlice.actions;
 
 export default tempRoadsSlice.reducer;
