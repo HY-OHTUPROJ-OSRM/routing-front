@@ -11,6 +11,7 @@ import { fetchPolygons } from './features/polygons/polygonsSlice';
 import { AppProviders } from './components/CoordinatesContext';
 import Routing_form from "./components/RouteField";
 import TimedAlert from "./components/TimedAlert";
+import InfoModal from './components/InfoModal';
 
 export default function App() {
   const dispatch = useDispatch();
@@ -22,6 +23,8 @@ export default function App() {
   const [sidebarType, setSidebarType] = useState(null); // 'list' | 'add' | 'temproad' | null
   const [editMode, setEditMode] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState("No profile");
+  const [showInfoModal, setShowInfoModal] = useState(false);
+
 
 
   const handleSidebarClick = (type) => {
@@ -53,6 +56,7 @@ export default function App() {
             handleToolsClick={handleToolsClick}
             handleShowProfileModal={() => setShowProfileModal(true)}
             selectedProfile={selectedProfile}
+            handleShowInfoModal={() => setShowInfoModal(true)}
           />
         <TimedAlert />
 
@@ -91,10 +95,14 @@ export default function App() {
           </aside>
       </div>
       <SelectProfile
-      isOpen={showProfileModal}
-      onClose={() => setShowProfileModal(false)}
-      onSelect={handleProfileSelect}
-    />
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        onSelect={handleProfileSelect}
+      />
+      <InfoModal
+        isOpen={showInfoModal}
+        onClose={() => setShowInfoModal(false)}
+      />
     </AppProviders>
   );
 }
