@@ -164,11 +164,21 @@
   margin-bottom: 20px;
 }
 
-.profile-options {
+.profile-options label {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 8px;
+  text-align: left;
+  font-weight: bold;
+  color: #333;
+}
+
+.profile-options select {
+  margin-top: 4px;
+  margin-bottom: 12px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 16px;
 }
 
 .profile-button {
