@@ -9,7 +9,7 @@ const InfoModal = ({ isOpen, onClose }) => {
       <div className="custom-modal-content" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>×</button>
         <h3>Disconneted roads</h3>
-        <p>This modal shoes disconneted roads.</p>
+        <p>This modal shows disconneted roads.</p>
             <img
             src="/goal.png"
             alt="test"
