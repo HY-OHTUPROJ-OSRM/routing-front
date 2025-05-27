@@ -11,7 +11,7 @@ const InfoModal = ({ isOpen, onClose }) => {
         <h3>Disconneted roads</h3>
         <p>This modal shoes disconneted roads.</p>
             <img
-            src="/goal.jpg"
+            src="/goal.png"
             alt="test"
             />
       </div>
