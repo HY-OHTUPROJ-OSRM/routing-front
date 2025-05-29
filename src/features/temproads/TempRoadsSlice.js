@@ -75,7 +75,6 @@ const tempRoadsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // 获取临时路径
       .addCase(fetchTempRoads.pending, (state) => {
         state.status = 'loading';
       })
@@ -87,7 +86,7 @@ const tempRoadsSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload;
       })
-      // 添加临时路径
+
       .addCase(addTempRoad.pending, (state) => {
         state.status = 'loading';
       })
@@ -99,7 +98,7 @@ const tempRoadsSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload;
       })
-      // 更新临时路径
+
       .addCase(updateTempRoadAsync.pending, (state) => {
         state.status = 'loading';
       })
@@ -114,7 +113,7 @@ const tempRoadsSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload;
       })
-      // 删除临时路径
+
       .addCase(deleteTempRoadAsync.pending, (state) => {
         state.status = 'loading';
       })

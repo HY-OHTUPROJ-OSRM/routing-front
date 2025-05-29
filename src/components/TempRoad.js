@@ -8,11 +8,12 @@ import {
 } from '../features/temproads/TempRoadsSlice';
 import './Polygon.css';
 
-function TempRoads() {
+function TempRoads(props) {
   const dispatch = useDispatch();
   const tempRoads = useSelector(state => state.tempRoads.list);
   const status = useSelector(state => state.tempRoads.status);
   const selectedRoadId = useSelector(state => state.tempRoads.selectedRoadId);
+  const [visibleRoads, setVisibleRoads] = useState(new Set());
   
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -31,6 +32,12 @@ function TempRoads() {
     }
   }, [status, dispatch]);
 
+  useEffect(() => {
+    if (props.onVisibleRoadsChange) {
+      props.onVisibleRoadsChange(visibleRoads);
+    }
+  }, [visibleRoads, props.onVisibleRoadsChange]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -47,7 +54,9 @@ function TempRoads() {
       status: true,
       tags: [],
       length: parseFloat(formData.length) || 0,
-      speed: parseFloat(formData.speed) || 0
+      speed: parseFloat(formData.speed) || 0,
+      start_node: parseInt(formData.start_node) || null,
+      end_node: parseInt(formData.end_node) || null
     };
     
     dispatch(addTempRoad(dataToSubmit));
@@ -70,6 +79,11 @@ function TempRoads() {
   const handleDelete = (roadId) => {
     if (window.confirm('Are you sure you want to delete this road segment?')) {
       dispatch(deleteTempRoadAsync(roadId));
+      setVisibleRoads(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(roadId);
+        return newSet;
+      });
     }
   };
 
@@ -82,16 +96,27 @@ function TempRoads() {
   };
 
   const showOnMap = (road) => {
+    setVisibleRoads(prev => {
+      const newSet = new Set(prev);
+      const roadId = road.id;
+      
+      if (newSet.has(roadId)) {
+        newSet.delete(roadId);
+      } else {
+        newSet.add(roadId);
+      }
+      
+      return newSet;
+    });
+    
     dispatch(selectRoad(road.id));
-    // Here you can add logic to center map on the road
-    console.log('Show on map:', road.name);
   };
 
   const getTypeDisplay = (type) => {
     switch(type) {
-      case 'ice road': return 'ice road';
-      case 'speed_limit': return 'Speed limit';
-      case 'temporary': return 'temporary';
+      case 'iceroad': return 'Ice Road';
+      case 'speed_limit': return 'Speed Limit';
+      case 'temporary': return 'Temporary';
       default: return type;
     }
   };
@@ -175,9 +200,9 @@ function TempRoads() {
                   fontSize: '14px'
                 }}
               >
-                <option value="iceroad">iceroad</option>
-                <option value="speed_limit">Speed limit</option>
-                <option value="temporary">temporary</option>
+                <option value="iceroad">Ice Road</option>
+                <option value="speed_limit">Speed Limit</option>
+                <option value="temporary">Temporary</option>
               </select>
             </div>
 
@@ -342,23 +367,35 @@ function TempRoads() {
                 }}>
                   {road.name}
                 </h4>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(road.id);
-                  }}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '4px',
-                    color: '#dc3545',
-                    fontSize: '16px'
-                  }}
-                  title="Delete"
-                >
-                  🗑️
-                </button>
+                <div style={{ display: 'flex', gap: '5px' }}>
+                  {/* Visibility indicator */}
+                  {visibleRoads.has(road.id) && (
+                    <span style={{ 
+                      color: '#28a745', 
+                      fontSize: '16px',
+                      title: 'Visible on map'
+                    }}>
+                      👁️
+                    </span>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(road.id);
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      color: '#dc3545',
+                      fontSize: '16px'
+                    }}
+                    title="Delete"
+                  >
+                    🗑️
+                  </button>
+                </div>
               </div>
 
               {/* Road Type */}
@@ -378,7 +415,7 @@ function TempRoads() {
                   marginBottom: '8px',
                   fontWeight: '500'
                 }}>
-                  Speed limit (Km/h): {road.speed} (Km/h)
+                  Speed limit: {road.speed} (Km/h)
                 </div>
               )}
 
@@ -401,7 +438,7 @@ function TempRoads() {
                     showCoordinates(road);
                   }}
                   style={{
-                    background: '#4285f4',
+                    background: '#17a2b8',
                     color: 'white',
                     border: 'none',
                     padding: '8px 12px',
@@ -420,7 +457,7 @@ function TempRoads() {
                     showOnMap(road);
                   }}
                   style={{
-                    background: '#4285f4',
+                    background: visibleRoads.has(road.id) ? '#dc3545' : '#28a745',
                     color: 'white',
                     border: 'none',
                     padding: '8px 12px',
@@ -431,7 +468,7 @@ function TempRoads() {
                     fontWeight: '500'
                   }}
                 >
-                  Show on map
+                  {visibleRoads.has(road.id) ? 'Hide from map' : 'Show on map'}
                 </button>
               </div>
             </div>

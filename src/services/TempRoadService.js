@@ -41,19 +41,79 @@ const createTempRoad = async (data) => {
 };
 
 const getTempRoadById = async (id) => {
-  // pass
-};
-
-const updateTempRoad = async (id, updates) => {
-  // pass
+  const alertId = `loading-${Date.now()}`;
+  try {
+    showTimedAlert({ text: 'Loading temporary road...', variant: 'info', id: alertId });
+    const response = await ins({
+      url: `temps/${id}`,
+      method: "get",
+      headers: { "content-type": "application/json" },
+    });
+    clearTimedAlert(alertId);
+    return response.data;
+  } catch (error) {
+    clearTimedAlert(alertId);
+    handleAxiosError(error);
+    return null;
+  }
 };
 
 const deleteTempRoad = async (id) => {
-  // pass
+  const alertId = `loading-${Date.now()}`;
+  try {
+    showTimedAlert({ text: 'Deleting temporary road...', variant: 'info', id: alertId });
+    const response = await ins({
+      url: `temps/${id}`,
+      method: "delete",
+      headers: { "content-type": "application/json" },
+    });
+    clearTimedAlert(alertId);
+    showTimedAlert({ text: 'Deleted successfully', variant: 'success' });
+    return response.data;
+  } catch (error) {
+    clearTimedAlert(alertId);
+    handleAxiosError(error);
+    throw error; // re-throw to handle it in the calling function
+  }
+};
+
+const updateTempRoad = async (id, updates) => {
+  const alertId = `loading-${Date.now()}`;
+  try {
+    showTimedAlert({ text: 'Updating temporary road...', variant: 'info', id: alertId });
+    const response = await ins({
+      url: `temps/${id}`,
+      method: "patch",
+      data: updates,
+      headers: { "content-type": "application/json" },
+    });
+    clearTimedAlert(alertId);
+    showTimedAlert({ text: 'Updated successfully', variant: 'success' });
+    return response.data;
+  } catch (error) {
+    clearTimedAlert(alertId);
+    handleAxiosError(error);
+    return null;
+  }
 };
 
 const toggleTempRoad = async (id) => {
-  // pass
+  const alertId = `loading-${Date.now()}`;
+  try {
+    showTimedAlert({ text: 'Toggling road status...', variant: 'info', id: alertId });
+    const response = await ins({
+      url: `temps/${id}/toggle`,
+      method: "post",
+      headers: { "content-type": "application/json" },
+    });
+    clearTimedAlert(alertId);
+    showTimedAlert({ text: 'Status toggled successfully', variant: 'success' });
+    return response.data;
+  } catch (error) {
+    clearTimedAlert(alertId);
+    handleAxiosError(error);
+    return null;
+  }
 };
 
 export { 

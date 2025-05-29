@@ -23,13 +23,14 @@ import { changeListView } from '../features/view/ViewSlice';
 import VectorTileLayer from "react-leaflet-vector-tile-layer";
 import roadStyle from '../roadStyle';
 import { refreshTileLayer } from '../features/map/tileLayerSlice';
+import TempRoadDisplay from './TempRoadDisplay';
 
 /* 
 Massive component handling all map functionalities. 
 */
 
 
-function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
+function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRoads}) {
     const dispatch = useDispatch()
     const initialState = {
         long: 24.955,
@@ -470,7 +471,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     const handleEditMouseOut = () => {
         setEditHover(false);
           };
-
+    
     return (
         <ReactLeafletEditable
             ref={editRef}
@@ -539,8 +540,10 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                 key={tileLayer}
                 styleUrl={roadStyle}
             />
-            {routedata.slice().reverse().map((route, index) => (
 
+            <TempRoadDisplay visibleRoads={visibleTempRoads} />
+
+            {routedata.slice().reverse().map((route, index) => (
             <Polyline key={index} positions={route.route} color={route.color} pathOptions={{
             color: route.color, 
             zIndex: route.color === '#661e87' ? 1000000000 : 100000000,
