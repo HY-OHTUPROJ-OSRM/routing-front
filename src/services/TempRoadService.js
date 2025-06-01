@@ -116,11 +116,35 @@ const toggleTempRoad = async (id) => {
   }
 };
 
+const getNodeCoordinates = async (nodeId) => {
+  try {
+    const response = await ins({
+      url: `nodes/${nodeId}`,
+      method: "get",
+      headers: { "content-type": "application/json" },
+    });
+    
+    const lat = parseFloat(response.data.lat);
+    const lng = parseFloat(response.data.lng);
+    
+    if (isNaN(lat) || isNaN(lng)) {
+      console.error(`Invalid coordinates for node ${nodeId}`);
+      return null;
+    }
+    
+    return [lat, lng];
+  } catch (error) {
+    console.error(`Failed to get coordinates for node ${nodeId}:`, error);
+    return null;
+  }
+};
+
 export { 
   getAllTempRoads, 
   createTempRoad,
   getTempRoadById,
   updateTempRoad,
   deleteTempRoad,
-  toggleTempRoad
+  toggleTempRoad,
+  getNodeCoordinates
 };

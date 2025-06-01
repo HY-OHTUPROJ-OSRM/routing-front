@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useMap } from 'react-leaflet';
 import L from 'leaflet';
+import { getNodeCoordinates } from '../services/TempRoadService';
 
 const TempRoadDisplay = ({ visibleRoads = new Set() }) => {
   const map = useMap();
@@ -23,7 +24,7 @@ const TempRoadDisplay = ({ visibleRoads = new Set() }) => {
       for (const road of tempRoads) {
         if (road.status && road.start_node && road.end_node && actualVisibleRoads.has(road.id)) {
           try {
-            // Get start and end coordinates
+            // Get start and end coordinates using the service function
             const startCoords = await getNodeCoordinates(road.start_node);
             const endCoords = await getNodeCoordinates(road.end_node);
             
@@ -33,6 +34,7 @@ const TempRoadDisplay = ({ visibleRoads = new Set() }) => {
               const [endLat, endLng] = endCoords;
               
               if (isNaN(startLat) || isNaN(startLng) || isNaN(endLat) || isNaN(endLng)) {
+                console.error(`Invalid coordinates for road ${road.id}`);
                 continue;
               }
               
@@ -45,8 +47,6 @@ const TempRoadDisplay = ({ visibleRoads = new Set() }) => {
                 className: 'temp-road-animated',
                 tempRoadId: road.id
               });
-
-
 
               // Add to map with error handling
               try {
@@ -93,19 +93,9 @@ const TempRoadDisplay = ({ visibleRoads = new Set() }) => {
               } catch (markerError) {
                 console.error('Error adding markers:', markerError);
               }
-
-              // Try to fit the map to show the road
-              try {
-                const bounds = L.latLngBounds([[startLat, startLng], [endLat, endLng]]);
-                
-                if (bounds.isValid()) {
-                  // Auto-fit disabled to preserve map view
-                  // map.fitBounds(bounds, { padding: [50, 50] });
-                }
-              } catch (mapError) {
-                console.error('Error with map bounds:', mapError);
-              }
               
+            } else {
+              console.error(`Failed to get coordinates for road ${road.id}`);
             }
           } catch (error) {
             console.error(`Failed to render temporary road ${road.id}:`, error);
@@ -137,48 +127,6 @@ const TempRoadDisplay = ({ visibleRoads = new Set() }) => {
   }, [map, tempRoads, selectedRoadId, actualVisibleRoads]);
 
   return null;
-};
-
-// Get coordinates from node ID
-const getNodeCoordinates = async (nodeId) => {
-  try {
-    const response = await fetch(`/nodes/${nodeId}`);
-    
-    if (!response.ok) {
-      return generateMockCoordinates(nodeId);
-    }
-    
-    const data = await response.json();
-    
-    // Ensure coordinates are valid numbers
-    const lat = parseFloat(data.lat);
-    const lng = parseFloat(data.lng);
-    
-    if (isNaN(lat) || isNaN(lng)) {
-      return generateMockCoordinates(nodeId);
-    }
-    
-    return [lat, lng];
-  } catch (error) {
-    console.error(`Failed to get coordinates for node ${nodeId}:`, error);
-    return generateMockCoordinates(nodeId);
-  }
-};
-
-// Generate unique mock coordinates for each node ID (Helsinki area)
-const generateMockCoordinates = (nodeId) => {
-  // Use node ID to generate pseudo-random but consistent coordinates
-  const baseLatitude = 60.15;  // Helsinki base latitude
-  const baseLongitude = 24.9;  // Helsinki base longitude
-  
-  // Generate offsets based on node ID (using simple hash function)
-  const hash1 = ((nodeId * 73) % 1000) / 10000; // Range: 0-0.1
-  const hash2 = ((nodeId * 37) % 1000) / 10000; // Range: 0-0.1
-  
-  const latitude = baseLatitude + hash1;   // Range: 60.15-60.25
-  const longitude = baseLongitude + hash2; // Range: 24.9-25.0
-  
-  return [parseFloat(latitude.toFixed(6)), parseFloat(longitude.toFixed(6))];
 };
 
 // Get color by road type - Using brighter colors for better visibility
