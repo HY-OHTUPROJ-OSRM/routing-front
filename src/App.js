@@ -6,6 +6,8 @@ import SideBar from './components/SideBar';
 import CopeSideBar from './components/CopeSideBar';
 import IceRoadSidebar from './components/ToolsSidebar';
 import SelectProfile from './components/SelectProfile';
+import TempRoadSidebar from './components/ToolsSidebar';
+import TempRoads from './components/TempRoad';
 import Map_displayer from './components/Map_Displayer';
 import { fetchPolygons } from './features/polygons/polygonsSlice';
 import { AppProviders, ProfileContext } from './components/CoordinatesContext';
@@ -20,7 +22,7 @@ export default function App() {
     dispatch(fetchPolygons());
   }, [dispatch]);
 
-  const [sidebarType, setSidebarType] = useState(null); // 'list' | 'add' | 'temproad' | null
+  const [sidebarType, setSidebarType] = useState(null); // 'list' | 'add' | 'TempRoad' | null
   const [editMode, setEditMode] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState("No profile");
   const [showInfoModal, setShowInfoModal] = useState(false);
@@ -31,7 +33,8 @@ export default function App() {
 
   const handleAddClick = () => handleSidebarClick('add');
   const handleListClick = () => handleSidebarClick('list');
-  const handleToolsClick = () => handleSidebarClick('iceRoad');
+  const handleToolsClick = () => handleSidebarClick('TempRoad');
+  const [visibleTempRoads, setVisibleTempRoads] = useState(new Set());
 
   const openListSidebar = () => {
     if (sidebarType === 'list') return; // jo auki → ei tehdä mitään
@@ -43,6 +46,10 @@ export default function App() {
     setSelectedProfile(profile);
     setShowProfileModal(false);
     console.log("Selected profile:", profile);
+  }
+  const closeSidebar = () => {
+    setSidebarType(null);
+
   };
 
   return (
@@ -65,6 +72,7 @@ export default function App() {
             setEditMode={setEditMode}
             setSidebar={openListSidebar}
             isOpen={sidebarType === 'list'}
+            visibleTempRoads={visibleTempRoads}
           />
           <Routing_form />
         </main>
@@ -85,10 +93,10 @@ export default function App() {
               />
             )}
 
-            {sidebarType === 'iceRoad' && (
-              <IceRoadSidebar
+            {sidebarType === 'TempRoad' && (
+              <TempRoadSidebar
                 isOpen={true}
-                toBeDisplayed={() => <div>Ice road content placeholder</div>}
+                toBeDisplayed={() => <TempRoads onVisibleRoadsChange={setVisibleTempRoads} />}
               />
             )}
           </aside>

@@ -7,6 +7,7 @@ import segmentsReducer from "../features/segments/segmentSlice"
 //import segmentsReducer from "../features/segments/segmentsSlice"
 import ViewSliceReducer from "../features/view/ViewSlice"
 import tileLayerReducer from "../features/map/tileLayerSlice"
+import tempRoadsReducer from "../features/temproads/TempRoadsSlice"
 
 //store to add all used reducers
 export default configureStore({
@@ -17,6 +18,7 @@ export default configureStore({
         modifiedPolygons: modifiedPolygonsReducer,
         segments: segmentsReducer,
         view: ViewSliceReducer,
-        tileLayer: tileLayerReducer
+        tileLayer: tileLayerReducer,
+        tempRoads: tempRoadsReducer
     }
 })

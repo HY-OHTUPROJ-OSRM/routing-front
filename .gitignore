@@ -139,3 +139,4 @@ report.html
 poetry.lock
 report.html
 
+.DS_Store
