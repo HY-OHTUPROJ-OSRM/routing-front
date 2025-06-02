@@ -32,14 +32,9 @@ const Header = ({ onClickA, onClickP, onClickGuide, handleToolsClick, handleShow
           <select className="header-select" value={selectedTool} onChange={handleChange}>
             <option disabled value="None">Tools ▾</option>
 
-            <option value="iceroad">Ice roads</option>
             <option value="select-profile">Select profile</option>
             <option value="info">Disconneted roads</option>
-            <option value="export">example2</option>
-
             <option value="temproad">Temporary roads</option>
-            <option value="elevation">Elevation</option>
-            <option value="export">Export</option>
 
           </select>
         </label>
