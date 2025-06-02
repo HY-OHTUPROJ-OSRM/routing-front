@@ -3,6 +3,7 @@ import "./comp_styles.scss";
 
 const Header = ({ onClickA, onClickP, onClickGuide, handleToolsClick, handleShowProfileModal, selectedProfile, handleShowInfoModal }) => {
   const [selectedTool, setSelectedTool] = useState("None");
+  const formattedProfile = selectedProfile.display.replace(/\s*,\s*/, " / ");
 
   const handleChange = (e) => {
     const value = e.target.value;
@@ -24,7 +25,7 @@ const Header = ({ onClickA, onClickP, onClickGuide, handleToolsClick, handleShow
   return (
     <div className="header">
       <h2>Routing app</h2>
-      <div className="profile-display">{selectedProfile}</div>
+      <div className="profile-display">{formattedProfile}</div>
       <div className="header-icons">
 
         <label className="header-select-wrapper">

@@ -24,7 +24,7 @@ export default function App() {
 
   const [sidebarType, setSidebarType] = useState(null); // 'list' | 'add' | 'TempRoad' | null
   const [editMode, setEditMode] = useState(false);
-  const [selectedProfile, setSelectedProfile] = useState("No profile");
+  const [selectedProfile, setSelectedProfile] = useState({ display: "No profile", apiKey: null });
   const [showInfoModal, setShowInfoModal] = useState(false);
 
   const handleSidebarClick = (type) => {
@@ -42,10 +42,10 @@ export default function App() {
   };
 
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const handleProfileSelect = (profile) => {
-    setSelectedProfile(profile);
+  const handleProfileSelect = (profileObj) => {
+    setSelectedProfile(profileObj); 
     setShowProfileModal(false);
-    console.log("Selected profile:", profile);
+    console.log("Selected profile:", profileObj);
   }
   const closeSidebar = () => {
     setSidebarType(null);

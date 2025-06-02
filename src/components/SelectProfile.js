@@ -1,21 +1,52 @@
-import React, { useState } from "react";
+import { ins } from "../api/api";
+import React, { useState, useEffect } from "react";   
 import "./comp_styles.scss";
 
 const weightOptions = ["Light", "Medium", "Heavy"];
 const heightOptions = ["Low", "Standard", "Tall"];
 
+const weightKey = { Light: "weightLow", Medium: "weightMedium", Heavy: "weightHigh" };
+const heightKey = { Low: "heightLow", Standard: "heightMedium", Tall: "heightHigh" };
+
+
 const SelectProfile = ({ isOpen, onClose, onSelect }) => {
   const [selectedWeight, setSelectedWeight] = useState("");
   const [selectedHeight, setSelectedHeight] = useState("");
+  const [cutoffs, setCutoffs] = useState({ weight: {}, height: {} });
+
+  useEffect(() => {
+  if (!isOpen) return;
+  (async () => {
+    try {
+      const { data } = await ins.get("/vehicle-config");
+      setCutoffs({
+        weight: Object.fromEntries(
+          data.weight_classes.map(c => [c.name, c.cutoff])
+        ),
+        height: Object.fromEntries(
+          data.height_classes.map(c => [c.name, c.cutoff])
+        ),
+      });
+    } catch (err) {
+      console.error("vehicle-config fetch failed", err);
+    }
+    })();
+  }, [isOpen]);
+
 
   if (!isOpen) return null;
 
   const handleConfirm = () => {
     if (!selectedWeight || !selectedHeight) return;
-    const profile = `${selectedWeight} / ${selectedHeight}`;
-    onSelect(profile);
+
+    const display = `${selectedWeight}, ${selectedHeight}`;
+
+    const apiKey = `${weightKey[selectedWeight]},${heightKey[selectedHeight]}`;
+
+    onSelect({ display, apiKey });
     onClose();
   };
+
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -32,6 +63,11 @@ const SelectProfile = ({ isOpen, onClose, onSelect }) => {
                 <option key={opt} value={opt}>{opt}</option>
               ))}
             </select>
+            {selectedWeight && (
+            <div className="cutoff-info">
+              Weight cutoff: {cutoffs.weight[weightKey[selectedWeight]] ?? "–"}
+            </div>
+          )}
           </label>
 
           <label>
@@ -42,6 +78,11 @@ const SelectProfile = ({ isOpen, onClose, onSelect }) => {
                 <option key={opt} value={opt}>{opt}</option>
               ))}
             </select>
+            {selectedHeight && (
+            <div className="cutoff-info">
+              Height cutoff: {cutoffs.height[heightKey[selectedHeight]] ?? "–"}
+            </div>
+          )}
           </label>
 
           <button
