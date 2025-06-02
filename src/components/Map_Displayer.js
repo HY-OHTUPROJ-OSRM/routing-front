@@ -1,7 +1,7 @@
 import { MapContainer, FeatureGroup, Polygon, Tooltip, Polyline, GeoJSON, useMapEvent } from 'react-leaflet';
 import React, { useRef, useEffect, useState, useContext } from 'react';
 import { EditControl } from 'react-leaflet-draw';
-import { CoordinatesContext, RouteContext } from './CoordinatesContext';
+import { CoordinatesContext, RouteContext, ProfileContext } from './CoordinatesContext';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
@@ -31,6 +31,10 @@ Massive component handling all map functionalities.
 
 function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
     const dispatch = useDispatch()
+    const { selectedProfile } = useContext(ProfileContext)
+    const profileRef = useRef(selectedProfile)
+    useEffect(() => { profileRef.current = selectedProfile }, [selectedProfile])
+
     const initialState = {
         long: 24.955,
         lat: 60.205,
@@ -126,7 +130,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
         setRoute(newRoute);
         if (newRoute.length === 2) {
             if (newRoute[0].lat !== undefined && newRoute[0].long !== undefined && newRoute[1].lat !== undefined && newRoute[1].long !== undefined) {
-                dispatch(fetchRouteLine());
+                dispatch(fetchRouteLine(undefined, profileRef.current))
             }
         };
     }
@@ -176,9 +180,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
   
                     await setRoute([startposition, destinationposition]);
                     
-                    dispatch(fetchRouteLine([startposition, destinationposition]));
-                        
-                
+                    dispatch(fetchRouteLine([startposition, destinationposition], profileRef.current))
             }
         }
     }
@@ -276,7 +278,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
         setSidebar(false)
         dispatch(refreshTileLayer())
         dispatch(fetchPolygons())
-        dispatch(fetchRouteLine())
+        dispatch(fetchRouteLine(undefined, profileRef.current))
         cancelEdits()
     }
     //Used to change the list view when a polygon is clicked on map
@@ -429,7 +431,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen}) {
                     destinationposition={lat:lat,long:lng }
                     dispatch(setEndPosition(destinationposition));
                     setRoute([startposition, destinationposition]);
-                    dispatch(fetchRouteLine());
+                    dispatch(fetchRouteLine(undefined, profileRef.current))
           }
         });
         return null;

@@ -8,7 +8,7 @@ import IceRoadSidebar from './components/ToolsSidebar';
 import SelectProfile from './components/SelectProfile';
 import Map_displayer from './components/Map_Displayer';
 import { fetchPolygons } from './features/polygons/polygonsSlice';
-import { AppProviders } from './components/CoordinatesContext';
+import { AppProviders, ProfileContext } from './components/CoordinatesContext';
 import Routing_form from "./components/RouteField";
 import TimedAlert from "./components/TimedAlert";
 import InfoModal from './components/InfoModal';
@@ -24,8 +24,6 @@ export default function App() {
   const [editMode, setEditMode] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState("No profile");
   const [showInfoModal, setShowInfoModal] = useState(false);
-
-
 
   const handleSidebarClick = (type) => {
     setSidebarType(prev => (prev === type ? null : type));
@@ -49,6 +47,7 @@ export default function App() {
 
   return (
     <AppProviders>
+      <ProfileContext.Provider value={{ selectedProfile, setSelectedProfile }}>
       <div className="app-layout">
         <Header
             onClickA={handleAddClick}
@@ -103,6 +102,7 @@ export default function App() {
         isOpen={showInfoModal}
         onClose={() => setShowInfoModal(false)}
       />
+      </ProfileContext.Provider>
     </AppProviders>
   );
 }
