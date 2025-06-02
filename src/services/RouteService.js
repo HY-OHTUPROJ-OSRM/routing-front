@@ -10,7 +10,7 @@ const getRoute = async (coords, profile) => {
   try {
     showTimedAlert({ text: 'Loading route...', variant: 'info', id: alertId });
     const response = await ins({
-      url: `route/v1/driving/${proper}?overview=false&alternatives=true&steps=true&geometries=geojson`,
+      url: `route/v1/driving/${proper}?overview=false&alternatives=true&steps=true&geometries=geojson&exclude=${profile.apiKey}`,
       method: "get",
       headers: { "content-type": "application/json" },
     });
