@@ -30,7 +30,7 @@ Massive component handling all map functionalities.
 */
 
 
-function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRoads}) {
+function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRoads, disconnectedRoadRef}) {
     const dispatch = useDispatch()
     const { selectedProfile } = useContext(ProfileContext)
     const profileRef = useRef(selectedProfile)
@@ -135,6 +135,30 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
             }
         };
     }
+
+    const disconnecteRoadMarkerRef = useRef([]);
+    disconnectedRoadRef.current = (d) => {
+        const map = mapRef.current;
+        if (!map) return;
+
+        disconnecteRoadMarkerRef.current.forEach((marker) => marker.remove());
+        disconnecteRoadMarkerRef.current = [];
+
+        const posA = [d.a_lat, d.a_lng];
+        const posB = [d.b_lat, d.b_lng];
+        const markerA = L.marker(posA, { icon: startti_icon, draggable: false })
+            .addTo(map)
+            .bindPopup("PosA");
+        const markerB = L.marker(posB, { icon: desti_icon, draggable: false })
+            .addTo(map)
+            .bindPopup("PosB");
+            
+        disconnecteRoadMarkerRef.current.push(markerA, markerB);
+
+        mapRef.current.flyTo(posA, mapView.zoom, {
+          duration: 1
+        });
+    };
 
     //Used when a new polygon/line is drawn. Marker functionalities are handled elsewhere so these functionalities may be removed
     const onDrawCreated = async (e) => {
