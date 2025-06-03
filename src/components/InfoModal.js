@@ -33,8 +33,10 @@ const InfoModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="custom-modal-content1" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>×</button>
+      <div className="custom-modal-content" onClick={(e) => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose}>
+          ×
+        </button>
         <h3>Disconneted roads</h3>
         <p>This modal shows disconneted roads.</p>
             <div style={{ marginBottom: "1rem" }}>
