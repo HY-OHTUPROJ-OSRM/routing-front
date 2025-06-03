@@ -1,95 +1,97 @@
+import React, { useState, useEffect } from "react";
 import { ins } from "../api/api";
-import React, { useState, useEffect } from "react";   
 import "./comp_styles.scss";
 
-const weightOptions = ["Light", "Medium", "Heavy"];
-const heightOptions = ["Low", "Standard", "Tall"];
+/*
+ * SelectProfile (Option A – dropdown includes "No profile")
+ * --------------------------------------------------------------
+ *   GET /vehicle_class_config → { classes: [ { id, name, weight_cutoff, height_cutoff } ] }
+ */
 
-const weightKey = { Light: "weightLow", Medium: "weightMedium", Heavy: "weightHigh" };
-const heightKey = { Low: "heightLow", Standard: "heightMedium", Tall: "heightHigh" };
-
+const NO_PROFILE = { display: "No profile", apiKey: null };
 
 const SelectProfile = ({ isOpen, onClose, onSelect }) => {
-  const [selectedWeight, setSelectedWeight] = useState("");
-  const [selectedHeight, setSelectedHeight] = useState("");
-  const [cutoffs, setCutoffs] = useState({ weight: {}, height: {} });
+  const [vehicleClasses, setVehicleClasses] = useState([]);
+  const [selectedVehicleId, setSelectedVehicleId] = useState("none"); // "none" = reset
 
+  /* ------------------------------------------------------------
+   *  Fetch vehicle classes whenever modal opens
+   * ----------------------------------------------------------*/
   useEffect(() => {
-  if (!isOpen) return;
-  (async () => {
-    try {
-      const { data } = await ins.get("/vehicle-config");
-      setCutoffs({
-        weight: Object.fromEntries(
-          data.weight_classes.map(c => [c.name, c.cutoff])
-        ),
-        height: Object.fromEntries(
-          data.height_classes.map(c => [c.name, c.cutoff])
-        ),
-      });
-    } catch (err) {
-      console.error("vehicle-config fetch failed", err);
-    }
+    if (!isOpen) return;
+    (async () => {
+      try {
+        const { data } = await ins.get("vehicle-config");
+        setVehicleClasses(data.classes || []);
+      } catch (err) {
+        console.error("vehicle-config fetch failed", err);
+      }
     })();
   }, [isOpen]);
 
-
+  /* ------------------------------------------------------------
+   *  Guard for closed modal
+   * ----------------------------------------------------------*/
   if (!isOpen) return null;
 
+  /* ------------------------------------------------------------
+   *  Confirm handler
+   * ----------------------------------------------------------*/
   const handleConfirm = () => {
-    if (!selectedWeight || !selectedHeight) return;
+    if (selectedVehicleId === "none") {
+      onSelect(NO_PROFILE);
+      onClose();
+      return;
+    }
 
-    const display = `${selectedWeight}, ${selectedHeight}`;
-
-    const apiKey = `${weightKey[selectedWeight]},${heightKey[selectedHeight]}`;
-
-    onSelect({ display, apiKey });
+    const cls = vehicleClasses.find((c) => String(c.id) === selectedVehicleId);
+    if (!cls) return;
+    onSelect({ display: cls.name, apiKey: cls.id });
     onClose();
   };
 
+  /* ------------------------------------------------------------
+   *  Helper: details for selected class (except "none")
+   * ----------------------------------------------------------*/
+  const clsDetails =
+    selectedVehicleId !== "none"
+      ? vehicleClasses.find((c) => String(c.id) === selectedVehicleId)
+      : null;
 
+  /* ------------------------------------------------------------
+   *  Render
+   * ----------------------------------------------------------*/
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="custom-modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>×</button>
+        <button className="modal-close" onClick={onClose}>
+          ×
+        </button>
         <h3>Select profile</h3>
 
         <div className="profile-options">
           <label>
-            Weight class:
-            <select value={selectedWeight} onChange={(e) => setSelectedWeight(e.target.value)}>
-              <option value="">Select weight</option>
-              {weightOptions.map(opt => (
-                <option key={opt} value={opt}>{opt}</option>
+            Vehicle class:
+            <select
+              value={selectedVehicleId}
+              onChange={(e) => setSelectedVehicleId(e.target.value)}
+            >
+              <option value="none">No profile</option>
+              {vehicleClasses.map((cls) => (
+                <option key={cls.id} value={cls.id}>
+                  {cls.name}
+                </option>
               ))}
             </select>
-            {selectedWeight && (
-            <div className="cutoff-info">
-              Weight cutoff: {cutoffs.weight[weightKey[selectedWeight]] ?? "–"}
-            </div>
-          )}
+            {clsDetails && (
+              <div className="cutoff-info">
+                Weight cutoff&nbsp;{clsDetails.weight_cutoff}&nbsp;kg<br />
+                Height cutoff&nbsp;{clsDetails.height_cutoff}&nbsp;m
+              </div>
+            )}
           </label>
 
-          <label>
-            Height class:
-            <select value={selectedHeight} onChange={(e) => setSelectedHeight(e.target.value)}>
-              <option value="">Select height</option>
-              {heightOptions.map(opt => (
-                <option key={opt} value={opt}>{opt}</option>
-              ))}
-            </select>
-            {selectedHeight && (
-            <div className="cutoff-info">
-              Height cutoff: {cutoffs.height[heightKey[selectedHeight]] ?? "–"}
-            </div>
-          )}
-          </label>
-
-          <button
-            className="profile-button"
-            onClick={handleConfirm}
-            disabled={!selectedWeight || !selectedHeight}
-          >
+          <button className="profile-button" onClick={handleConfirm}>
             Confirm selection
           </button>
         </div>

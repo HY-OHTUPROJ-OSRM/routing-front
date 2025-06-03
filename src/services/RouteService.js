@@ -9,10 +9,11 @@ const getRoute = async (coords, profile) => {
   const alertId = `loading-${Date.now()}`;
   try {
     showTimedAlert({ text: 'Loading route...', variant: 'info', id: alertId });
+    const exclude = profile.apiKey ? `&exclude=${profile.apiKey}` : '';
     const response = await ins({
-      url: `route/v1/driving/${proper}?overview=false&alternatives=true&steps=true&geometries=geojson&exclude=${profile.apiKey}`,
-      method: "get",
-      headers: { "content-type": "application/json" },
+      url: `route/v1/driving/${proper}?overview=false&alternatives=true&steps=true&geometries=geojson${exclude}`,
+      method: 'get',
+      headers: { 'content-type': 'application/json' },
     });
     setTimeout(() => clearTimedAlert(alertId), 300);
     console.log(response.data);
