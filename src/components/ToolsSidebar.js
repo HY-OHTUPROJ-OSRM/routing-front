@@ -6,7 +6,8 @@ const ToolsSidebar = (props) => {
 
   return (
     <div className={sidebarClass} style={{ overflow: "hidden", display: "flex", flexDirection: "column" }}>
-      <TempRoads />
+      {/* Check if toBeDisplayed function exists and use it, otherwise use default TempRoads */}
+      {props.toBeDisplayed ? props.toBeDisplayed() : <TempRoads />}
     </div>
   );
 };

@@ -26,6 +26,11 @@ function TempRoads(props) {
     description: ''
   });
 
+  const [nodeSelectionMode, setNodeSelectionMode] = useState({
+    active: false,
+    selecting: null
+  });
+
   useEffect(() => {
     if (status === 'idle') {
       dispatch(fetchTempRoads());
@@ -37,6 +42,28 @@ function TempRoads(props) {
       props.onVisibleRoadsChange(visibleRoads);
     }
   }, [visibleRoads, props.onVisibleRoadsChange]);
+
+  useEffect(() => {
+    if (props.onNodeSelectionModeChange) {
+      props.onNodeSelectionModeChange(nodeSelectionMode);
+    }
+  }, [nodeSelectionMode, props.onNodeSelectionModeChange]);
+
+  const handleNodeSelection = (nodeId, coordinates) => {
+    if (nodeSelectionMode.selecting === 'start') {
+      setFormData(prev => ({ ...prev, start_node: nodeId.toString() }));
+    } else if (nodeSelectionMode.selecting === 'end') {
+      setFormData(prev => ({ ...prev, end_node: nodeId.toString() }));
+    }
+    
+    setNodeSelectionMode({ active: false, selecting: null });
+  };
+
+  useEffect(() => {
+    if (props.onNodeSelectionHandler) {
+      props.onNodeSelectionHandler(handleNodeSelection);
+    }
+  }, [props.onNodeSelectionHandler]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -74,6 +101,7 @@ function TempRoads(props) {
       end_node: '',
       description: ''
     });
+    setNodeSelectionMode({ active: false, selecting: null });
   };
 
   const handleDelete = (roadId) => {
@@ -121,6 +149,17 @@ function TempRoads(props) {
     }
   };
 
+  const startNodeSelection = (nodeType) => {
+    setNodeSelectionMode({
+      active: true,
+      selecting: nodeType
+    });
+  };
+
+  const cancelNodeSelection = () => {
+    setNodeSelectionMode({ active: false, selecting: null });
+  };
+
   if (status === 'loading') {
     return <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>;
   }
@@ -155,6 +194,36 @@ function TempRoads(props) {
           {showAddForm ? '×' : 'add new'}
         </button>
       </div>
+
+      {/* Node Selection Mode Indicator */}
+      {nodeSelectionMode.active && (
+        <div style={{
+          padding: '10px 20px',
+          backgroundColor: '#fff3cd',
+          borderBottom: '1px solid #ffeaa7',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <span style={{ fontSize: '14px', color: '#856404' }}>
+            📍 Click on the map to select {nodeSelectionMode.selecting} node
+          </span>
+          <button
+            onClick={cancelNodeSelection}
+            style={{
+              background: '#6c757d',
+              color: 'white',
+              border: 'none',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              fontSize: '12px',
+              cursor: 'pointer'
+            }}
+          >
+            Cancel
+          </button>
+        </div>
+      )}
 
       {/* Add Form */}
       {showAddForm && (
@@ -247,58 +316,102 @@ function TempRoads(props) {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '15px' }}>
-              <div style={{ flex: 1 }}>
-                <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
-                  Start Node:
-                </label>
+            {/* Enhanced Start Node Section */}
+            <div style={{ flex: 1 }}>
+              <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
+                Start Node:
+              </label>
+              <div style={{ display: 'flex', gap: '8px' }}>
                 <input
                   type="text"
                   name="start_node"
                   value={formData.start_node}
                   onChange={handleChange}
+                  placeholder="Enter node ID or click map"
                   style={{
-                    width: '100%',
+                    flex: 1,
                     padding: '8px 12px',
                     border: '1px solid #ddd',
                     borderRadius: '4px',
                     fontSize: '14px'
                   }}
                 />
+                <button
+                  type="button"
+                  onClick={() => startNodeSelection('start')}
+                  disabled={nodeSelectionMode.active}
+                  style={{
+                    background: nodeSelectionMode.selecting === 'start' ? '#28a745' : '#17a2b8',
+                    color: 'white',
+                    border: 'none',
+                    padding: '8px 12px',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    cursor: nodeSelectionMode.active ? 'not-allowed' : 'pointer',
+                    whiteSpace: 'nowrap',
+                    opacity: nodeSelectionMode.active && nodeSelectionMode.selecting !== 'start' ? 0.5 : 1
+                  }}
+                >
+                  {nodeSelectionMode.selecting === 'start' ? '📍 Selecting...' : '🗺️ Select on Map'}
+                </button>
               </div>
+            </div>
 
-              <div style={{ flex: 1 }}>
-                <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
-                  End Node:
-                </label>
+            {/* Enhanced End Node Section */}
+            <div style={{ flex: 1 }}>
+              <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
+                End Node:
+              </label>
+              <div style={{ display: 'flex', gap: '8px' }}>
                 <input
                   type="text"
                   name="end_node"
                   value={formData.end_node}
                   onChange={handleChange}
+                  placeholder="Enter node ID or click map"
                   style={{
-                    width: '100%',
+                    flex: 1,
                     padding: '8px 12px',
                     border: '1px solid #ddd',
                     borderRadius: '4px',
                     fontSize: '14px'
                   }}
                 />
+                <button
+                  type="button"
+                  onClick={() => startNodeSelection('end')}
+                  disabled={nodeSelectionMode.active}
+                  style={{
+                    background: nodeSelectionMode.selecting === 'end' ? '#28a745' : '#17a2b8',
+                    color: 'white',
+                    border: 'none',
+                    padding: '8px 12px',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    cursor: nodeSelectionMode.active ? 'not-allowed' : 'pointer',
+                    whiteSpace: 'nowrap',
+                    opacity: nodeSelectionMode.active && nodeSelectionMode.selecting !== 'end' ? 0.5 : 1
+                  }}
+                >
+                  {nodeSelectionMode.selecting === 'end' ? '📍 Selecting...' : '🗺️ Select on Map'}
+                </button>
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
               <button
                 type="submit"
+                disabled={nodeSelectionMode.active}
                 style={{
-                  background: '#28a745',
+                  background: nodeSelectionMode.active ? '#6c757d' : '#28a745',
                   color: 'white',
                   border: 'none',
                   padding: '10px 20px',
                   borderRadius: '4px',
                   fontSize: '14px',
-                  cursor: 'pointer',
-                  fontWeight: '500'
+                  cursor: nodeSelectionMode.active ? 'not-allowed' : 'pointer',
+                  fontWeight: '500',
+                  opacity: nodeSelectionMode.active ? 0.5 : 1
                 }}
               >
                 Add

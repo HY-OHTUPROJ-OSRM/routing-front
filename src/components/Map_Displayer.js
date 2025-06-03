@@ -29,8 +29,10 @@ import TempRoadDisplay from './TempRoadDisplay';
 Massive component handling all map functionalities. 
 */
 
+// Import the node service from TempRoadService
+import { findNearestNode } from '../services/TempRoadService';
 
-function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRoads}) {
+function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRoads, nodeSelectionMode, onNodeSelection}) {
     const dispatch = useDispatch()
     const initialState = {
         long: 24.955,
@@ -86,6 +88,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     let destinationposition=null;
     var markercount=0;
     const [updateFlag, setUpdateFlag] = useState(false);
+    
     //Alternative start icon replaced with html marker
     const start_icon = new L.Icon({
         iconUrl: require('../img/amb.webp'),
@@ -110,6 +113,16 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         iconAnchor: [13, 40],
         popupAnchor: [0, -30],
     });
+
+    // Node selection marker icon
+    const nodeSelectionIcon = new L.Icon({
+        iconUrl: icon,
+        iconSize: [25, 41],
+        iconAnchor: [13, 40],
+        popupAnchor: [0, -30],
+        className: 'node-selection-marker'
+    });
+
     //Function for updating start/destination position when corresponding marker is dragged
     const onMarkerDragEnd = (e, type) => {
         const { lat, lng } = e.target.getLatLng();
@@ -402,9 +415,43 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     //Used to place start and destination positions on the map when user clicks on the map. If in editmode or hovering over edit button, a marker will not be placed
     const ClickHandler = () => {
 
-        useMapEvent('click', (event) => {
+        useMapEvent('click', async (event) => {
            let {lat, lng} = event.latlng;
            const map = mapRef.current;
+           
+           // Handle node selection for temporary roads
+           if (nodeSelectionMode && nodeSelectionMode.active) {
+               try {
+                   // Find nearest node to clicked coordinates
+                   const nearestNodeId = await findNearestNode(lat, lng);
+                   
+                   // Add a temporary marker to show selected position
+                   const tempMarker = L.marker([lat, lng], { 
+                       icon: nodeSelectionIcon,
+                       zIndexOffset: 1000
+                   })
+                   .addTo(map)
+                   .bindPopup(`Selected Node: ${nearestNodeId}`)
+                   .openPopup();
+                   
+                   // Remove marker after 3 seconds
+                   setTimeout(() => {
+                       map.removeLayer(tempMarker);
+                   }, 3000);
+                   
+                   // Call the node selection handler
+                   if (onNodeSelection) {
+                       onNodeSelection(nearestNodeId, [lat, lng]);
+                   }
+                   
+                   return;
+               } catch (error) {
+                   console.error('Error handling node selection:', error);
+                   alert('Failed to find nearest node. Please try again.');
+                   return;
+               }
+           }
+           
            if (editMode || editHover){
             return null
            } 
@@ -471,6 +518,81 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     const handleEditMouseOut = () => {
         setEditHover(false);
           };
+
+    // Add CSS for node selection visual feedback
+    useEffect(() => {
+        if (!document.getElementById('node-selection-styles')) {
+            const style = document.createElement('style');
+            style.id = 'node-selection-styles';
+            style.textContent = `
+                .node-selection-marker {
+                    filter: hue-rotate(120deg) brightness(1.2);
+                    animation: pulse 1s infinite;
+                }
+                
+                @keyframes pulse {
+                    0% { transform: scale(1); }
+                    50% { transform: scale(1.1); }
+                    100% { transform: scale(1); }
+                }
+                
+                /* More specific selectors to override Leaflet styles */
+                .leaflet-container.node-selection-active,
+                .leaflet-container.node-selection-active .leaflet-zoom-box,
+                .leaflet-container.node-selection-active .leaflet-interactive,
+                .leaflet-container.node-selection-active .leaflet-marker-icon,
+                .leaflet-container.node-selection-active .leaflet-marker-shadow,
+                .leaflet-container.node-selection-active .leaflet-tile-pane,
+                .leaflet-container.node-selection-active .leaflet-tile,
+                .leaflet-container.node-selection-active .leaflet-overlay-pane,
+                .leaflet-container.node-selection-active .leaflet-shadow-pane,
+                .leaflet-container.node-selection-active .leaflet-marker-pane,
+                .leaflet-container.node-selection-active .leaflet-tooltip-pane,
+                .leaflet-container.node-selection-active .leaflet-popup-pane {
+                    cursor: crosshair !important;
+                }
+                
+                /* Force crosshair on all child elements */
+                .node-selection-active * {
+                    cursor: crosshair !important;
+                }
+                
+                /* Override specific Leaflet cursors */
+                .leaflet-container.node-selection-active.leaflet-grab {
+                    cursor: crosshair !important;
+                }
+                
+                .leaflet-container.node-selection-active.leaflet-grabbing {
+                    cursor: crosshair !important;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Update map container and body class based on node selection mode
+        const mapContainer = mapRef.current?.getContainer();
+        if (mapContainer) {
+            if (nodeSelectionMode && nodeSelectionMode.active) {
+                mapContainer.classList.add('node-selection-active');
+                document.body.style.cursor = 'crosshair';
+                mapContainer.style.cursor = 'crosshair !important';
+            } else {
+                mapContainer.classList.remove('node-selection-active');
+                document.body.style.cursor = '';
+                mapContainer.style.cursor = '';
+            }
+        }
+
+        // Cleanup function
+        return () => {
+            if (nodeSelectionMode && !nodeSelectionMode.active) {
+                document.body.style.cursor = '';
+                if (mapContainer) {
+                    mapContainer.style.cursor = '';
+                }
+            }
+        };
+    }, [nodeSelectionMode]);
     
     return (
         <ReactLeafletEditable

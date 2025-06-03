@@ -139,6 +139,26 @@ const getNodeCoordinates = async (nodeId) => {
   }
 };
 
+// NEW FUNCTION: Find nearest node using the same API instance
+const findNearestNode = async (lat, lng) => {
+  try {
+    const response = await ins({
+      url: `nodes/nearest?lat=${lat}&lng=${lng}`,
+      method: "get",
+      headers: { "content-type": "application/json" },
+    });
+    
+    if (!response.data || !response.data.nodeId) {
+      throw new Error('Invalid response from nearest node API');
+    }
+    
+    return response.data.nodeId;
+  } catch (error) {
+    console.error('Failed to find nearest node:', error);
+    throw new Error(`Failed to find nearest node: ${error.message}`);
+  }
+};
+
 export { 
   getAllTempRoads, 
   createTempRoad,
@@ -146,5 +166,6 @@ export {
   updateTempRoad,
   deleteTempRoad,
   toggleTempRoad,
-  getNodeCoordinates
+  getNodeCoordinates,
+  findNearestNode 
 };
