@@ -2,12 +2,12 @@ import "./comp_styles.scss";
 import React, { useState } from "react";
 import { getDisconnections } from "../services/DisconnectionsService";
 
-const InfoModal = ({ isOpen, onClose }) => {
+const InfoModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
   const [disconnections, setDisconnections] = useState([]);
 
   // Inputs
-  const [minDist, setMinDist] = useState(100);
-  const [maxDist, setMaxDist] = useState(5000);
+  const [minDist, setMinDist] = useState(0);
+  const [maxDist, setMaxDist] = useState(6);
   const [isSameName, setIsSameName] = useState(false);
 
   const handleGetDisconnections = async () => {
@@ -73,13 +73,21 @@ const InfoModal = ({ isOpen, onClose }) => {
 
       <ul>
         {disconnections.map((item, index) => (
+          <button onClick={() => {
+            disconnectedRoadRef.current({
+            a_lat: item.a_lat,
+            a_lng: item.a_lng,
+            b_lat: item.b_lat,
+            b_lng: item.b_lng});
+          }}>
           <li key={index}>
             {"A=" + item.name_a + "; B=" + item.name_b}
             <ul>
-              <li>{"A lat=" + item.a_closest_lat + ", lon=" + item.a_closest_lon}</li>
-              <li>{"B lat=" + item.b_closest_lat + ", lon=" + item.b_closest_lon}</li>
+              <li>{"A lat=" + item.a_lat + ", lon=" + item.a_lng}</li>
+              <li>{"B lat=" + item.b_lat + ", lon=" + item.b_lng}</li>
             </ul>
           </li>
+          </button>
         ))}
       </ul>
       </div>

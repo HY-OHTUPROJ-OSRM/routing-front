@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import { useDispatch } from 'react-redux';
 import Header from './components/Header';
@@ -26,6 +26,7 @@ export default function App() {
   const [editMode, setEditMode] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState({ display: "No profile", apiKey: null });
   const [showInfoModal, setShowInfoModal] = useState(false);
+  const disconnectedRoadRef = useRef(null);
 
   const handleSidebarClick = (type) => {
     setSidebarType(prev => (prev === type ? null : type));
@@ -73,6 +74,7 @@ export default function App() {
             setSidebar={openListSidebar}
             isOpen={sidebarType === 'list'}
             visibleTempRoads={visibleTempRoads}
+            disconnectedRoadRef={disconnectedRoadRef}
           />
           <Routing_form />
         </main>
@@ -109,6 +111,7 @@ export default function App() {
       <InfoModal
         isOpen={showInfoModal}
         onClose={() => setShowInfoModal(false)}
+        disconnectedRoadRef={disconnectedRoadRef}
       />
       </ProfileContext.Provider>
     </AppProviders>
