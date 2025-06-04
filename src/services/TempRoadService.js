@@ -139,7 +139,6 @@ const getNodeCoordinates = async (nodeId) => {
   }
 };
 
-// NEW FUNCTION: Find nearest node using the same API instance
 const findNearestNode = async (lat, lng) => {
   try {
     const response = await ins({

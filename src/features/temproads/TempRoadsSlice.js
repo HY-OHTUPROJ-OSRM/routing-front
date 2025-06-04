@@ -3,7 +3,8 @@ import {
   getAllTempRoads, 
   createTempRoad, 
   updateTempRoad, 
-  deleteTempRoad 
+  deleteTempRoad,
+  toggleTempRoad
 } from '../../services/TempRoadService';
 
 export const fetchTempRoads = createAsyncThunk(
@@ -48,6 +49,18 @@ export const deleteTempRoadAsync = createAsyncThunk(
     try {
       await deleteTempRoad(id);
       return id;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const toggleTempRoadAsync = createAsyncThunk(
+  'tempRoads/toggleTempRoad',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await toggleTempRoad(id);
+      return response;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -125,6 +138,21 @@ const tempRoadsSlice = createSlice({
         }
       })
       .addCase(deleteTempRoadAsync.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+
+      .addCase(toggleTempRoadAsync.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(toggleTempRoadAsync.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        const index = state.list.findIndex(road => road.id === action.payload.id);
+        if (index !== -1) {
+          state.list[index] = action.payload;
+        }
+      })
+      .addCase(toggleTempRoadAsync.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
       });

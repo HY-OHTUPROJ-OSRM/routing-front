@@ -4,6 +4,7 @@ import {
   fetchTempRoads, 
   addTempRoad, 
   deleteTempRoadAsync,
+  toggleTempRoadAsync, // Add this import
   selectRoad 
 } from '../features/temproads/TempRoadsSlice';
 import './Polygon.css';
@@ -112,6 +113,14 @@ function TempRoads(props) {
         newSet.delete(roadId);
         return newSet;
       });
+    }
+  };
+
+  // Add toggle handler
+  const handleToggle = (roadId, currentStatus) => {
+    const action = currentStatus ? 'deactivate' : 'activate';
+    if (window.confirm(`Are you sure you want to ${action} this road segment?`)) {
+      dispatch(toggleTempRoadAsync(roadId));
     }
   };
 
@@ -461,7 +470,9 @@ function TempRoads(props) {
                 borderBottom: '1px solid #e5e5e5',
                 backgroundColor: selectedRoadId === road.id ? '#e3f2fd' : 'white',
                 borderLeft: selectedRoadId === road.id ? '4px solid #4285f4' : 'none',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                // Add visual indicator for inactive roads
+                opacity: road.status === false ? 0.6 : 1
               }}
               onClick={() => handleSelectRoad(road.id)}
             >
@@ -472,14 +483,27 @@ function TempRoads(props) {
                 alignItems: 'flex-start',
                 marginBottom: '8px'
               }}>
-                <h4 style={{ 
-                  margin: 0, 
-                  fontSize: '16px', 
-                  fontWeight: '600',
-                  color: '#333'
-                }}>
-                  {road.name}
-                </h4>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <h4 style={{ 
+                    margin: 0, 
+                    fontSize: '16px', 
+                    fontWeight: '600',
+                    color: '#333'
+                  }}>
+                    {road.name}
+                  </h4>
+                  {/* Status indicator */}
+                  <span style={{
+                    fontSize: '12px',
+                    padding: '2px 6px',
+                    borderRadius: '12px',
+                    backgroundColor: road.status ? '#d4edda' : '#f8d7da',
+                    color: road.status ? '#155724' : '#721c24',
+                    fontWeight: '500'
+                  }}>
+                    {road.status ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
                 <div style={{ display: 'flex', gap: '5px' }}>
                   {/* Visibility indicator */}
                   {visibleRoads.has(road.id) && (
@@ -491,6 +515,24 @@ function TempRoads(props) {
                       👁️
                     </span>
                   )}
+                  {/* Toggle button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggle(road.id, road.status);
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      color: road.status ? '#ffc107' : '#28a745',
+                      fontSize: '16px'
+                    }}
+                    title={road.status ? 'Deactivate' : 'Activate'}
+                  >
+                    {road.status ? '⏸️' : '▶️'}
+                  </button>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
