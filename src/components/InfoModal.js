@@ -79,6 +79,10 @@ const InfoModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
           Get disconnections
         </button>
 
+        <button onClick={disconnectedRoadRef.current[1]} className="profile-button">
+          Delete disconnections
+        </button>
+
         {disconnections.length > 0 && (
           <table
             className="disconnections-table"
@@ -123,7 +127,7 @@ const InfoModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
                     <button
                       className="profile-button"
                       onClick={() => {
-                        disconnectedRoadRef.current({
+                        disconnectedRoadRef.current[0]({
                           a_lat: item.a_lat,
                           a_lng: item.a_lng,
                           b_lat: item.b_lat,

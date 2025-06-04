@@ -137,7 +137,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     }
 
     const disconnecteRoadMarkerRef = useRef([]);
-    disconnectedRoadRef.current = (d) => {
+    disconnectedRoadRef.current = [(d) => {
         const map = mapRef.current;
         if (!map) return;
 
@@ -153,12 +153,23 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
             .addTo(map)
             .bindPopup("PosB");
             
-        disconnecteRoadMarkerRef.current.push(markerA, markerB);
+        const pp = L.polyline([posA, posB], {
+            color: 'blue',
+            weight: 8,
+            opacity: 0.7,
+            smoothFactor: 1
+        }).addTo(map);
+
+        disconnecteRoadMarkerRef.current.push(markerA, markerB, pp);
 
         mapRef.current.flyTo(posA, mapView.zoom, {
           duration: 1
         });
-    };
+    },
+    () => {
+        disconnecteRoadMarkerRef.current.forEach((marker) => marker.remove());
+        disconnecteRoadMarkerRef.current = [];
+    }];
 
     //Used when a new polygon/line is drawn. Marker functionalities are handled elsewhere so these functionalities may be removed
     const onDrawCreated = async (e) => {
