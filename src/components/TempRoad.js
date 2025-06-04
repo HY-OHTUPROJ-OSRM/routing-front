@@ -7,6 +7,7 @@ import {
   toggleTempRoadAsync,
   selectRoad 
 } from '../features/temproads/TempRoadsSlice';
+import { changeMapView } from '../features/view/ViewSlice'; // 添加导入
 import './Polygon.css';
 
 function TempRoads(props) {
@@ -112,6 +113,48 @@ function TempRoads(props) {
       }));
       
       return null;
+    }
+  };
+  
+  // Calculate center and zoom level based on start and end coordinates
+  const calculateCenter = (startCoords, endCoords) => {
+    const centerLat = (startCoords.lat + endCoords.lat) / 2;
+    const centerLng = (startCoords.lng + endCoords.lng) / 2;
+    return [centerLat, centerLng];
+  };
+
+  const calculateZoomLevel = (startCoords, endCoords) => {
+    const latDiff = Math.abs(startCoords.lat - endCoords.lat);
+    const lngDiff = Math.abs(startCoords.lng - endCoords.lng);
+    const maxDiff = Math.max(latDiff, lngDiff);
+    
+    if (maxDiff > 1) return 8;
+    if (maxDiff > 0.5) return 10;
+    if (maxDiff > 0.1) return 12;
+    if (maxDiff > 0.01) return 14;
+    return 16;
+  };
+
+  const flyToRoad = async (road) => {
+    try {
+      const startCoords = await fetchNodeCoordinates(road.start_node);
+      const endCoords = await fetchNodeCoordinates(road.end_node);
+      
+      if (startCoords && endCoords && !startCoords.error && !endCoords.error) {
+        const center = calculateCenter(startCoords, endCoords);
+        const zoom = calculateZoomLevel(startCoords, endCoords);
+        
+        dispatch(changeMapView({ 
+          center: center, 
+          zoom: zoom 
+        }));
+      } else {
+        console.error('Could not get coordinates for road nodes');
+        alert('Unable to locate road on map. Please check if the nodes are valid.');
+      }
+    } catch (error) {
+      console.error('Error flying to road:', error);
+      alert('Error locating road on map.');
     }
   };
 
@@ -421,7 +464,7 @@ function TempRoads(props) {
                     opacity: nodeSelectionMode.active && nodeSelectionMode.selecting !== 'start' ? 0.5 : 1
                   }}
                 >
-                  {nodeSelectionMode.selecting === 'start' ? '📍 Selecting...' : '🗺️ Select on Map'}
+                  {nodeSelectionMode.selecting === 'start' ? 'Selecting...' : 'Select on Map'}
                 </button>
               </div>
             </div>
@@ -462,7 +505,7 @@ function TempRoads(props) {
                     opacity: nodeSelectionMode.active && nodeSelectionMode.selecting !== 'end' ? 0.5 : 1
                   }}
                 >
-                  {nodeSelectionMode.selecting === 'end' ? '📍 Selecting...' : '🗺️ Select on Map'}
+                  {nodeSelectionMode.selecting === 'end' ? 'Selecting...' : 'Select on Map'}
                 </button>
               </div>
             </div>
@@ -569,7 +612,6 @@ function TempRoads(props) {
                       fontSize: '16px',
                       title: 'Visible on map'
                     }}>
-                      👁️
                     </span>
                   )}
                   <button
@@ -642,7 +684,7 @@ function TempRoads(props) {
               )}
 
               {/* Action Buttons */}
-              <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -665,10 +707,10 @@ function TempRoads(props) {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    showOnMap(road);
+                    flyToRoad(road);
                   }}
                   style={{
-                    background: visibleRoads.has(road.id) ? '#dc3545' : '#28a745',
+                    background: '#28a745',
                     color: 'white',
                     border: 'none',
                     padding: '8px 12px',
@@ -678,8 +720,9 @@ function TempRoads(props) {
                     flex: 1,
                     fontWeight: '500'
                   }}
+                  title="Show this road on the map"
                 >
-                  {visibleRoads.has(road.id) ? 'Hide from map' : 'Show on map'}
+                  Show on map
                 </button>
               </div>
 
