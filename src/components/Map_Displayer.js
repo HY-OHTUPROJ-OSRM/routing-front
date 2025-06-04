@@ -18,7 +18,7 @@ import { generateName } from '../services/nameGiverService';
 import { showTimedAlert } from '../Utils/dispatchUtility';
 import { intersectSelf } from '../services/Intersect_self';
 import { getColorAndOpacity } from '../services/PolygonVisualService';
-import {startti_icon, desti_icon} from './leafletHTMLIcon';
+import {startti_icon, desti_icon, dis_icon} from './leafletHTMLIcon';
 import { changeListView } from '../features/view/ViewSlice';
 import VectorTileLayer from "react-leaflet-vector-tile-layer";
 import roadStyle from '../roadStyle';
@@ -146,10 +146,10 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
 
         const posA = [d.a_lat, d.a_lng];
         const posB = [d.b_lat, d.b_lng];
-        const markerA = L.marker(posA, { icon: startti_icon, draggable: false })
+        const markerA = L.marker(posA, { icon: dis_icon, draggable: false })
             .addTo(map)
             .bindPopup("PosA");
-        const markerB = L.marker(posB, { icon: desti_icon, draggable: false })
+        const markerB = L.marker(posB, { icon: dis_icon, draggable: false })
             .addTo(map)
             .bindPopup("PosB");
             
