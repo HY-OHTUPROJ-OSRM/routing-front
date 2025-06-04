@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import './CreatePolygon.css';
-import { CoordinatesContext } from './CoordinatesContext';
+import { CoordinatesContext, ProfileContext } from './CoordinatesContext';
 import { validateName, validateType, validateCoordinate, validateEffectValue } from '../services/FormValidationService';
 import { CreatePolygon } from '../services/PolygonService';
 import { useDispatch } from 'react-redux';
@@ -13,14 +13,17 @@ import { generateName } from '../services/nameGiverService';
 // The form is validated and the polygon is created when the user clicks submit. The form is reset after submission.
 function CreatePolygons() {
   const dispatch = useDispatch();
-  const [formData, setFormData] = useState({
-    name: generateName(),
-    type: 'roadblock',
-    effectValue: 0,
-    coordinates: [{ lat: '', long: '' }]
-  });
-  const [errors, setErrors] = useState({});
-  const { coordinates, setCoordinates } = useContext(CoordinatesContext);
+  const { selectedProfile } = useContext(ProfileContext);
+  const profileRef = useRef();
+  profileRef.current = selectedProfile;
+    const [formData, setFormData] = useState({
+      name: generateName(),
+      type: 'roadblock',
+      effectValue: 0,
+      coordinates: [{ lat: '', long: '' }]
+    });
+    const [errors, setErrors] = useState({});
+    const { coordinates, setCoordinates } = useContext(CoordinatesContext);
 
   //Update form on given input
 
@@ -57,7 +60,7 @@ function CreatePolygons() {
       //fetch from backend polygons and route line after creating a new polygon
 
       dispatch(fetchPolygons());
-      dispatch(fetchRouteLine());
+      dispatch(fetchRouteLine(undefined, profileRef.current));
     }
   };
   // Validate updated field. if not valid add an error to error list. If list is empty, the form can be submitted
