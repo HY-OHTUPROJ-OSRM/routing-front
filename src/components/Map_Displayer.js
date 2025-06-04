@@ -24,6 +24,7 @@ import VectorTileLayer from "react-leaflet-vector-tile-layer";
 import roadStyle from '../roadStyle';
 import { refreshTileLayer } from '../features/map/tileLayerSlice';
 import TempRoadDisplay from './TempRoadDisplay';
+import { getNodeList } from '../services/nodelist_service';
 
 /* 
 Massive component handling all map functionalities. 
@@ -169,6 +170,35 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     () => {
         disconnecteRoadMarkerRef.current.forEach((marker) => marker.remove());
         disconnecteRoadMarkerRef.current = [];
+    },
+    async () => {
+        const map = mapRef.current;
+        if (!map) return;
+        const nodes = await getNodeList();
+        const layerGroup = L.layerGroup().addTo(map);
+        for (let d of nodes.data) {
+            const randomInt = Math.floor(Math.random() * 0xffffff);
+            const hex = randomInt.toString(16).padStart(6, '0');
+            const clo = `#${hex}`;
+            const latlngs = d.coordinates.map(c => [c[1], c[0]]);
+            const polyline = L.polyline(latlngs, {
+                color: clo,
+                weight: 5,
+                opacity: 0.7,
+            }).addTo(layerGroup);
+            /*latlngs.forEach(latlng => {
+                L.circleMarker(latlng, {
+                radius: 10,
+                color: clo,
+                fillColor: clo,
+                fillOpacity: 1,
+                }).addTo(layerGroup);
+            });
+            
+            
+            
+            */
+        }
     }];
 
     //Used when a new polygon/line is drawn. Marker functionalities are handled elsewhere so these functionalities may be removed

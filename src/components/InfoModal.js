@@ -83,6 +83,10 @@ const InfoModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
           Delete disconnections
         </button>
 
+        <button onClick={disconnectedRoadRef.current[2]} className="profile-button">
+          Set nodelist
+        </button>
+
         {disconnections.length > 0 && (
           <table
             className="disconnections-table"
