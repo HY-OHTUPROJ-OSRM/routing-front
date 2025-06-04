@@ -28,6 +28,7 @@ export const routeSlice = createSlice({
 export const { setRouteLine, setStartPosition, setEndPosition, setRouteInfo } = routeSlice.actions;
 //fetches the generated route line from backend
 export const fetchRouteLine = (coords, profile) => {
+  if (!profile) profile = { display: "No profile", apiKey: null };
   return async (dispatch, getState) => {
     const state = getState();
     const startPosition = state.routeLine.startPosition;
