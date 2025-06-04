@@ -4,7 +4,7 @@ import {
   fetchTempRoads, 
   addTempRoad, 
   deleteTempRoadAsync,
-  toggleTempRoadAsync, // Add this import
+  toggleTempRoadAsync,
   selectRoad 
 } from '../features/temproads/TempRoadsSlice';
 import './Polygon.css';
@@ -15,6 +15,9 @@ function TempRoads(props) {
   const status = useSelector(state => state.tempRoads.status);
   const selectedRoadId = useSelector(state => state.tempRoads.selectedRoadId);
   const [visibleRoads, setVisibleRoads] = useState(new Set());
+  
+  const [showCoordinatesForRoad, setShowCoordinatesForRoad] = useState(null);
+  const [nodeCoordinates, setNodeCoordinates] = useState({});
   
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -66,6 +69,68 @@ function TempRoads(props) {
     }
   }, [props.onNodeSelectionHandler]);
 
+  // Get node coordinates from API
+  const fetchNodeCoordinates = async (nodeId) => {
+    try {
+      // Return cached coordinates if available
+      if (nodeCoordinates[nodeId]) {
+        return nodeCoordinates[nodeId];
+      }
+      
+      const response = await fetch(`http://localhost:3000/nodes/${nodeId}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error(`Expected JSON but got ${contentType}`);
+      }
+      
+      const nodeData = await response.json();
+      
+      const coordinates = {
+        lat: nodeData.lat,
+        lng: nodeData.lng
+      };
+      
+      // Cache coordinates
+      setNodeCoordinates(prev => ({
+        ...prev,
+        [nodeId]: coordinates
+      }));
+      
+      return coordinates;
+    } catch (error) {
+      console.error('Error fetching node coordinates:', error);
+      
+      // Cache error to avoid repeated attempts
+      setNodeCoordinates(prev => ({
+        ...prev,
+        [nodeId]: { error: error.message }
+      }));
+      
+      return null;
+    }
+  };
+
+  const showCoordinates = async (road) => {
+    if (showCoordinatesForRoad === road.id) {
+      setShowCoordinatesForRoad(null);
+      return;
+    }
+
+    setShowCoordinatesForRoad(road.id);
+    
+    if (road.start_node && !nodeCoordinates[road.start_node]) {
+      await fetchNodeCoordinates(road.start_node);
+    }
+    if (road.end_node && !nodeCoordinates[road.end_node]) {
+      await fetchNodeCoordinates(road.end_node);
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -116,7 +181,6 @@ function TempRoads(props) {
     }
   };
 
-  // Add toggle handler
   const handleToggle = (roadId, currentStatus) => {
     const action = currentStatus ? 'deactivate' : 'activate';
     if (window.confirm(`Are you sure you want to ${action} this road segment?`)) {
@@ -126,10 +190,6 @@ function TempRoads(props) {
 
   const handleSelectRoad = (id) => {
     dispatch(selectRoad(id));
-  };
-
-  const showCoordinates = (road) => {
-    alert(`Coordinates for ${road.name}: Start: ${road.start_node}, End: ${road.end_node}`);
   };
 
   const showOnMap = (road) => {
@@ -206,7 +266,7 @@ function TempRoads(props) {
 
       {/* Node Selection Mode Indicator */}
       {nodeSelectionMode.active && (
-        <div style={{
+        <div style={{ 
           padding: '10px 20px',
           backgroundColor: '#fff3cd',
           borderBottom: '1px solid #ffeaa7',
@@ -471,7 +531,6 @@ function TempRoads(props) {
                 backgroundColor: selectedRoadId === road.id ? '#e3f2fd' : 'white',
                 borderLeft: selectedRoadId === road.id ? '4px solid #4285f4' : 'none',
                 cursor: 'pointer',
-                // Add visual indicator for inactive roads
                 opacity: road.status === false ? 0.6 : 1
               }}
               onClick={() => handleSelectRoad(road.id)}
@@ -492,7 +551,6 @@ function TempRoads(props) {
                   }}>
                     {road.name}
                   </h4>
-                  {/* Status indicator */}
                   <span style={{
                     fontSize: '12px',
                     padding: '2px 6px',
@@ -505,7 +563,6 @@ function TempRoads(props) {
                   </span>
                 </div>
                 <div style={{ display: 'flex', gap: '5px' }}>
-                  {/* Visibility indicator */}
                   {visibleRoads.has(road.id) && (
                     <span style={{ 
                       color: '#28a745', 
@@ -515,7 +572,6 @@ function TempRoads(props) {
                       👁️
                     </span>
                   )}
-                  {/* Toggle button */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -562,7 +618,7 @@ function TempRoads(props) {
                 {getTypeDisplay(road.type)}
               </div>
 
-              {/* Speed Info (if applicable) */}
+              {/* Speed Info */}
               {road.speed > 0 && (
                 <div style={{ 
                   fontSize: '13px', 
@@ -574,7 +630,7 @@ function TempRoads(props) {
                 </div>
               )}
 
-              {/* Length Info (if applicable) */}
+              {/* Length Info */}
               {road.length > 0 && (
                 <div style={{ 
                   fontSize: '13px', 
@@ -593,7 +649,7 @@ function TempRoads(props) {
                     showCoordinates(road);
                   }}
                   style={{
-                    background: '#17a2b8',
+                    background: showCoordinatesForRoad === road.id ? '#dc3545' : '#17a2b8',
                     color: 'white',
                     border: 'none',
                     padding: '8px 12px',
@@ -604,7 +660,7 @@ function TempRoads(props) {
                     fontWeight: '500'
                   }}
                 >
-                  Show Coordinates
+                  {showCoordinatesForRoad === road.id ? 'Hide Coordinates' : 'Show Coordinates'}
                 </button>
                 <button
                   onClick={(e) => {
@@ -626,6 +682,64 @@ function TempRoads(props) {
                   {visibleRoads.has(road.id) ? 'Hide from map' : 'Show on map'}
                 </button>
               </div>
+
+              {showCoordinatesForRoad === road.id && (
+                <div style={{
+                  marginTop: '12px',
+                  padding: '12px',
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: '4px',
+                  border: '1px solid #dee2e6'
+                }}>
+                  <div style={{
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#333',
+                    marginBottom: '8px'
+                  }}>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <div style={{ fontSize: '13px', color: '#555' }}>
+                      <strong>Start Node ({road.start_node}):</strong>
+                      {nodeCoordinates[road.start_node] ? (
+                        nodeCoordinates[road.start_node].error ? (
+                          <span style={{ marginLeft: '8px', color: '#dc3545', fontStyle: 'italic' }}>
+                            Error: {nodeCoordinates[road.start_node].error}
+                          </span>
+                        ) : (
+                          <span style={{ marginLeft: '8px', color: '#333' }}>
+                            Lat: {nodeCoordinates[road.start_node].lat.toFixed(6)}, 
+                            Lng: {nodeCoordinates[road.start_node].lng.toFixed(6)}
+                          </span>
+                        )
+                      ) : (
+                        <span style={{ marginLeft: '8px', color: '#999', fontStyle: 'italic' }}>
+                          Loading...
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ fontSize: '13px', color: '#555' }}>
+                      <strong>End Node ({road.end_node}):</strong>
+                      {nodeCoordinates[road.end_node] ? (
+                        nodeCoordinates[road.end_node].error ? (
+                          <span style={{ marginLeft: '8px', color: '#dc3545', fontStyle: 'italic' }}>
+                            Error: {nodeCoordinates[road.end_node].error}
+                          </span>
+                        ) : (
+                          <span style={{ marginLeft: '8px', color: '#333' }}>
+                            Lat: {nodeCoordinates[road.end_node].lat.toFixed(6)}, 
+                            Lng: {nodeCoordinates[road.end_node].lng.toFixed(6)}
+                          </span>
+                        )
+                        ) : (
+                        <span style={{ marginLeft: '8px', color: '#999', fontStyle: 'italic' }}>
+                          Loading...
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ))
         )}
