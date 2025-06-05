@@ -10,18 +10,23 @@ function PolygonList({editMode, setEditMode, isOpen}) {
   const polygons = useSelector((state) => state.polygons);
   const modifiedPolygons = useSelector((state) => state.modifiedPolygons);
 
+    const activeList = editMode
+    ? Object.values(modifiedPolygons.polygons || {})
+    : polygons || [];
+
+  if (activeList.length === 0) {
+    return <p className="empty-list-msg">No polygons to display.</p>;
+  }
+
   return (
     <div>
-      {editMode && modifiedPolygons.polygons!={} ? (
-        
-        Object.values(modifiedPolygons.polygons).reverse().map((polygon, index) => (
-          <ModifiedPolygonDisplay key={polygon.properties.id} {...polygon} isOpen={isOpen}/>
-        ))
-      ) : (
-        polygons.map((polygon, index) => (
-          <PolygonDisplay key={polygon.properties.id} {...polygon} isOpen={isOpen} index={index}/>
-        ))
-      )}
+      {editMode
+        ? activeList.reverse().map((polygon) => (
+            <ModifiedPolygonDisplay key={polygon.properties.id} {...polygon} isOpen={isOpen} />
+          ))
+        : activeList.map((polygon, index) => (
+            <PolygonDisplay key={polygon.properties.id} {...polygon} isOpen={isOpen} index={index} />
+          ))}
     </div>
   );
 }
