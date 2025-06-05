@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import "./comp_styles.scss";
 
-const Header = ({ onClickA, onClickP, onClickGuide, handleToolsClick }) => {
+const Header = ({ onClickA, onClickP, onClickGuide, handleToolsClick, handleShowProfileModal, selectedProfile, handleShowInfoModal }) => {
   const [selectedTool, setSelectedTool] = useState("None");
+  const formattedProfile = selectedProfile.display.replace(/\s*,\s*/, " / ");
 
   const handleChange = (e) => {
     const value = e.target.value;
@@ -10,22 +11,32 @@ const Header = ({ onClickA, onClickP, onClickGuide, handleToolsClick }) => {
 
     if (value === "temproad") {
       handleToolsClick();
-    } else {
+    }
+    if (value === 'select-profile') {
+      handleShowProfileModal();
+    }
+    if (value === 'info') {
+      handleShowInfoModal();
+    }
+    else {
     }
   };
 
   return (
     <div className="header">
       <h2>Routing app</h2>
+      <div className="profile-display">{formattedProfile}</div>
       <div className="header-icons">
 
         <label className="header-select-wrapper">
           <span className="tools-label">Tools ▾</span>
-          <select className="header-select" value="None" onChange={handleChange}>
+          <select className="header-select" value={selectedTool} onChange={handleChange}>
             <option disabled value="None">Tools ▾</option>
+
+            <option value="select-profile">Select profile</option>
+            <option value="info">Disconneted roads</option>
             <option value="temproad">Temporary roads</option>
-            <option value="elevation">Elevation</option>
-            <option value="export">Export</option>
+
           </select>
         </label>
 

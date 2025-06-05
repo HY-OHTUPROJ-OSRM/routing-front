@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
+import { ProfileContext } from './CoordinatesContext'; // varmista että polku on oikea
 import "./Polygon.css"; // Import the CSS file
 import { DeletePolygon, UpdatePolygon }  from "../services/PolygonService";
 import { useDispatch } from "react-redux";
@@ -22,12 +23,14 @@ const PolygonDisplay = ({ type, geometry, properties, isOpen, index }) => {
         const toggleExpansion = () => {
           setIsExpanded(!isExpanded);
         }
+      const { selectedProfile } = useContext(ProfileContext);
+      const profileRef = useRef();
+      profileRef.current = selectedProfile;
 
-       const HandleDelete = async () => {
-          await DeletePolygon(properties.id);
-
-          dispatch(fetchPolygons());
-          dispatch(fetchRouteLine());
+      const HandleDelete = async () => {
+        await DeletePolygon(properties.id);
+        dispatch(fetchPolygons());
+        dispatch(fetchRouteLine(undefined, profileRef.current));
        }
 
       const translator={"cap": "Speed limit (Km/h)", "roadblock": "roadblock", "constant": "Custom speed", "offset": "Modified speed +-(Km/h", "factor": "Modified speed (multiplier)"}

@@ -1,7 +1,7 @@
 import { MapContainer, FeatureGroup, Polygon, Tooltip, Polyline, GeoJSON, useMapEvent } from 'react-leaflet';
 import React, { useRef, useEffect, useState, useContext } from 'react';
 import { EditControl } from 'react-leaflet-draw';
-import { CoordinatesContext, RouteContext } from './CoordinatesContext';
+import { CoordinatesContext, RouteContext, ProfileContext } from './CoordinatesContext';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
@@ -18,12 +18,13 @@ import { generateName } from '../services/nameGiverService';
 import { showTimedAlert } from '../Utils/dispatchUtility';
 import { intersectSelf } from '../services/Intersect_self';
 import { getColorAndOpacity } from '../services/PolygonVisualService';
-import {startti_icon, desti_icon} from './leafletHTMLIcon';
+import {startti_icon, desti_icon, dis_icon} from './leafletHTMLIcon';
 import { changeListView } from '../features/view/ViewSlice';
 import VectorTileLayer from "react-leaflet-vector-tile-layer";
 import roadStyle from '../roadStyle';
 import { refreshTileLayer } from '../features/map/tileLayerSlice';
 import TempRoadDisplay from './TempRoadDisplay';
+import { getNodeList } from '../services/nodelist_service';
 
 /* 
 Massive component handling all map functionalities. 
@@ -32,8 +33,12 @@ Massive component handling all map functionalities.
 // Import the node service from TempRoadService
 import { findNearestNode } from '../services/TempRoadService';
 
-function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRoads, nodeSelectionMode, onNodeSelection}) {
+function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRoads, disconnectedRoadRef, nodeSelectionMode, onNodeSelection}) {
     const dispatch = useDispatch()
+    const { selectedProfile } = useContext(ProfileContext)
+    const profileRef = useRef(selectedProfile)
+    useEffect(() => { profileRef.current = selectedProfile }, [selectedProfile])
+
     const initialState = {
         long: 24.955,
         lat: 60.205,
@@ -140,10 +145,74 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         setRoute(newRoute);
         if (newRoute.length === 2) {
             if (newRoute[0].lat !== undefined && newRoute[0].long !== undefined && newRoute[1].lat !== undefined && newRoute[1].long !== undefined) {
-                dispatch(fetchRouteLine());
+                dispatch(fetchRouteLine(undefined, profileRef.current))
             }
         };
     }
+
+    const disconnecteRoadMarkerRef = useRef([]);
+    disconnectedRoadRef.current = [(d) => {
+        const map = mapRef.current;
+        if (!map) return;
+
+        disconnecteRoadMarkerRef.current.forEach((marker) => marker.remove());
+        disconnecteRoadMarkerRef.current = [];
+
+        const posA = [d.a_lat, d.a_lng];
+        const posB = [d.b_lat, d.b_lng];
+        const markerA = L.marker(posA, { icon: dis_icon, draggable: false })
+            .addTo(map)
+            .bindPopup("PosA");
+        const markerB = L.marker(posB, { icon: dis_icon, draggable: false })
+            .addTo(map)
+            .bindPopup("PosB");
+            
+        const pp = L.polyline([posA, posB], {
+            color: 'blue',
+            weight: 8,
+            opacity: 0.7,
+            smoothFactor: 1
+        }).addTo(map);
+
+        disconnecteRoadMarkerRef.current.push(markerA, markerB, pp);
+
+        mapRef.current.flyTo(posA, mapView.zoom, {
+          duration: 1
+        });
+    },
+    () => {
+        disconnecteRoadMarkerRef.current.forEach((marker) => marker.remove());
+        disconnecteRoadMarkerRef.current = [];
+    },
+    async () => {
+        const map = mapRef.current;
+        if (!map) return;
+        const nodes = await getNodeList();
+        const layerGroup = L.layerGroup().addTo(map);
+        for (let d of nodes.data) {
+            const randomInt = Math.floor(Math.random() * 0xffffff);
+            const hex = randomInt.toString(16).padStart(6, '0');
+            const clo = `#${hex}`;
+            const latlngs = d.coordinates.map(c => [c[1], c[0]]);
+            const polyline = L.polyline(latlngs, {
+                color: clo,
+                weight: 5,
+                opacity: 0.7,
+            }).addTo(layerGroup);
+            /*latlngs.forEach(latlng => {
+                L.circleMarker(latlng, {
+                radius: 10,
+                color: clo,
+                fillColor: clo,
+                fillOpacity: 1,
+                }).addTo(layerGroup);
+            });
+            
+            
+            
+            */
+        }
+    }];
 
     //Used when a new polygon/line is drawn. Marker functionalities are handled elsewhere so these functionalities may be removed
     const onDrawCreated = async (e) => {
@@ -190,9 +259,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
   
                     await setRoute([startposition, destinationposition]);
                     
-                    dispatch(fetchRouteLine([startposition, destinationposition]));
-                        
-                
+                    dispatch(fetchRouteLine([startposition, destinationposition], profileRef.current))
             }
         }
     }
@@ -290,7 +357,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         setSidebar(false)
         dispatch(refreshTileLayer())
         dispatch(fetchPolygons())
-        dispatch(fetchRouteLine())
+        dispatch(fetchRouteLine(undefined, profileRef.current))
         cancelEdits()
     }
     //Used to change the list view when a polygon is clicked on map
@@ -477,7 +544,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                     destinationposition={lat:lat,long:lng }
                     dispatch(setEndPosition(destinationposition));
                     setRoute([startposition, destinationposition]);
-                    dispatch(fetchRouteLine());
+                    dispatch(fetchRouteLine(undefined, profileRef.current))
           }
         });
         return null;

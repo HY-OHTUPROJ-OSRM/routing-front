@@ -1,16 +1,19 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './App.css';
 import { useDispatch } from 'react-redux';
 import Header from './components/Header';
 import SideBar from './components/SideBar';
 import CopeSideBar from './components/CopeSideBar';
+import IceRoadSidebar from './components/ToolsSidebar';
+import SelectProfile from './components/SelectProfile';
 import TempRoadSidebar from './components/ToolsSidebar';
 import TempRoads from './components/TempRoad';
 import Map_displayer from './components/Map_Displayer';
 import { fetchPolygons } from './features/polygons/polygonsSlice';
-import { AppProviders } from './components/CoordinatesContext';
+import { AppProviders, ProfileContext } from './components/CoordinatesContext';
 import Routing_form from "./components/RouteField";
 import TimedAlert from "./components/TimedAlert";
+import InfoModal from './components/InfoModal';
 
 export default function App() {
   const dispatch = useDispatch();
@@ -21,6 +24,9 @@ export default function App() {
 
   const [sidebarType, setSidebarType] = useState(null); // 'list' | 'add' | 'TempRoad' | null
   const [editMode, setEditMode] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState({ display: "No profile", apiKey: null });
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const disconnectedRoadRef = useRef(null);
   const [visibleTempRoads, setVisibleTempRoads] = useState(new Set());
 
   // New state for node selection functionality
@@ -43,8 +49,15 @@ export default function App() {
     setSidebarType('list');
   };
 
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const handleProfileSelect = (profileObj) => {
+    setSelectedProfile(profileObj); 
+    setShowProfileModal(false);
+    console.log("Selected profile:", profileObj);
+  }
   const closeSidebar = () => {
     setSidebarType(null);
+
   };
 
   // Callback to handle changes in visible temp roads
@@ -71,11 +84,15 @@ export default function App() {
 
   return (
     <AppProviders>
+      <ProfileContext.Provider value={{ selectedProfile, setSelectedProfile }}>
       <div className="app-layout">
         <Header
             onClickA={handleAddClick}
             onClickP={handleListClick}
             handleToolsClick={handleToolsClick}
+            handleShowProfileModal={() => setShowProfileModal(true)}
+            selectedProfile={selectedProfile}
+            handleShowInfoModal={() => setShowInfoModal(true)}
           />
         <TimedAlert />
 
@@ -127,6 +144,7 @@ export default function App() {
             setSidebar={openListSidebar}
             isOpen={sidebarType === 'list'}
             visibleTempRoads={visibleTempRoads}
+            disconnectedRoadRef={disconnectedRoadRef}
             nodeSelectionMode={nodeSelectionMode}
             onNodeSelection={handleNodeSelectionFromMap}
           />
@@ -163,6 +181,17 @@ export default function App() {
             )}
           </aside>
       </div>
+      <SelectProfile
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        onSelect={handleProfileSelect}
+      />
+      <InfoModal
+        isOpen={showInfoModal}
+        onClose={() => setShowInfoModal(false)}
+        disconnectedRoadRef={disconnectedRoadRef}
+      />
+      </ProfileContext.Provider>
     </AppProviders>
   );
 }

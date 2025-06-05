@@ -46,8 +46,6 @@ export default function TimedAlert() {
             } else {
                 clearTimedAlert(1)
                 dispatch(refreshTileLayer())
-                dispatch(fetchPolygons())
-                dispatch(fetchRouteLine())
         }
         };
 

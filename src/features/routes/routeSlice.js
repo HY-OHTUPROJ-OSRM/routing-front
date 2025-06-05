@@ -27,7 +27,8 @@ export const routeSlice = createSlice({
 
 export const { setRouteLine, setStartPosition, setEndPosition, setRouteInfo } = routeSlice.actions;
 //fetches the generated route line from backend
-export const fetchRouteLine = (coords) => {
+export const fetchRouteLine = (coords, profile) => {
+  console.trace("🔍 fetchRouteLine trace");
   return async (dispatch, getState) => {
     const state = getState();
     const startPosition = state.routeLine.startPosition;
@@ -36,7 +37,7 @@ export const fetchRouteLine = (coords) => {
       coords = [startPosition, endPosition];
     }
     if (coords) {
-      const routeLine = await getRoute(coords);
+      const routeLine = await getRoute(coords, profile);
       dispatch(setRouteLine(routeLine));
     } else {
       console.error("No coordinates provided and no start/end positions set while fetching route");

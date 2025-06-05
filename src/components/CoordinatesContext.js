@@ -1,6 +1,5 @@
 import React, { createContext, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { fetchRouteline } from '../features/routes/routeSlice';
 
 // This file contains the context providers for coordinates and routes
 
@@ -39,3 +38,5 @@ export const AppProviders = ({ children }) => {
     </CoordinatesProvider>
   );
 };
+
+export const ProfileContext = React.createContext(null);
