@@ -13,7 +13,7 @@ import { fetchPolygons } from './features/polygons/polygonsSlice';
 import { AppProviders, ProfileContext } from './components/CoordinatesContext';
 import Routing_form from "./components/RouteField";
 import TimedAlert from "./components/TimedAlert";
-import InfoModal from './components/InfoModal';
+import DisconnectionModal from './components/DisconnectionModal';
 
 export default function App() {
   const dispatch = useDispatch();
@@ -25,7 +25,7 @@ export default function App() {
   const [sidebarType, setSidebarType] = useState(null); // 'list' | 'add' | 'TempRoad' | null
   const [editMode, setEditMode] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState({ display: "No profile", apiKey: null });
-  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [showDisconnectionModal, setShowDisconnectionModal] = useState(false);
   const disconnectedRoadRef = useRef(null);
   const [visibleTempRoads, setVisibleTempRoads] = useState(new Set());
 
@@ -92,7 +92,7 @@ export default function App() {
             handleToolsClick={handleToolsClick}
             handleShowProfileModal={() => setShowProfileModal(true)}
             selectedProfile={selectedProfile}
-            handleShowInfoModal={() => setShowInfoModal(true)}
+            handleShowDisconnectionModal={() => setShowDisconnectionModal(true)}
           />
         <TimedAlert />
 
@@ -187,9 +187,9 @@ export default function App() {
         onClose={() => setShowProfileModal(false)}
         onSelect={handleProfileSelect}
       />
-      <InfoModal
-        isOpen={showInfoModal}
-        onClose={() => setShowInfoModal(false)}
+      <DisconnectionModal
+        isOpen={showDisconnectionModal}
+        onClose={() => setShowDisconnectionModal(false)}
         disconnectedRoadRef={disconnectedRoadRef}
       />
       </ProfileContext.Provider>

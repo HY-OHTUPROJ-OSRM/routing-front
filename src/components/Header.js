@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./comp_styles.scss";
 
-const Header = ({ onClickA, onClickP, onClickGuide, handleToolsClick, handleShowProfileModal, selectedProfile, handleShowInfoModal }) => {
+const Header = ({ onClickA, onClickP, onClickGuide, handleToolsClick, handleShowProfileModal, selectedProfile, handleShowDisconnectionModal }) => {
   const [selectedTool, setSelectedTool] = useState("None");
   const formattedProfile = selectedProfile.display.replace(/\s*,\s*/, " / ");
 
@@ -16,7 +16,7 @@ const Header = ({ onClickA, onClickP, onClickGuide, handleToolsClick, handleShow
       handleShowProfileModal();
     }
     if (value === 'info') {
-      handleShowInfoModal();
+      handleShowDisconnectionModal();
     }
     else {
     }
