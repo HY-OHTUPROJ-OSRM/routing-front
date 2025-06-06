@@ -223,26 +223,26 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
                 {filteredDisconnections.map((item, index) => (
                   <tr key={index} style={{ borderBottom: "1px solid #eee" }}>
                     <td style={{ padding: "8px", textAlign: "center" }}>
-                      <div>A: {item.name_a}</div>
-                      <div>B: {item.name_b}</div>
+                      <div>A: {item.startNode.id}</div>
+                      <div>B: {item.endNode.id}</div>
                     </td>
                     <td style={{ padding: "8px", textAlign: "center" }}>
-                      <div>{item.a_lat}</div>
-                      <div>{item.b_lat}</div>
+                      <div>{item.startNode.lat}</div>
+                      <div>{item.endNode.lat}</div>
                     </td>
                     <td style={{ padding: "8px", textAlign: "center" }}>
-                      <div>{item.a_lng}</div>
-                      <div>{item.b_lng}</div>
+                      <div>{item.startNode.lon}</div>
+                      <div>{item.endNode.lon}</div>
                     </td>
                     <td style={{ padding: "8px", textAlign: "center" }}>
                       <button
                         className="disconnection-button"
                         onClick={() => {
                           disconnectedRoadRef.current[0]({
-                            a_lat: item.a_lat,
-                            a_lng: item.a_lng,
-                            b_lat: item.b_lat,
-                            b_lng: item.b_lng,
+                          a_lat: item.startNode.lat,
+                          a_lng: item.startNode.lon,
+                          b_lat: item.endNode.lat,
+                          b_lng: item.endNode.lon,
                           });
                         }}
                       >

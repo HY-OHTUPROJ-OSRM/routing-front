@@ -187,13 +187,28 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     async () => {
         const map = mapRef.current;
         if (!map) return;
-        const nodes = await getNodeList();
+        const data = await getNodeList();
+        console.log(data);
+
+        const ways = data.ways;
+        const nodes = {};
+
+        for (let node of data.nodes) {
+            nodes[node.id] = node;
+        }
+
         const layerGroup = L.layerGroup().addTo(map);
-        for (let d of nodes.data) {
+        for (let way of ways) {
             const randomInt = Math.floor(Math.random() * 0xffffff);
             const hex = randomInt.toString(16).padStart(6, '0');
             const clo = `#${hex}`;
-            const latlngs = d.coordinates.map(c => [c[1], c[0]]);
+
+            const latlngs = [];
+            for (let id of way.nodes) {
+                let node = nodes[id];
+                latlngs.push([node.lat / 1e7, node.lon / 1e7]);
+            }
+
             const polyline = L.polyline(latlngs, {
                 color: clo,
                 weight: 5,
