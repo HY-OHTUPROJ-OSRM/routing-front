@@ -168,19 +168,18 @@ function TempRoadItem({
     onCancelEdit();
   };
 
-  const showOnMap = (road) => {
+  const handleShowOnMap = async (road) => {
+    if (selectedRoadId !== road.id) {
+      onSelectRoad(road.id);
+    }
+  
     onVisibleRoadsChange(prev => {
       const newSet = new Set(prev);
-      const roadId = road.id;
-      
-      if (newSet.has(roadId)) {
-        newSet.delete(roadId);
-      } else {
-        newSet.add(roadId);
-      }
-      
+      newSet.add(road.id);
       return newSet;
     });
+    
+    await flyToRoad(road);
   };
 
   const getTypeDisplay = (type) => {
@@ -383,10 +382,11 @@ function TempRoadItem({
             >
               {showCoordinatesForRoad === road.id ? 'Hide Coordinates' : 'Show Coordinates'}
             </button>
+            {/* Show on map */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                flyToRoad(road);
+                handleShowOnMap(road);
               }}
               disabled={editingRoadId !== null}
               style={{
@@ -401,7 +401,7 @@ function TempRoadItem({
                 fontWeight: '500',
                 opacity: editingRoadId !== null ? 0.5 : 1
               }}
-              title="Show this road on the map"
+              title="Show this road on the map and fly to it"
             >
               Show on map
             </button>
