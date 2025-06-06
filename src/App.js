@@ -147,6 +147,7 @@ export default function App() {
             disconnectedRoadRef={disconnectedRoadRef}
             nodeSelectionMode={nodeSelectionMode}
             onNodeSelection={handleNodeSelectionFromMap}
+            nodeSelectionHandler={nodeSelectionHandler}
           />
           <Routing_form />
         </main>

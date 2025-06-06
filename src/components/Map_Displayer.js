@@ -492,30 +492,15 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                    // Find nearest node to clicked coordinates
                    const nearestNodeId = await findNearestNode(lat, lng);
                    
-                   // Add a temporary marker to show selected position
-                   const tempMarker = L.marker([lat, lng], { 
-                       icon: nodeSelectionIcon,
-                       zIndexOffset: 1000
-                   })
-                   .addTo(map)
-                   .bindPopup(`Selected Node: ${nearestNodeId}`)
-                   .openPopup();
-                   
-                   // Remove marker after 3 seconds
-                   setTimeout(() => {
-                       map.removeLayer(tempMarker);
-                   }, 3000);
-                   
-                   // Call the node selection handler
                    if (onNodeSelection) {
-                       onNodeSelection(nearestNodeId, [lat, lng]);
-                   }
-                   
-                   return;
-               } catch (error) {
-                   console.error('Error handling node selection:', error);
-                   alert('Failed to find nearest node. Please try again.');
-                   return;
+                   onNodeSelection(nearestNodeId, [lat, lng]);
+               }
+               
+               return;
+           } catch (error) {
+               console.error('Error handling node selection:', error);
+               alert('Failed to find nearest node. Please try again.');
+               return;
                }
            }
            

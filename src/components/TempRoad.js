@@ -7,7 +7,7 @@ import {
   toggleTempRoadAsync,
   selectRoad 
 } from '../features/temproads/TempRoadsSlice';
-import { changeMapView } from '../features/view/ViewSlice'; // 添加导入
+import { changeMapView } from '../features/view/ViewSlice'; 
 import './Polygon.css';
 
 function TempRoads(props) {
@@ -55,6 +55,8 @@ function TempRoads(props) {
   }, [nodeSelectionMode, props.onNodeSelectionModeChange]);
 
   const handleNodeSelection = (nodeId, coordinates) => {
+    console.log('Node selection - nodeId:', nodeId, 'mode:', nodeSelectionMode.selecting);
+
     if (nodeSelectionMode.selecting === 'start') {
       setFormData(prev => ({ ...prev, start_node: nodeId.toString() }));
     } else if (nodeSelectionMode.selecting === 'end') {
@@ -68,7 +70,7 @@ function TempRoads(props) {
     if (props.onNodeSelectionHandler) {
       props.onNodeSelectionHandler(handleNodeSelection);
     }
-  }, [props.onNodeSelectionHandler]);
+  }, [nodeSelectionMode]);
 
   // Get node coordinates from API
   const fetchNodeCoordinates = async (nodeId) => {
