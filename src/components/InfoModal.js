@@ -1,8 +1,40 @@
 import "./comp_styles.scss";
 import React, { useState } from "react";
+import { useDispatch } from 'react-redux';
+import { addTempRoad } from '../features/temproads/TempRoadsSlice';
 import { getDisconnections } from "../services/DisconnectionsService";
 
 const InfoModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
+
+  const dispatch = useDispatch();
+
+  const handleCreateTempRoad = async (disconnection) => {
+  const { osm_id_a, osm_id_b } = disconnection;
+
+  const payload = {
+    start_node: parseInt(osm_id_a),
+    end_node: parseInt(osm_id_b),
+    name: "Temporary connection",
+    type: "temporary",
+    status: true,
+    speed: 100,
+    length: 0,
+    tags: [],
+    description: ""
+  };
+
+  try {
+    const resultAction = await dispatch(addTempRoad(payload));
+    if (addTempRoad.fulfilled.match(resultAction)) {
+      console.log("✅ AddTempRoad called via disconnection list", resultAction.payload);
+    } else {
+      console.error("❌ Failed to call addTempRoad via disconnection list", resultAction);
+    }
+  } catch (err) {
+    console.error("Error dispatching addTempRoad via disconnection list", err);
+  }
+  };
+
   const [disconnections, setDisconnections] = useState([]);
 
   // Inputs
@@ -75,77 +107,96 @@ const InfoModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
           </label>
         </div>
 
-        <button onClick={handleGetDisconnections} className="profile-button">
-          Get disconnections
-        </button>
+        <div style={{ marginBottom: "1rem", display: "flex", gap: "8px", justifyContent: "center" }}>
+          <button
+            onClick={handleGetDisconnections}
+            className="disconnection-button"
+          >
+            Get disconnections
+          </button>
 
-        <button onClick={disconnectedRoadRef.current[1]} className="profile-button">
-          Delete disconnections
-        </button>
+          <button
+            onClick={disconnectedRoadRef.current[1]}
+            className="disconnection-button"
+          >
+            Delete disconnections
+          </button>
 
-        <button onClick={disconnectedRoadRef.current[2]} className="profile-button">
-          Set nodelist
-        </button>
+          <button
+            onClick={disconnectedRoadRef.current[2]}
+            className="disconnection-button"
+          >
+            Set nodelist
+          </button>
+        </div>
 
         {disconnections.length > 0 && (
           <table
-            className="disconnections-table"
-            style={{ width: "100%", marginTop: "1rem", borderCollapse: "collapse" }}
-          >
-            <thead>
-              <tr>
-                <th style={{ textAlign: "left", borderBottom: "1px solid #ccc", padding: "8px" }}>
-                  Points
-                </th>
-                <th style={{ textAlign: "left", borderBottom: "1px solid #ccc", padding: "8px" }}>
-                  Latitude
-                </th>
-                <th style={{ textAlign: "left", borderBottom: "1px solid #ccc", padding: "8px" }}>
-                  Longitude
-                </th>
-                <th style={{ textAlign: "left", borderBottom: "1px solid #ccc", padding: "8px" }}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {disconnections.map((item, index) => (
-                <tr key={index} style={{ borderBottom: "1px solid #eee" }}>
-                  <td style={{ padding: "8px", verticalAlign: "top" }}>
-                    <div>
-                      <div>A: {item.name_a}</div>
-                      <div>B: {item.name_b}</div>
-                    </div>
-                  </td>
-                  <td style={{ padding: "8px", verticalAlign: "top" }}>
-                    <div>
-                      <div>{item.a_lat}</div>
-                      <div>{item.b_lat}</div>
-                    </div>
-                  </td>
-                  <td style={{ padding: "8px", verticalAlign: "top" }}>
-                    <div>
-                      <div>{item.a_lng}</div>
-                      <div>{item.b_lng}</div>
-                    </div>
-                  </td>
-                  <td style={{ padding: "8px", verticalAlign: "top" }}>
-                    <button
-                      className="profile-button"
-                      onClick={() => {
-                        disconnectedRoadRef.current[0]({
-                          a_lat: item.a_lat,
-                          a_lng: item.a_lng,
-                          b_lat: item.b_lat,
-                          b_lng: item.b_lng,
-                        });
-                      }}
-                    >
-                      Show on map
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        style={{
+          width: "100%",
+          marginTop: "1rem",
+          borderCollapse: "collapse",
+          fontSize: "14px",
+        }}
+        >
+        <thead>
+          <tr>
+            {["Points", "Latitude", "Longitude", "Show", "Add"].map((header) => (
+              <th
+                key={header}
+                style={{
+                  textAlign: "center",
+                  borderBottom: "1px solid #ccc",
+                  padding: "8px",
+                }}
+              >
+                {header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {disconnections.map((item, index) => (
+            <tr key={index} style={{ borderBottom: "1px solid #eee" }}>
+              <td style={{ padding: "8px", textAlign: "center" }}>
+                <div>A: {item.name_a}</div>
+                <div>B: {item.name_b}</div>
+              </td>
+              <td style={{ padding: "8px", textAlign: "center" }}>
+                <div>{item.a_lat}</div>
+                <div>{item.b_lat}</div>
+              </td>
+              <td style={{ padding: "8px", textAlign: "center" }}>
+                <div>{item.a_lng}</div>
+                <div>{item.b_lng}</div>
+              </td>
+              <td style={{ padding: "8px", textAlign: "center" }}>
+                <button
+                  className="disconnection-button"
+                  onClick={() => {
+                    disconnectedRoadRef.current[0]({
+                      a_lat: item.a_lat,
+                      a_lng: item.a_lng,
+                      b_lat: item.b_lat,
+                      b_lng: item.b_lng,
+                    });
+                  }}
+                >
+                  Show on map
+                </button>
+              </td>
+              <td style={{ padding: "8px", textAlign: "center" }}>
+                <button
+                  className="disconnection-button"
+                  onClick={() => handleCreateTempRoad(item)}
+                >
+                  Add temporary
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+        </table>
         )}
       </div>
     </div>
