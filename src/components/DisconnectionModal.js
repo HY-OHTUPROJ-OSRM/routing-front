@@ -223,8 +223,8 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
                 {filteredDisconnections.map((item, index) => (
                   <tr key={index} style={{ borderBottom: "1px solid #eee" }}>
                     <td style={{ padding: "8px", textAlign: "center" }}>
-                      <div>A: {item.startNode.id}</div>
-                      <div>B: {item.endNode.id}</div>
+                      <div>A: {item.startNode.id} {item.startNode.way_name}</div>
+                      <div>B: {item.endNode.id} {item.endNode.way_name}</div>
                     </td>
                     <td style={{ padding: "8px", textAlign: "center" }}>
                       <div>{item.startNode.lat}</div>
