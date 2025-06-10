@@ -1,13 +1,12 @@
 import "./comp_styles.scss";
 import React, { useState, useMemo } from "react";
 import { useSelector, useDispatch } from 'react-redux';
-import { addTempRoad, deleteTempRoadAsync } from '../features/temproads/TempRoadsSlice';
+import { addTempRoad } from '../features/temproads/TempRoadsSlice';
 import { getDisconnections } from "../services/DisconnectionsService";
 
 const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
   const [disconnections, setDisconnections] = useState([]);
   const [filteredDisconnections, setFilteredDisconnections] = useState([]);
-  const tempRoads = useSelector(state => state.tempRoads.list);
 
   // Inputs
   const [minDist, setMinDist] = useState(0);
@@ -53,7 +52,7 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
     const payload = {
       start_node: parseInt(node_id_a),
       end_node: parseInt(node_id_b),
-      name: getReadableName(disconnection.name_a, disconnection.name_b), // 👈
+      name: getReadableName(disconnection.name_a, disconnection.name_b),
       type: "temporary",
       status: true,
       speed: 50,
@@ -114,17 +113,6 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
       return matchesSearch && matchesFilter;
     });
   };
-
-  const existingTempRoads = useMemo(() => {
-    const map = {};
-    tempRoads.forEach((r) => {
-      if (r.tags?.includes("from_disconnection_ui")) {
-        const key = `${r.start_node}-${r.end_node}`;
-        map[key] = r.id;
-      }
-    });
-    return map;
-  }, [tempRoads]);
 
   if (!isOpen) return null;
 
@@ -294,21 +282,12 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
                       </button>
                     </td>
                     <td style={{ padding: "8px", textAlign: "center" }}>
-                      {existingTempRoads[`${item.node_id_a}-${item.node_id_b}`] ? (
-                        <button
-                          className="disconnection-button"
-                          onClick={() => dispatch(deleteTempRoadAsync(existingTempRoads[`${item.node_id_a}-${item.node_id_b}`]))}
-                        >
-                          Delete temporary
-                        </button>
-                      ) : (
-                        <button
-                          className="disconnection-button"
-                          onClick={() => handleCreateTempRoad(item)}
-                        >
-                          Add temporary
-                        </button>
-                      )}
+                      <button
+                        className="disconnection-button"
+                        onClick={() => handleCreateTempRoad(item)}
+                      >
+                        Add temporary
+                      </button>
                     </td>
                   </tr>
                 ))}
