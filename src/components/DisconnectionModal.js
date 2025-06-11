@@ -7,6 +7,7 @@ import { getDisconnections } from "../services/DisconnectionsService";
 const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
   const [disconnections, setDisconnections] = useState([]);
   const [filteredDisconnections, setFilteredDisconnections] = useState([]);
+  const [sortConfig, setSortConfig] = useState({ key: "startId", dir: "asc" });
 
   // Inputs
   const [minDist, setMinDist] = useState(0);
@@ -113,6 +114,41 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
       return matchesSearch && matchesFilter;
     });
   };
+
+  const handleSort = (key) => {
+    setSortConfig((prev) => {
+      if (prev.key === key) {
+        // sama sarake → vaihda suuntaa
+        return { key, dir: prev.dir === "asc" ? "desc" : "asc" };
+      }
+      // uusi sarake → aloita nousevasta
+      return { key, dir: "asc" };
+    });
+  };
+
+  const getValue = (item, key) => {
+      switch (key) {
+        case "startId":   return item.startNode.id;
+        case "endId":     return item.endNode.id;
+        case "lat":       return item.startNode.lat;
+        case "lon":       return item.startNode.lon;
+        case "distance":  return item.distance ?? 0;
+        default:          return "";
+      }
+    };
+
+
+  const sortedDisconnections = useMemo(() => {
+    if (!sortConfig.key) return filteredDisconnections;
+    const sorted = [...filteredDisconnections].sort((a, b) => {
+      const vA = getValue(a, sortConfig.key);
+      const vB = getValue(b, sortConfig.key);
+      if (vA < vB) return sortConfig.dir === "asc" ? -1 : 1;
+      if (vA > vB) return sortConfig.dir === "asc" ? 1 : -1;
+      return 0;
+    });
+    return sorted;
+  }, [filteredDisconnections, sortConfig]);
 
   if (!isOpen) return null;
 
@@ -237,22 +273,38 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
               >
               <thead>
                 <tr>
-                  {["Points", "Latitude", "Longitude", "Show", "Add"].map((header) => (
-                    <th
-                      key={header}
-                      style={{
-                        textAlign: "center",
-                        borderBottom: "1px solid #ccc",
-                        padding: "8px",
-                      }}
-                    >
-                      {header}
-                    </th>
-                  ))}
+                  <th
+                    /* Points (A/B-id) */
+                    style={{ textAlign: "center", borderBottom: "1px solid #ccc", padding: "8px", cursor: "pointer" }}
+                    onClick={() => handleSort("startId")}
+                  >
+                    Points {sortConfig.key === "startId" && (sortConfig.dir === "asc" ? " ▲" : " ▼")}
+                  </th>
+
+                  <th
+                    /* Latitude (A) */
+                    style={{ textAlign: "center", borderBottom: "1px solid #ccc", padding: "8px", cursor: "pointer" }}
+                    onClick={() => handleSort("lat")}
+                  >
+                    Latitude {sortConfig.key === "lat" && (sortConfig.dir === "asc" ? " ▲" : " ▼")}
+                  </th>
+
+                  <th
+                    /* Longitude (A) */
+                    style={{ textAlign: "center", borderBottom: "1px solid #ccc", padding: "8px", cursor: "pointer" }}
+                    onClick={() => handleSort("lon")}
+                  >
+                    Longitude {sortConfig.key === "lon" && (sortConfig.dir === "asc" ? " ▲" : " ▼")}
+                  </th>
+
+                  {/* Ei lajittelua näissä kahdessa */}
+                  <th style={{ textAlign: "center", borderBottom: "1px solid #ccc", padding: "8px" }}>Show</th>
+                  <th style={{ textAlign: "center", borderBottom: "1px solid #ccc", padding: "8px" }}>Add</th>
                 </tr>
               </thead>
+
               <tbody>
-                {filteredDisconnections.map((item, index) => (
+               {sortedDisconnections.map((item, index) => (
                   <tr key={index} style={{ borderBottom: "1px solid #eee" }}>
                     <td style={{ padding: "8px", textAlign: "center" }}>
                       <div>A: {item.startNode.id} {item.startNode.way_name}</div>
