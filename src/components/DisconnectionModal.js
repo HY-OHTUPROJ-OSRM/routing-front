@@ -133,9 +133,9 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
         || item.county_name.toLowerCase().includes(searchTerm);
       const matchesFilter =
         filterType === "all" ||
-        (filterType === "undefined" && item.isReal === undefined) ||
-        (filterType === "real" && item.isReal) ||
-        (filterType === "fake" && (item.isReal != undefined && !item.isReal));
+        (filterType === "undefined" && item.temp_road_id == null) ||
+        (filterType === "actual"    && item.temp_road_id == null) ||
+        (filterType === "patched"   && item.temp_road_id != null);
       return matchesSearch && matchesFilter;
     });
   };
@@ -284,10 +284,10 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
                   fontSize: "14px",
                 }}
               >
-                <option value="all">Show All Types</option>
-                <option value="undefined">Show Undefined Disconnections</option>
-                <option value="real">Show Real Disconnections</option>
-                <option value="fake">Show Fake Disconnections</option>
+                  <option value="all">Show All Types</option>
+                  <option value="undefined">Undefined</option>
+                  <option value="actual">Actual disconnections</option>
+                  <option value="patched">Patched (temp road added)</option>
               </select>
             </div>
             <table
