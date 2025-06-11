@@ -158,6 +158,39 @@ const findNearestNode = async (lat, lng) => {
   }
 };
 
+const calculateDistance = (lat1, lng1, lat2, lng2) => {
+  const toRad = (value) => value * Math.PI / 180;
+  const R = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  
+  return Math.round(R * c *100)/ 100; // distance in kilometers, rounded to 2 decimal places
+}
+
+const calculateDistanceBetweenNodes = async (nodeId1, nodeId2) => {
+  try {
+    const [coord1, coord2] = await Promise.all([
+      getNodeCoordinates(nodeId1),
+      getNodeCoordinates(nodeId2)
+    ]);
+    
+    if (!coord1 || !coord2) {
+      throw new Error('Invalid coordinates for one or both nodes');
+    }
+    
+    return calculateDistance(coord1[0], coord1[1], coord2[0], coord2[1]);
+  } catch (error) {
+    console.error('Failed to calculate distance between nodes:', error);
+    throw new Error(`Failed to calculate distance: ${error.message}`);
+  }
+}
+
 export { 
   getAllTempRoads, 
   createTempRoad,
@@ -166,5 +199,7 @@ export {
   deleteTempRoad,
   toggleTempRoad,
   getNodeCoordinates,
-  findNearestNode 
+  findNearestNode,
+  calculateDistance,
+  calculateDistanceBetweenNodes
 };

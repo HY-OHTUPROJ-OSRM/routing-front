@@ -4,9 +4,9 @@ import { showTimedAlert, clearTimedAlert } from '../Utils/dispatchUtility';
 import handleAxiosError from './handleAxiosError';
 
 import { createNarrowPolygon, PolygonToLine } from './LineToPolygon';
-//get polygons from backend
+
+// Get polygons from backend
 const getPolygons = async () => {
-  
   const alertId = `loading-${Date.now()}`;
   try {
     showTimedAlert({ text: 'Loading polygons...', variant: 'info', id: alertId });
@@ -27,23 +27,24 @@ const getPolygons = async () => {
       return polygon;
     };
   
-      // Convert polygons if needed. If IsLine is 1, convert polygon to line. Currently backend does not keep track of isLine so lines will be displayed as polygons
-      const updatedFeatures = response.data.features.map(polygon => {
-        if (polygon.properties) {
-          polygon.properties.effectValue = polygon.properties.effect_value;
-        }
-        return convertIfNeeded(polygon);
-      });
-      return updatedFeatures
+    // Convert polygons if needed. If IsLine is 1, convert polygon to line. 
+    // Currently backend does not keep track of isLine so lines will be displayed as polygons
+    const updatedFeatures = response.data.features.map(polygon => {
+      if (polygon.properties) {
+        polygon.properties.effectValue = polygon.properties.effect_value;
+      }
+      return convertIfNeeded(polygon);
+    });
+    return updatedFeatures
   } catch (error) {
     clearTimedAlert(alertId);
     handleAxiosError(error);
     return [];
   }
 };
-//unused
+
+// Unused function
 const getSegments = async () => {
-  
   const alertId = `loading-${Date.now()}`;
   try {
     showTimedAlert({ text: 'Loading segments...', variant: 'info', id: alertId });
@@ -64,12 +65,11 @@ const getSegments = async () => {
   }
 };
 
-//used in createpolygon form
+// Used in create polygon form
 const CreatePolygon = async (object) => {
   const alertId = `loading-${Date.now()}`;
   showTimedAlert({ text: 'Adding polygon...', variant: 'info', id: alertId });
   const data = { added: object.features, deleted: [5225] };
-  console.log("data", data)
   try {
     await ins({
       url: 'zones/diff',
@@ -87,11 +87,11 @@ const CreatePolygon = async (object) => {
     handleAxiosError(error);
   }
 };
-//used in editmode save
+
+// Used in edit mode save
 const ChangePolygons = async (added, deletedIds) => {
   const alertId = `loading-${Date.now()}`;
-  let deleted=filterUUIDv4(deletedIds);
-  //showTimedAlert({ text: 'Updating roads...', variant: 'info', progress: true, id: alertId });
+  let deleted = filterUUIDv4(deletedIds);
   
   // Function to convert polyline to polygon if IsLine is 1
   const convertIfNeeded = (polygon) => {
@@ -105,7 +105,6 @@ const ChangePolygons = async (added, deletedIds) => {
     // Convert polygons if needed
     const convertedAdded = added.map(convertIfNeeded);
     const data = { added: convertedAdded, deleted };
-    console.log("data", data)
 
     await ins({
       url: 'zones/diff',
@@ -114,25 +113,35 @@ const ChangePolygons = async (added, deletedIds) => {
       headers: { "content-type": "application/json" },
       timeout: 0
     });
-    //clearTimedAlert(alertId);
     showTimedAlert({ text: 'Polygons updated successfully', variant: 'success' });
   } catch (error) {
-    //clearTimedAlert(alertId);
     handleAxiosError(error);
   }
 };
-//used in polygondisplay delete button (trashcan)
+
+// Used in polygon display delete button (trash can)
 const DeletePolygon = async (id) => {
   const alertId = `loading-${Date.now()}`;
   showTimedAlert({ text: 'Deleting polygon...', variant: 'info', id: alertId });
   try {
-    const data = { added: [], deleted: [id] };
+    // Ensure ID is integer format
+    const integerId = typeof id === 'string' ? parseInt(id, 10) : id;
+    if (isNaN(integerId)) {
+      throw new Error(`Invalid ID format: ${id}`);
+    }
+    
+    const data = { added: [], deleted: [integerId] };
+    
     await ins({
       url: 'zones/diff',
       method: "post",
-      data,
-      headers: { "content-type": "application/json" },
-      timeout: 0
+      data: JSON.stringify(data),
+      headers: { 
+        "content-type": "application/json",
+        "accept": "application/json"
+      },
+      timeout: 0,
+      transformRequest: [(data) => data]
     });
     clearTimedAlert(alertId)
     showTimedAlert({ text: 'Polygon deleted successfully', variant: 'success' });
@@ -142,5 +151,96 @@ const DeletePolygon = async (id) => {
   }
 };
 
+// Batch delete function using sequential deletion to avoid array serialization issues
+const BatchDeletePolygons = async (polygonIds) => {
+  const alertId = `batch-delete-${Date.now()}`;
+  
+  try {
+    // Validate input
+    if (!Array.isArray(polygonIds) || polygonIds.length === 0) {
+      throw new Error('Invalid polygon IDs provided');
+    }
 
-export { getPolygons, CreatePolygon, DeletePolygon, ChangePolygons, getSegments };
+    showTimedAlert({ 
+      text: `Deleting ${polygonIds.length} polygon(s)...`, 
+      variant: 'info', 
+      id: alertId 
+    });
+    
+    // Ensure all IDs are integer format
+    const integerIds = polygonIds.map(id => {
+      const parsed = typeof id === 'string' ? parseInt(id, 10) : id;
+      if (isNaN(parsed)) {
+        throw new Error(`Invalid ID format: ${id}`);
+      }
+      return parsed;
+    });
+    
+    // Delete polygons sequentially to avoid array serialization issues
+    let deletedCount = 0;
+    const errors = [];
+    
+    for (let i = 0; i < integerIds.length; i++) {
+      const id = integerIds[i];
+      
+      try {
+        const data = { added: [], deleted: [id] };
+        
+        await ins({
+          url: 'zones/diff',
+          method: "post",
+          data: JSON.stringify(data),
+          headers: { 
+            "content-type": "application/json",
+            "accept": "application/json"
+          },
+          timeout: 10000
+        });
+        
+        deletedCount++;
+        
+        // Brief delay to avoid server overload
+        if (i < integerIds.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 200));
+        }
+        
+      } catch (singleError) {
+        errors.push({ id, error: singleError.message || 'Unknown error' });
+      }
+    }
+    
+    clearTimedAlert(alertId);
+    
+    if (errors.length === 0) {
+      showTimedAlert({ 
+        text: `Successfully deleted all ${deletedCount} polygon(s)`, 
+        variant: 'success' 
+      });
+    } else if (deletedCount > 0) {
+      showTimedAlert({ 
+        text: `Partially successful: deleted ${deletedCount}/${integerIds.length} polygon(s). ${errors.length} failed.`, 
+        variant: 'warning' 
+      });
+    } else {
+      throw new Error(`Failed to delete any polygons. Errors: ${errors.map(e => `ID ${e.id}: ${e.error}`).join(', ')}`);
+    }
+    
+  } catch (error) {
+    clearTimedAlert(alertId);
+    
+    let errorMessage = 'Failed to delete polygons';
+    if (error.message) {
+      errorMessage = `Error: ${error.message}`;
+    }
+    
+    showTimedAlert({ 
+      text: errorMessage, 
+      variant: 'error' 
+    });
+    
+    handleAxiosError(error);
+    throw error;
+  }
+};
+
+export { getPolygons, CreatePolygon, DeletePolygon, ChangePolygons, getSegments, BatchDeletePolygons };

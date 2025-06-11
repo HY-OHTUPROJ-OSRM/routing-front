@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { 
   fetchTempRoads, 
-  addTempRoad, 
-  deleteTempRoadAsync,
-  toggleTempRoadAsync,
   selectRoad 
 } from '../features/temproads/TempRoadsSlice';
-import { changeMapView } from '../features/view/ViewSlice'; 
+import { changeMapView } from '../features/view/ViewSlice';
+import TempRoadForm from './TempRoadForm';
+import TempRoadItem from './TempRoadItem';
+import { calculateDistanceBetweenNodes } from '../services/TempRoadService';
 import './Polygon.css';
 
 function TempRoads(props) {
@@ -42,19 +42,12 @@ function TempRoads(props) {
   const [nodeCoordinates, setNodeCoordinates] = useState({});
   
   const [showAddForm, setShowAddForm] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    type: 'iceroad',
-    speed: '',
-    length: '',
-    start_node: '',
-    end_node: '',
-    description: ''
-  });
+  const [editingRoadId, setEditingRoadId] = useState(null);
 
   const [nodeSelectionMode, setNodeSelectionMode] = useState({
     active: false,
-    selecting: null
+    selecting: null,
+    isEditMode: false
   });
 
   useEffect(() => {
@@ -75,16 +68,73 @@ function TempRoads(props) {
     }
   }, [nodeSelectionMode, props.onNodeSelectionModeChange]);
 
-  const handleNodeSelection = (nodeId, coordinates) => {
-    console.log('Node selection - nodeId:', nodeId, 'mode:', nodeSelectionMode.selecting);
+  // Add states for form data management
+  const [addFormData, setAddFormData] = useState({
+    name: '',
+    type: 'iceroad',
+    speed: '',
+    length: '',
+    start_node: '',
+    end_node: '',
+    description: ''
+  });
 
-    if (nodeSelectionMode.selecting === 'start') {
-      setFormData(prev => ({ ...prev, start_node: nodeId.toString() }));
-    } else if (nodeSelectionMode.selecting === 'end') {
-      setFormData(prev => ({ ...prev, end_node: nodeId.toString() }));
+  const [editFormData, setEditFormData] = useState({
+    name: '',
+    type: 'iceroad',
+    speed: '',
+    length: '',
+    start_node: '',
+    end_node: '',
+    description: ''
+  });
+
+  const handleNodeSelection = async (nodeId, coordinates) => {
+    console.log('Node selection - nodeId:', nodeId, 'mode:', nodeSelectionMode.selecting, 'isEditMode:', nodeSelectionMode.isEditMode);
+    
+    if (!nodeSelectionMode.active) return;
+    
+    if (nodeSelectionMode.isEditMode) {
+      // Handle node selection for edit mode
+      if (nodeSelectionMode.selecting === 'start') {
+        setEditFormData(prev => ({ ...prev, start_node: nodeId.toString() }));
+        if (editFormData.end_node) {
+          await calculateAndSetLength(nodeId, editFormData.end_node, setEditFormData);
+        }
+      } else if (nodeSelectionMode.selecting === 'end') {
+        setEditFormData(prev => ({ ...prev, end_node: nodeId.toString() }));
+        if (editFormData.start_node) {
+          await calculateAndSetLength(editFormData.start_node, nodeId, setEditFormData);
+        }
+      }
+    } else {
+      // Handle node selection for add mode
+      if (nodeSelectionMode.selecting === 'start') {
+        setAddFormData(prev => ({ ...prev, start_node: nodeId.toString() }));
+        if (addFormData.end_node) {
+          await calculateAndSetLength(nodeId, addFormData.end_node, setAddFormData);
+        }
+      } else if (nodeSelectionMode.selecting === 'end') {
+        setAddFormData(prev => ({ ...prev, end_node: nodeId.toString() }));
+        if (addFormData.start_node) {
+          await calculateAndSetLength(addFormData.start_node, nodeId, setAddFormData);
+        }
+      }
     }
     
-    setNodeSelectionMode({ active: false, selecting: null });
+    setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
+  };
+  
+  // Function to calculate distance between two nodes and set the length in the form data
+  const calculateAndSetLength = async (startNodeId, endNodeId, setFormData) => {
+    try {
+      const distance = await calculateDistanceBetweenNodes(startNodeId, endNodeId);
+
+      setFormData(prev => ({ ...prev, length: distance.toString() }));
+      console.log(`Calculated distance between nodes ${startNodeId} and ${endNodeId}: ${distance} km`);
+    } catch (error) {
+      console.error(`Failed to calculate distance between nodes ${startNodeId} and ${endNodeId}:`, error);
+    }
   };
 
   useEffect(() => {
@@ -92,167 +142,6 @@ function TempRoads(props) {
       props.onNodeSelectionHandler(handleNodeSelection);
     }
   }, [nodeSelectionMode]);
-
-  // Get node coordinates from API
-  const fetchNodeCoordinates = async (nodeId) => {
-    try {
-      // Return cached coordinates if available
-      if (nodeCoordinates[nodeId]) {
-        return nodeCoordinates[nodeId];
-      }
-      
-      const response = await fetch(`http://localhost:3000/nodes/${nodeId}`);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error(`Expected JSON but got ${contentType}`);
-      }
-      
-      const nodeData = await response.json();
-      
-      const coordinates = {
-        lat: nodeData.lat,
-        lng: nodeData.lng
-      };
-      
-      // Cache coordinates
-      setNodeCoordinates(prev => ({
-        ...prev,
-        [nodeId]: coordinates
-      }));
-      
-      return coordinates;
-    } catch (error) {
-      console.error('Error fetching node coordinates:', error);
-      
-      // Cache error to avoid repeated attempts
-      setNodeCoordinates(prev => ({
-        ...prev,
-        [nodeId]: { error: error.message }
-      }));
-      
-      return null;
-    }
-  };
-  
-  // Calculate center and zoom level based on start and end coordinates
-  const calculateCenter = (startCoords, endCoords) => {
-    const centerLat = (startCoords.lat + endCoords.lat) / 2;
-    const centerLng = (startCoords.lng + endCoords.lng) / 2;
-    return [centerLat, centerLng];
-  };
-
-  const calculateZoomLevel = (startCoords, endCoords) => {
-    const latDiff = Math.abs(startCoords.lat - endCoords.lat);
-    const lngDiff = Math.abs(startCoords.lng - endCoords.lng);
-    const maxDiff = Math.max(latDiff, lngDiff);
-    
-    if (maxDiff > 1) return 8;
-    if (maxDiff > 0.5) return 10;
-    if (maxDiff > 0.1) return 12;
-    if (maxDiff > 0.01) return 14;
-    return 16;
-  };
-
-  const flyToRoad = async (road) => {
-    try {
-      const startCoords = await fetchNodeCoordinates(road.start_node);
-      const endCoords = await fetchNodeCoordinates(road.end_node);
-      
-      if (startCoords && endCoords && !startCoords.error && !endCoords.error) {
-        const center = calculateCenter(startCoords, endCoords);
-        const zoom = calculateZoomLevel(startCoords, endCoords);
-        
-        dispatch(changeMapView({ 
-          center: center, 
-          zoom: zoom 
-        }));
-      } else {
-        console.error('Could not get coordinates for road nodes');
-        alert('Unable to locate road on map. Please check if the nodes are valid.');
-      }
-    } catch (error) {
-      console.error('Error flying to road:', error);
-      alert('Error locating road on map.');
-    }
-  };
-
-  const showCoordinates = async (road) => {
-    if (showCoordinatesForRoad === road.id) {
-      setShowCoordinatesForRoad(null);
-      return;
-    }
-
-    setShowCoordinatesForRoad(road.id);
-    
-    if (road.start_node && !nodeCoordinates[road.start_node]) {
-      await fetchNodeCoordinates(road.start_node);
-    }
-    if (road.end_node && !nodeCoordinates[road.end_node]) {
-      await fetchNodeCoordinates(road.end_node);
-    }
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    const dataToSubmit = {
-      ...formData,
-      status: true,
-      tags: [],
-      length: parseFloat(formData.length) || 0,
-      speed: parseFloat(formData.speed) || 0,
-      start_node: parseInt(formData.start_node) || null,
-      end_node: parseInt(formData.end_node) || null
-    };
-    
-    dispatch(addTempRoad(dataToSubmit));
-    setShowAddForm(false);
-    resetForm();
-  };
-
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      type: 'iceroad',
-      speed: '',
-      length: '',
-      start_node: '',
-      end_node: '',
-      description: ''
-    });
-    setNodeSelectionMode({ active: false, selecting: null });
-  };
-
-  const handleDelete = (roadId) => {
-    if (window.confirm('Are you sure you want to delete this road segment?')) {
-      dispatch(deleteTempRoadAsync(roadId));
-      setVisibleRoads(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(roadId);
-        return newSet;
-      });
-    }
-  };
-
-  const handleToggle = (roadId, currentStatus) => {
-    const action = currentStatus ? 'deactivate' : 'activate';
-    if (window.confirm(`Are you sure you want to ${action} this road segment?`)) {
-      dispatch(toggleTempRoadAsync(roadId));
-    }
-  };
 
   const handleSelectRoad = (id) => {
     dispatch(selectRoad(id));
@@ -275,24 +164,35 @@ function TempRoads(props) {
     dispatch(selectRoad(road.id));
   };
 
-  const getTypeDisplay = (type) => {
-    switch(type) {
-      case 'iceroad': return 'Ice Road';
-      case 'speed_limit': return 'Speed Limit';
-      case 'temporary': return 'Temporary';
-      default: return type;
-    }
-  };
-
-  const startNodeSelection = (nodeType) => {
-    setNodeSelectionMode({
-      active: true,
-      selecting: nodeType
-    });
-  };
-
   const cancelNodeSelection = () => {
-    setNodeSelectionMode({ active: false, selecting: null });
+    setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
+  };
+
+  const cancelEdit = () => {
+    setEditingRoadId(null);
+    setEditFormData({
+      name: '',
+      type: 'iceroad',
+      speed: '',
+      length: '',
+      start_node: '',
+      end_node: '',
+      description: ''
+    });
+    setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
+  };
+
+  const resetAddForm = () => {
+    setAddFormData({
+      name: '',
+      type: 'iceroad',
+      speed: '',
+      length: '',
+      start_node: '',
+      end_node: '',
+      description: ''
+    });
+    setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
   };
 
   if (status === 'loading') {
@@ -314,16 +214,23 @@ function TempRoads(props) {
           Temporary Roads
         </h3>
         <button
-          onClick={() => setShowAddForm(!showAddForm)}
+          onClick={() => {
+            setShowAddForm(!showAddForm);
+            if (!showAddForm) {
+              cancelEdit();
+            }
+          }}
+          disabled={editingRoadId !== null}
           style={{
-            background: '#4285f4',
+            background: editingRoadId !== null ? '#6c757d' : '#4285f4',
             color: 'white',
             border: 'none',
             padding: '8px 16px',
             borderRadius: '4px',
             fontSize: '14px',
-            cursor: 'pointer',
-            fontWeight: '500'
+            cursor: editingRoadId !== null ? 'not-allowed' : 'pointer',
+            fontWeight: '500',
+            opacity: editingRoadId !== null ? 0.5 : 1
           }}
         >
           {showAddForm ? '×' : 'add new'}
@@ -342,6 +249,7 @@ function TempRoads(props) {
         }}>
           <span style={{ fontSize: '14px', color: '#856404' }}>
             📍 Click on the map to select {nodeSelectionMode.selecting} node
+            {nodeSelectionMode.isEditMode && ' (editing mode)'}
           </span>
           <button
             onClick={cancelNodeSelection}
@@ -362,217 +270,17 @@ function TempRoads(props) {
 
       {/* Add Form */}
       {showAddForm && (
-        <div style={{ 
-          padding: '20px', 
-          borderBottom: '1px solid #e5e5e5',
-          backgroundColor: '#f8f9fa'
-        }}>
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            <div>
-              <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
-                Name:
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  fontSize: '14px'
-                }}
-              />
-            </div>
-            
-            <div>
-              <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
-                Type:
-              </label>
-              <select
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  fontSize: '14px'
-                }}
-              >
-                <option value="iceroad">Ice Road</option>
-                <option value="speed_limit">Speed Limit</option>
-                <option value="temporary">Temporary</option>
-              </select>
-            </div>
-
-            <div style={{ display: 'flex', gap: '15px' }}>
-              <div style={{ flex: 1 }}>
-                <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
-                  Speed (Km/h):
-                </label>
-                <input
-                  type="number"
-                  name="speed"
-                  value={formData.speed}
-                  onChange={handleChange}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid #ddd',
-                    borderRadius: '4px',
-                    fontSize: '14px'
-                  }}
-                />
-              </div>
-              
-              <div style={{ flex: 1 }}>
-                <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
-                  Length (km):
-                </label>
-                <input
-                  type="number"
-                  name="length"
-                  value={formData.length}
-                  onChange={handleChange}
-                  step="0.1"
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid #ddd',
-                    borderRadius: '4px',
-                    fontSize: '14px'
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Enhanced Start Node Section */}
-            <div style={{ flex: 1 }}>
-              <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
-                Start Node:
-              </label>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <input
-                  type="text"
-                  name="start_node"
-                  value={formData.start_node}
-                  onChange={handleChange}
-                  placeholder="Enter node ID or click map"
-                  style={{
-                    flex: 1,
-                    padding: '8px 12px',
-                    border: '1px solid #ddd',
-                    borderRadius: '4px',
-                    fontSize: '14px'
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => startNodeSelection('start')}
-                  disabled={nodeSelectionMode.active}
-                  style={{
-                    background: nodeSelectionMode.selecting === 'start' ? '#28a745' : '#17a2b8',
-                    color: 'white',
-                    border: 'none',
-                    padding: '8px 12px',
-                    borderRadius: '4px',
-                    fontSize: '12px',
-                    cursor: nodeSelectionMode.active ? 'not-allowed' : 'pointer',
-                    whiteSpace: 'nowrap',
-                    opacity: nodeSelectionMode.active && nodeSelectionMode.selecting !== 'start' ? 0.5 : 1
-                  }}
-                >
-                  {nodeSelectionMode.selecting === 'start' ? 'Selecting...' : 'Select on Map'}
-                </button>
-              </div>
-            </div>
-
-            {/* Enhanced End Node Section */}
-            <div style={{ flex: 1 }}>
-              <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
-                End Node:
-              </label>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <input
-                  type="text"
-                  name="end_node"
-                  value={formData.end_node}
-                  onChange={handleChange}
-                  placeholder="Enter node ID or click map"
-                  style={{
-                    flex: 1,
-                    padding: '8px 12px',
-                    border: '1px solid #ddd',
-                    borderRadius: '4px',
-                    fontSize: '14px'
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => startNodeSelection('end')}
-                  disabled={nodeSelectionMode.active}
-                  style={{
-                    background: nodeSelectionMode.selecting === 'end' ? '#28a745' : '#17a2b8',
-                    color: 'white',
-                    border: 'none',
-                    padding: '8px 12px',
-                    borderRadius: '4px',
-                    fontSize: '12px',
-                    cursor: nodeSelectionMode.active ? 'not-allowed' : 'pointer',
-                    whiteSpace: 'nowrap',
-                    opacity: nodeSelectionMode.active && nodeSelectionMode.selecting !== 'end' ? 0.5 : 1
-                  }}
-                >
-                  {nodeSelectionMode.selecting === 'end' ? 'Selecting...' : 'Select on Map'}
-                </button>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-              <button
-                type="submit"
-                disabled={nodeSelectionMode.active}
-                style={{
-                  background: nodeSelectionMode.active ? '#6c757d' : '#28a745',
-                  color: 'white',
-                  border: 'none',
-                  padding: '10px 20px',
-                  borderRadius: '4px',
-                  fontSize: '14px',
-                  cursor: nodeSelectionMode.active ? 'not-allowed' : 'pointer',
-                  fontWeight: '500',
-                  opacity: nodeSelectionMode.active ? 0.5 : 1
-                }}
-              >
-                Add
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowAddForm(false);
-                  resetForm();
-                }}
-                style={{
-                  background: '#6c757d',
-                  color: 'white',
-                  border: 'none',
-                  padding: '10px 20px',
-                  borderRadius: '4px',
-                  fontSize: '14px',
-                  cursor: 'pointer',
-                  fontWeight: '500'
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
+        <TempRoadForm 
+          mode="add"
+          formData={addFormData}
+          setFormData={setAddFormData}
+          nodeSelectionMode={nodeSelectionMode}
+          setNodeSelectionMode={setNodeSelectionMode}
+          onFormClose={() => {
+            setShowAddForm(false);
+            resetAddForm();
+          }}
+        />
       )}
 
       {/* Roads List */}
@@ -834,6 +542,43 @@ function TempRoads(props) {
               ))}
             </div>
           </>
+          tempRoads.map(road => (
+            <TempRoadItem
+              key={road.id}
+              road={road}
+              selectedRoadId={selectedRoadId}
+              editingRoadId={editingRoadId}
+              visibleRoads={visibleRoads}
+              showCoordinatesForRoad={showCoordinatesForRoad}
+              nodeCoordinates={nodeCoordinates}
+              nodeSelectionMode={nodeSelectionMode}
+              onSelectRoad={handleSelectRoad}
+              onStartEdit={(roadId) => {
+                setEditingRoadId(roadId);
+                // Initialize edit form with road data
+                const road = tempRoads.find(r => r.id === roadId);
+                if (road) {
+                  setEditFormData({
+                    name: road.name || '',
+                    type: road.type || 'iceroad',
+                    speed: road.speed?.toString() || '',
+                    length: road.length?.toString() || '',
+                    start_node: road.start_node?.toString() || '',
+                    end_node: road.end_node?.toString() || '',
+                    description: road.description || ''
+                  });
+                }
+                setShowCoordinatesForRoad(null);
+              }}
+              editFormData={editFormData}
+              setEditFormData={setEditFormData}
+              onCancelEdit={cancelEdit}
+              onVisibleRoadsChange={setVisibleRoads}
+              onShowCoordinates={setShowCoordinatesForRoad}
+              onNodeCoordinatesChange={setNodeCoordinates}
+              onNodeSelectionModeChange={setNodeSelectionMode}
+            />
+          ))
         )}
       </div>
     </div>
