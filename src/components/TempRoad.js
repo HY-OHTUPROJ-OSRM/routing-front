@@ -321,264 +321,44 @@ function TempRoads(props) {
             </div>
             <div>
               {filteredTempRoads.map(road => (
-                <div 
+                <TempRoadItem
                   key={road.id}
-                  style={{
-                    padding: '15px 20px',
-                    borderBottom: '1px solid #e5e5e5',
-                    backgroundColor: selectedRoadId === road.id ? '#e3f2fd' : 'white',
-                    borderLeft: selectedRoadId === road.id ? '4px solid #4285f4' : 'none',
-                    cursor: 'pointer',
-                    opacity: road.status === false ? 0.6 : 1
+                  road={road}
+                  selectedRoadId={selectedRoadId}
+                  editingRoadId={editingRoadId}
+                  visibleRoads={visibleRoads}
+                  showCoordinatesForRoad={showCoordinatesForRoad}
+                  nodeCoordinates={nodeCoordinates}
+                  nodeSelectionMode={nodeSelectionMode}
+                  onSelectRoad={handleSelectRoad}
+                  onStartEdit={(roadId) => {
+                    setEditingRoadId(roadId);
+                    // Initialize edit form with road data
+                    const road = tempRoads.find(r => r.id === roadId);
+                    if (road) {
+                      setEditFormData({
+                        name: road.name || '',
+                        type: road.type || 'iceroad',
+                        speed: road.speed?.toString() || '',
+                        length: road.length?.toString() || '',
+                        start_node: road.start_node?.toString() || '',
+                        end_node: road.end_node?.toString() || '',
+                        description: road.description || ''
+                      });
+                    }
+                    setShowCoordinatesForRoad(null);
                   }}
-                  onClick={() => handleSelectRoad(road.id)}
-                >
-                  {/* Road Header */}
-                  <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'flex-start',
-                    marginBottom: '8px'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <h4 style={{ 
-                        margin: 0, 
-                        fontSize: '16px', 
-                        fontWeight: '600',
-                        color: '#333'
-                      }}>
-                        {road.name}
-                      </h4>
-                      <span style={{
-                        fontSize: '12px',
-                        padding: '2px 6px',
-                        borderRadius: '12px',
-                        backgroundColor: road.status ? '#d4edda' : '#f8d7da',
-                        color: road.status ? '#155724' : '#721c24',
-                        fontWeight: '500'
-                      }}>
-                        {road.status ? 'Active' : 'Inactive'}
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', gap: '5px' }}>
-                      {visibleRoads.has(road.id) && (
-                        <span style={{ 
-                          color: '#28a745', 
-                          fontSize: '16px',
-                          title: 'Visible on map'
-                        }}>
-                        </span>
-                      )}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggle(road.id, road.status);
-                        }}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          padding: '4px',
-                          color: road.status ? '#ffc107' : '#28a745',
-                          fontSize: '16px'
-                        }}
-                        title={road.status ? 'Deactivate' : 'Activate'}
-                      >
-                        {road.status ? '⏸️' : '▶️'}
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(road.id);
-                        }}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          padding: '4px',
-                          color: '#dc3545',
-                          fontSize: '16px'
-                        }}
-                        title="Delete"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Road Type */}
-                  <div style={{ 
-                    fontSize: '13px', 
-                    color: '#6c757d',
-                    marginBottom: '8px'
-                  }}>
-                    {getTypeDisplay(road.type)}
-                  </div>
-
-                  {/* Speed Info */}
-                  {road.speed > 0 && (
-                    <div style={{ 
-                      fontSize: '13px', 
-                      color: '#333',
-                      marginBottom: '8px',
-                      fontWeight: '500'
-                    }}>
-                      Speed limit: {road.speed} (Km/h)
-                    </div>
-                  )}
-
-                  {/* Length Info */}
-                  {road.length > 0 && (
-                    <div style={{ 
-                      fontSize: '13px', 
-                      color: '#333',
-                      marginBottom: '8px'
-                    }}>
-                      Length: {road.length} km
-                    </div>
-                  )}
-
-                  {/* Action Buttons */}
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        showCoordinates(road);
-                      }}
-                      style={{
-                        background: showCoordinatesForRoad === road.id ? '#dc3545' : '#17a2b8',
-                        color: 'white',
-                        border: 'none',
-                        padding: '8px 12px',
-                        borderRadius: '4px',
-                        fontSize: '12px',
-                        cursor: 'pointer',
-                        flex: 1,
-                        fontWeight: '500'
-                      }}
-                    >
-                      {showCoordinatesForRoad === road.id ? 'Hide Coordinates' : 'Show Coordinates'}
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        flyToRoad(road);
-                      }}
-                      style={{
-                        background: '#28a745',
-                        color: 'white',
-                        border: 'none',
-                        padding: '8px 12px',
-                        borderRadius: '4px',
-                        fontSize: '12px',
-                        cursor: 'pointer',
-                        flex: 1,
-                        fontWeight: '500'
-                      }}
-                      title="Show this road on the map"
-                    >
-                      Show on map
-                    </button>
-                  </div>
-
-                  {showCoordinatesForRoad === road.id && (
-                    <div style={{
-                      marginTop: '12px',
-                      padding: '12px',
-                      backgroundColor: '#f8f9fa',
-                      borderRadius: '4px',
-                      border: '1px solid #dee2e6'
-                    }}>
-                      <div style={{
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        color: '#333',
-                        marginBottom: '8px'
-                      }}>
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        <div style={{ fontSize: '13px', color: '#555' }}>
-                          <strong>Start Node ({road.start_node}):</strong>
-                          {nodeCoordinates[road.start_node] ? (
-                            nodeCoordinates[road.start_node].error ? (
-                              <span style={{ marginLeft: '8px', color: '#dc3545', fontStyle: 'italic' }}>
-                                Error: {nodeCoordinates[road.start_node].error}
-                              </span>
-                            ) : (
-                              <span style={{ marginLeft: '8px', color: '#333' }}>
-                                Lat: {nodeCoordinates[road.start_node].lat.toFixed(6)}, 
-                                Lng: {nodeCoordinates[road.start_node].lng.toFixed(6)}
-                              </span>
-                            )
-                          ) : (
-                            <span style={{ marginLeft: '8px', color: '#999', fontStyle: 'italic' }}>
-                              Loading...
-                            </span>
-                          )}
-                        </div>
-                        <div style={{ fontSize: '13px', color: '#555' }}>
-                          <strong>End Node ({road.end_node}):</strong>
-                          {nodeCoordinates[road.end_node] ? (
-                            nodeCoordinates[road.end_node].error ? (
-                              <span style={{ marginLeft: '8px', color: '#dc3545', fontStyle: 'italic' }}>
-                                Error: {nodeCoordinates[road.end_node].error}
-                              </span>
-                            ) : (
-                              <span style={{ marginLeft: '8px', color: '#333' }}>
-                                Lat: {nodeCoordinates[road.end_node].lat.toFixed(6)}, 
-                                Lng: {nodeCoordinates[road.end_node].lng.toFixed(6)}
-                              </span>
-                            )
-                            ) : (
-                            <span style={{ marginLeft: '8px', color: '#999', fontStyle: 'italic' }}>
-                              Loading...
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                  editFormData={editFormData}
+                  setEditFormData={setEditFormData}
+                  onCancelEdit={cancelEdit}
+                  onVisibleRoadsChange={setVisibleRoads}
+                  onShowCoordinates={setShowCoordinatesForRoad}
+                  onNodeCoordinatesChange={setNodeCoordinates}
+                  onNodeSelectionModeChange={setNodeSelectionMode}
+                />
               ))}
             </div>
           </>
-          tempRoads.map(road => (
-            <TempRoadItem
-              key={road.id}
-              road={road}
-              selectedRoadId={selectedRoadId}
-              editingRoadId={editingRoadId}
-              visibleRoads={visibleRoads}
-              showCoordinatesForRoad={showCoordinatesForRoad}
-              nodeCoordinates={nodeCoordinates}
-              nodeSelectionMode={nodeSelectionMode}
-              onSelectRoad={handleSelectRoad}
-              onStartEdit={(roadId) => {
-                setEditingRoadId(roadId);
-                // Initialize edit form with road data
-                const road = tempRoads.find(r => r.id === roadId);
-                if (road) {
-                  setEditFormData({
-                    name: road.name || '',
-                    type: road.type || 'iceroad',
-                    speed: road.speed?.toString() || '',
-                    length: road.length?.toString() || '',
-                    start_node: road.start_node?.toString() || '',
-                    end_node: road.end_node?.toString() || '',
-                    description: road.description || ''
-                  });
-                }
-                setShowCoordinatesForRoad(null);
-              }}
-              editFormData={editFormData}
-              setEditFormData={setEditFormData}
-              onCancelEdit={cancelEdit}
-              onVisibleRoadsChange={setVisibleRoads}
-              onShowCoordinates={setShowCoordinatesForRoad}
-              onNodeCoordinatesChange={setNodeCoordinates}
-              onNodeSelectionModeChange={setNodeSelectionMode}
-            />
-          ))
         )}
       </div>
     </div>
