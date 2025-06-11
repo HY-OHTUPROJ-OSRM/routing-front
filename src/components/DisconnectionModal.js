@@ -23,10 +23,10 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
 
     const getReadableName = (nameA, nameB) => {
       const clean = (name) =>
-          name && name !== "(unnamed)" ? name : "unnamed";
+        name && name !== "(unnamed)" ? name : "unnamed";
 
-        return `Temp road: ${clean(nameA)} → ${clean(nameB)}`;
-      };
+      return `Temp road: ${clean(nameA)} → ${clean(nameB)}`;
+    };
     const toRadians = (deg) => (deg * Math.PI) / 180;
 
     const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -53,7 +53,7 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
     const payload = {
       start_node: parseInt(node_id_a),
       end_node: parseInt(node_id_b),
-      name: getReadableName(disconnection.name_a, disconnection.name_b),
+      name: getReadableName(disconnection.startNode.way_name, disconnection.endNode.way_name),
       type: "temporary",
       status: true,
       speed: 50,
@@ -105,7 +105,9 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
 
   const applyFilters = (disconnections, searchTerm, filterType) => {
     return disconnections.filter((item) => {
-      const matchesSearch = item.name_a.toLowerCase().includes(searchTerm) || item.name_b.toLowerCase().includes(searchTerm);
+      const matchesSearch = item.startNode.way_name.toLowerCase().includes(searchTerm)
+        || item.endNode.way_name.toLowerCase().includes(searchTerm)
+        || item.county_name.toLowerCase().includes(searchTerm);
       const matchesFilter =
         filterType === "all" ||
         (filterType === "undefined" && item.isReal === undefined) ||
@@ -133,6 +135,8 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
         case "lat":       return item.startNode.lat;
         case "lon":       return item.startNode.lon;
         case "distance":  return item.distance ?? 0;
+        case "distance":  return item.distance ?? 0;
+        case "county":    return item.county_name ?? "";
         default:          return "";
       }
     };
@@ -198,7 +202,7 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
         </div>
 
         <div className="button-container">
-          <button 
+          <button
             onClick={handleGetDisconnections}
             className="disconnection-button"
           >
@@ -270,7 +274,7 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
                 borderCollapse: "collapse",
                 fontSize: "14px",
               }}
-              >
+            >
               <thead>
                 <tr>
                   <th
@@ -296,6 +300,21 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
                   >
                     Longitude {sortConfig.key === "lon" && (sortConfig.dir === "asc" ? " ▲" : " ▼")}
                   </th>
+                  {/* Distance */}
+                  <th
+                    style={{ textAlign: "center", borderBottom: "1px solid #ccc", padding: "8px", cursor: "pointer" }}
+                    onClick={() => handleSort("distance")}
+                  >
+                    Distance {sortConfig.key === "distance" && (sortConfig.dir === "asc" ? " ▲" : " ▼")}
+                  </th>
+
+                  {/* County */}
+                  <th
+                    style={{ textAlign: "center", borderBottom: "1px solid #ccc", padding: "8px", cursor: "pointer" }}
+                    onClick={() => handleSort("county")}
+                  >
+                    County {sortConfig.key === "county" && (sortConfig.dir === "asc" ? " ▲" : " ▼")}
+                  </th>
 
                   {/* Ei lajittelua näissä kahdessa */}
                   <th style={{ textAlign: "center", borderBottom: "1px solid #ccc", padding: "8px" }}>Show</th>
@@ -319,14 +338,20 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
                       <div>{item.endNode.lon}</div>
                     </td>
                     <td style={{ padding: "8px", textAlign: "center" }}>
+                      <p>{item.distance}</p>
+                    </td>
+                    <td style={{ padding: "8px", textAlign: "center" }}>
+                      <p>{item.county_name}</p>
+                    </td>
+                    <td style={{ padding: "8px", textAlign: "center" }}>
                       <button
                         className="disconnection-button"
                         onClick={() => {
                           disconnectedRoadRef.current[0]({
-                          a_lat: item.startNode.lat,
-                          a_lng: item.startNode.lon,
-                          b_lat: item.endNode.lat,
-                          b_lng: item.endNode.lon,
+                            a_lat: item.startNode.lat,
+                            a_lng: item.startNode.lon,
+                            b_lat: item.endNode.lat,
+                            b_lng: item.endNode.lon,
                           });
                         }}
                       >
@@ -344,7 +369,7 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
                   </tr>
                 ))}
               </tbody>
-              </table>
+            </table>
           </>
         )}
       </div>

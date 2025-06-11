@@ -5,7 +5,7 @@ import { CoordinatesContext, RouteContext, ProfileContext } from './CoordinatesC
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
-import { fetchRouteLine, setStartPosition, setEndPosition } from '../features/routes/routeSlice';
+import { fetchRouteLine, setStartPosition as setStartDispatchPosition, setEndPosition as setDestinationDispatchPosition } from '../features/routes/routeSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import 'leaflet-editable';
 import ReactLeafletEditable from 'react-leaflet-editable';
@@ -32,8 +32,9 @@ Massive component handling all map functionalities.
 
 // Import the node service from TempRoadService
 import { findNearestNode } from '../services/TempRoadService';
+import { destination } from '@turf/turf';
 
-function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRoads, disconnectedRoadRef, nodeSelectionMode, onNodeSelection}) {
+const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRoads, disconnectedRoadRef, nodeSelectionMode, onNodeSelection}) => {
     const dispatch = useDispatch()
     const { selectedProfile } = useContext(ProfileContext)
     const profileRef = useRef(selectedProfile)
@@ -86,13 +87,13 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     // For refreshing the VectorTileLayer
     const tileLayer = useSelector((state) => state.tileLayer)
     let mountingHelper=0
-    let startposition=null;
     let maphelp=null
     let originalLatLngs = 0;
     //{lat: '', lng: ''}
-    let destinationposition=null;
-    var markercount=0;
     const [updateFlag, setUpdateFlag] = useState(false);
+    const [popupPosition, setPopupPosition] = useState(null);
+    const [showPopup, setShowPopup] = useState(false);
+    const [popupCoordinates, setPopupCoordinates] = useState(null);
     
     //Alternative start icon replaced with html marker
     const start_icon = new L.Icon({
@@ -128,27 +129,139 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         className: 'node-selection-marker'
     });
 
-    //Function for updating start/destination position when corresponding marker is dragged
-    const onMarkerDragEnd = (e, type) => {
-        const { lat, lng } = e.target.getLatLng();
-        if (type === 'start') {
-            startposition={ lat:lat, long:lng };
-            dispatch(setStartPosition(startposition));
-        } else if (type === 'destination') {
-            destinationposition={ lat:lat, long:lng };
-            dispatch(setEndPosition(destinationposition));
+    // A single coordinate class to handle all this shit
+    const Coordinates = class {
+        constructor(dispatchCoordinatesSetter, routeUpdater, iconCoordinatesSetter) {
+            this._lat = null;
+            this._lng = null;
+
+            this._setDispatchCoordinates = dispatchCoordinatesSetter;
+            this._updateRoute = routeUpdater;
+            this._setIconCoordinates = iconCoordinatesSetter;
         }
-        const newRoute = [
-            { lat: startposition?.lat ?? lat, long: startposition?.long ?? lng },
-            { lat: destinationposition?.lat ?? lat, long: destinationposition?.long ?? lng }
-        ];
-        setRoute(newRoute);
-        if (newRoute.length === 2) {
-            if (newRoute[0].lat !== undefined && newRoute[0].long !== undefined && newRoute[1].lat !== undefined && newRoute[1].long !== undefined) {
-                dispatch(fetchRouteLine(undefined, profileRef.current))
-            }
-        };
+
+        setCoordinates({ lat, lng }) {
+            this._lat = lat;
+            this._lng = lng;
+
+            this._setIconCoordinates(this);
+
+            dispatch(this._setDispatchCoordinates(this));
+
+            this._updateRoute();
+        }
+
+        // Make sure that we don't break stuff
+        get lat() {
+            return this._lat;
+        }
+        get lng() {
+            return this._lng;
+        }
+        get long() {
+            return this._lng;
+        }
+        set lat(value) {
+            this.setCoordinates({ lat: value, lng: this.lng });
+        }
+        set lng(value) {
+            this.setCoordinates({ lat: this.lat, lng: value });
+        }
+        set long(value) {
+            this.setCoordinates({ lat: this.lat, lng: value });
+        }
     }
+
+    const Router = class {
+        constructor() {
+            this.startMarker = new Marker('Start position', startti_icon);
+            this.destinationMarker = new Marker('Destination', desti_icon);
+        }
+
+        createStartMarker(coords) {
+            const startCoords = new Coordinates(
+                setStartDispatchPosition,
+                this.updateRoute.bind(this),
+                this.startMarker.setMarkerPosition.bind(this.startMarker)
+            );
+            this.startMarker.createMarker(startCoords);
+            this.startMarker.position.setCoordinates(coords);
+
+            return this.startMarker
+        }
+
+        createDestinationMarker(coords) {
+            const destinationCoords = new Coordinates(
+                setDestinationDispatchPosition,
+                this.updateRoute.bind(this),
+                this.destinationMarker.setMarkerPosition.bind(this.destinationMarker)
+            );
+            this.destinationMarker.createMarker(destinationCoords);
+            this.destinationMarker.position.setCoordinates(coords);
+
+            return this.destinationMarker
+        }
+
+        updateRoute() {
+            const newRoute = [
+                this.startMarker.position,
+                this.destinationMarker.position
+            ];
+            setRoute(newRoute);
+
+            if (newRoute[0] && newRoute[1]) {
+                dispatch(fetchRouteLine(newRoute, profileRef.current))
+            };
+        }
+    }
+
+    const Marker = class {
+        constructor(name, icon) {
+            this.marker = null;
+            this.position = null;
+
+            this.name = name;
+            this.icon = icon;
+
+            this.setMarkerPosition = (coords) => {this.marker.setLatLng(coords)}
+        }
+
+        createMarker(coords) {
+            // coords: Coordinates instance
+            const map = mapRef.current;
+            if (!map) return;
+
+            this.marker = L.marker([0, 0], { icon: this.icon, draggable: true })
+                .addTo(map)
+                .bindPopup(this.name)
+                .on('dragend', (e) => {
+                    const newCoords = e.target.getLatLng();
+                    this.setPosition(newCoords);
+                });
+            
+            if (coords instanceof Coordinates) {
+                this.position = coords;
+            } else {
+                throw new Error("Coordinates must be an instance of Coordinates class");
+            }
+
+            if (coords.lat != null && coords.lng != null) {
+                this.setPosition(coords);
+            }
+        }
+
+        setPosition({lat, lng}) {
+            // coords: {lat, lng} or whatever
+            const map = mapRef.current;
+            if (!map) return;
+
+            this.position.setCoordinates({ lat, lng });
+        }
+    }
+
+    const [router, setRouter] = useState(new Router());
+    const createStartMarker = ({lat, lng}) => { return router.createStartMarker({ lat: lat, lng: lng }) };
+    const createDestinationMarker = ({lat, lng}) => { return router.createDestinationMarker({ lat: lat, lng: lng }) };
 
     const disconnecteRoadMarkerRef = useRef([]);
     disconnectedRoadRef.current = [(d) => {
@@ -229,7 +342,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         }
     }];
 
-    //Used when a new polygon/line is drawn. Marker functionalities are handled elsewhere so these functionalities may be removed
+    //Used when a new polygon/line is drawn.
     const onDrawCreated = async (e) => {
         const { layerType, layer } = e;
         if (layerType === 'polygon' || layerType === 'Linestring') {
@@ -243,41 +356,6 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                 zonesRef.current.removeLayer(layer);
             }
         }
-        if (layerType === 'marker') {
-            const {lat, lng} = layer.getLatLng();
-            if (zonesRef.current) {
-                zonesRef.current.removeLayer(layer);
-                const map = mapRef.current;
-
-                if (markercount === 0) {
-                    setMarkerCount(prevCount =>prevCount + 1);
-                    markercount++;
-                    const startMarker = L.marker([lat, lng], { icon: startti_icon, draggable: true })
-                        .addTo(map)
-                        .bindPopup("Start")
-                        .on('dragend', (e) => onMarkerDragEnd(e, 'start'));
-                    
-                    startposition={ lat:lat, long:lng }
-                    dispatch(setStartPosition(startposition));
-                    
-                    await setRoute([startposition, destinationposition]);
-                } else if (markercount === 1) {
-                    markercount++;
-                    setMarkerCount(prevCount => prevCount + 1);
-                    const destinationMarker = L.marker([lat,lng], { icon: desti_icon, draggable: true })
-                        .addTo(map)
-                        .bindPopup("Destination")
-                        .on('dragend', (e) => onMarkerDragEnd(e, 'destination'));
-                    
-                    destinationposition={lat:lat,long:lng }
-                    dispatch(setEndPosition(destinationposition));
-  
-                    await setRoute([startposition, destinationposition]);
-                    
-                    dispatch(fetchRouteLine([startposition, destinationposition], profileRef.current))
-            }
-        }
-    }
     };
     //Used when user hovers over a polygon/line
     const handleMouseOver = (e) => {
@@ -523,28 +601,28 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
             return null
            } 
             if (markerCount ===0){
-            setMarkerCount(prevCount => prevCount + 1);
-            markercount++;
-            const startMarker = L.marker([lat, lng], { icon: startti_icon, draggable: true })
-                        .addTo(map)
-                        .bindPopup("Start")
-                        .on('dragend', (e) => onMarkerDragEnd(e, 'start'));
-                
-                    startposition={ lat:lat, long:lng }
-                    dispatch(setStartPosition(startposition));
-                    setRoute([startposition, destinationposition]);
+                setMarkerCount(prevCount => prevCount + 1);
+                const startMarker = createStartMarker({lat, lng});
             } else if (markerCount === 1) {
-                    markercount++;
-                    setMarkerCount(prevCount => prevCount + 1);
-                    const destinationMarker = L.marker([lat,lng], { icon: desti_icon, draggable: true })
-                        .addTo(map)
-                        .bindPopup("Destination")
-                        .on('dragend', (e) => onMarkerDragEnd(e, 'destination'));
-                    
-                    destinationposition={lat:lat,long:lng }
-                    dispatch(setEndPosition(destinationposition));
-                    setRoute([startposition, destinationposition]);
-                    dispatch(fetchRouteLine(undefined, profileRef.current))
+                setMarkerCount(prevCount => prevCount + 1);
+                const destinationMarker = createDestinationMarker({lat, lng});
+            } else if (markerCount === 2) {
+                // Show popup to ask which marker to move
+                //Get the map container's position relative to the viewport
+                //const mapContainerRect = map.getContainer().getBoundingClientRect();
+
+                // Calculate the popup position relative to the map container
+                /*const cursorPosition = {
+                    x: event.originalEvent.clientX - mapContainerRect.left,
+                    y: event.originalEvent.clientY - mapContainerRect.top
+                };*/
+                const cursorPosition = {
+                    x: event.originalEvent.clientX,
+                    y: event.originalEvent.clientY
+                };                
+                setPopupPosition({cursorPosition});
+                setPopupCoordinates({ lat, lng });
+                setShowPopup(true);
           }
         });
         return null;
@@ -660,7 +738,7 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
             }
         };
     }, [nodeSelectionMode]);
-    
+
     return (
         <ReactLeafletEditable
             ref={editRef}
@@ -849,7 +927,20 @@ function Map_Displayer({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                 }}
                 />
             </FeatureGroup>}
-        <ClickHandler onClick={handleClick} />
+            {showPopup && popupPosition && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: `${popupPosition.y}px`,
+                        left: `${popupPosition.x}px`,
+                        zIndex: 1000
+                    }}
+                >
+                    <button onClick={() => {router.startMarker.setPosition({lat: popupCoordinates.lat, lng: popupCoordinates.lng}); setShowPopup(false)}}>Start Marker</button>
+                    <button onClick={() => {router.destinationMarker.setPosition({lat: popupCoordinates.lat, lng: popupCoordinates.lng}); setShowPopup(false)}}>End Marker</button>
+                </div>
+            )}
+            <ClickHandler onClick={handleClick} />
         </MapContainer>
         </ReactLeafletEditable>
     );
