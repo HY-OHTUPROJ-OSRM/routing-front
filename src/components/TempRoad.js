@@ -6,6 +6,7 @@ import {
 } from '../features/temproads/TempRoadsSlice';
 import TempRoadForm from './TempRoadForm';
 import TempRoadItem from './TempRoadItem';
+import { calculateDistanceBetweenNodes } from '../services/TempRoadService';
 import './Polygon.css';
 
 function TempRoads(props) {
@@ -66,7 +67,7 @@ function TempRoads(props) {
     description: ''
   });
 
-  const handleNodeSelection = (nodeId, coordinates) => {
+  const handleNodeSelection = async (nodeId, coordinates) => {
     console.log('Node selection - nodeId:', nodeId, 'mode:', nodeSelectionMode.selecting, 'isEditMode:', nodeSelectionMode.isEditMode);
     
     if (!nodeSelectionMode.active) return;
@@ -75,19 +76,43 @@ function TempRoads(props) {
       // Handle node selection for edit mode
       if (nodeSelectionMode.selecting === 'start') {
         setEditFormData(prev => ({ ...prev, start_node: nodeId.toString() }));
+        if (editFormData.end_node) {
+          await calculateAndSetLength(nodeId, editFormData.end_node, setEditFormData);
+        }
       } else if (nodeSelectionMode.selecting === 'end') {
         setEditFormData(prev => ({ ...prev, end_node: nodeId.toString() }));
+        if (editFormData.start_node) {
+          await calculateAndSetLength(editFormData.start_node, nodeId, setEditFormData);
+        }
       }
     } else {
       // Handle node selection for add mode
       if (nodeSelectionMode.selecting === 'start') {
         setAddFormData(prev => ({ ...prev, start_node: nodeId.toString() }));
+        if (addFormData.end_node) {
+          await calculateAndSetLength(nodeId, addFormData.end_node, setAddFormData);
+        }
       } else if (nodeSelectionMode.selecting === 'end') {
         setAddFormData(prev => ({ ...prev, end_node: nodeId.toString() }));
+        if (addFormData.start_node) {
+          await calculateAndSetLength(addFormData.start_node, nodeId, setAddFormData);
+        }
       }
     }
     
     setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
+  };
+  
+  // Function to calculate distance between two nodes and set the length in the form data
+  const calculateAndSetLength = async (startNodeId, endNodeId, setFormData) => {
+    try {
+      const distance = await calculateDistanceBetweenNodes(startNodeId, endNodeId);
+
+      setFormData(prev => ({ ...prev, length: distance.toString() }));
+      console.log(`Calculated distance between nodes ${startNodeId} and ${endNodeId}: ${distance} km`);
+    } catch (error) {
+      console.error(`Failed to calculate distance between nodes ${startNodeId} and ${endNodeId}:`, error);
+    }
   };
 
   useEffect(() => {

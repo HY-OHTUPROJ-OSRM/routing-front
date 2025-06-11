@@ -4,6 +4,7 @@ import {
   addTempRoad, 
   updateTempRoadAsync 
 } from '../features/temproads/TempRoadsSlice';
+import { calculateDistanceBetweenNodes } from '../services/TempRoadService';
 
 function TempRoadForm({ 
   mode = 'add', 
@@ -16,15 +17,30 @@ function TempRoadForm({
 }) {
   const dispatch = useDispatch();
 
-  // Remove the useEffect for initializing form data since it's now managed by parent
-  // Remove the handleNodeSelection function since it's handled by parent
-
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value
     });
+
+    if (name === 'start_node' || name === 'end_node') {
+      const startNode = name === 'start_node' ? value : formData.start_node;
+      const endNode = name === 'end_node' ? value : formData.end_node;
+
+      if (startNode && endNode && startNode !== endNode) {
+        try {
+          const distance = await calculateDistanceBetweenNodes(startNode, endNode);
+          setFormData(prev => ({
+            ...prev,
+            length: distance.toString()
+          }));
+          console.log(`Automatically calculate length: ${distance} km (from ${startNode} to ${endNode})`);
+        } catch (error) {
+          console.error('Error calculating road length :', error);
+        }
+      }
+    }
   };
 
   const handleSubmit = (e) => {
@@ -164,29 +180,52 @@ function TempRoadForm({
             />
           </div>
           
+          {/* Distance */}
           <div style={{ flex: 1 }}>
             <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
               Length (km):
             </label>
-            <input
-              type="number"
-              name="length"
-              value={formData.length}
-              onChange={handleChange}
-              step="0.1"
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '14px'
-              }}
-            />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input
+                type="number"
+                name="length"
+                value={formData.length}
+                onChange={handleChange}
+                step="0.01"
+                style={{
+                  flex: 1,
+                  padding: '8px 12px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  fontSize: '14px'
+                }}
+              />
+              {formData.start_node && formData.end_node && formData.start_node !== formData.end_node && (
+                <span style={{
+                  fontSize: '12px',
+                  color: '#28a745',
+                  fontWeight: '500',
+                  whiteSpace: 'nowrap'
+                }}>
+                  🔄 Auto
+                </span>
+              )}
+            </div>
+            {formData.start_node && formData.end_node && formData.start_node !== formData.end_node && (
+              <div style={{
+                fontSize: '11px',
+                color: '#6c757d',
+                marginTop: '4px',
+                fontStyle: 'italic'
+              }}>
+                Distance between nodes {formData.start_node} and {formData.end_node}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Start Node Section */}
-        <div style={{ flex: 1 }}>
+        <div>
           <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
             Start Node:
           </label>
@@ -231,7 +270,7 @@ function TempRoadForm({
         </div>
 
         {/* End Node Section */}
-        <div style={{ flex: 1 }}>
+        <div>
           <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
             End Node:
           </label>
