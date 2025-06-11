@@ -2,7 +2,7 @@ import "./comp_styles.scss";
 import React, { useState, useMemo } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import { addTempRoad } from '../features/temproads/TempRoadsSlice';
-import { getDisconnections } from "../services/DisconnectionsService";
+import { getDisconnections, attachTempRoadToDisconnection, } from "../services/DisconnectionsService";
 
 const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
   const [disconnections, setDisconnections] = useState([]);
@@ -66,6 +66,13 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
       const resultAction = await dispatch(addTempRoad(payload));
       if (addTempRoad.fulfilled.match(resultAction)) {
         console.log("✅ AddTempRoad called via disconnection list", resultAction.payload);
+        const newTempId = resultAction.payload.id; // 🆔 temp-road ID
+          try {
+            await attachTempRoadToDisconnection(disconnection.id, newTempId);
+            console.log("📝 Disconnection", disconnection.id, "updated with temp_road_id", newTempId);
+          } catch (linkErr) {
+            console.error("Failed to attach temp road to disconnection", linkErr);
+          }
       } else {
         console.error("❌ Failed to call addTempRoad via disconnection list", resultAction);
       }
