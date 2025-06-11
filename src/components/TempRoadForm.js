@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useDispatch } from 'react-redux';
 import { 
   addTempRoad, 
@@ -160,70 +160,6 @@ function TempRoadForm({
           </select>
         </div>
 
-        <div style={{ display: 'flex', gap: '15px' }}>
-          <div style={{ flex: 1 }}>
-            <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
-              Speed (Km/h):
-            </label>
-            <input
-              type="number"
-              name="speed"
-              value={formData.speed}
-              onChange={handleChange}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '14px'
-              }}
-            />
-          </div>
-          
-          {/* Distance */}
-          <div style={{ flex: 1 }}>
-            <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
-              Length (km):
-            </label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <input
-                type="number"
-                name="length"
-                value={formData.length}
-                onChange={handleChange}
-                step="0.01"
-                style={{
-                  flex: 1,
-                  padding: '8px 12px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  fontSize: '14px'
-                }}
-              />
-              {formData.start_node && formData.end_node && formData.start_node !== formData.end_node && (
-                <span style={{
-                  fontSize: '12px',
-                  color: '#28a745',
-                  fontWeight: '500',
-                  whiteSpace: 'nowrap'
-                }}>
-                  🔄 Auto
-                </span>
-              )}
-            </div>
-            {formData.start_node && formData.end_node && formData.start_node !== formData.end_node && (
-              <div style={{
-                fontSize: '11px',
-                color: '#6c757d',
-                marginTop: '4px',
-                fontStyle: 'italic'
-              }}>
-                Distance between nodes {formData.start_node} and {formData.end_node}
-              </div>
-            )}
-          </div>
-        </div>
-
         {/* Start Node Section */}
         <div>
           <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
@@ -311,6 +247,48 @@ function TempRoadForm({
               {(nodeSelectionMode.selecting === 'end' && 
                 nodeSelectionMode.isEditMode === (mode === 'edit')) ? 'Selecting...' : 'Select on Map'}
             </button>
+          </div>
+        </div>
+
+        {/* Speed and Length Section */}
+        <div style={{ display: 'flex', gap: '15px', alignItems: 'flex-end' }}>
+          <div style={{ flex: 0.8 }}>
+            <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
+              Speed (Km/h):
+            </label>
+            <input
+              type="number"
+              name="speed"
+              value={formData.speed}
+              onChange={handleChange}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                fontSize: '14px'
+              }}
+            />
+          </div>
+          
+          <div style={{ flex: 1.2 }}>
+            <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
+              Length (km):
+            </label>
+            <input
+              type="number"
+              name="length"
+              value={formData.length}
+              onChange={handleChange}
+              step="0.01"
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                fontSize: '14px'
+              }}
+            />
           </div>
         </div>
 
