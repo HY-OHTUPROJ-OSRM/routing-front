@@ -31,7 +31,7 @@ function TempRoads(props) {
         filterType === "all" ||
         (filterType === "temporary" && item.type === "temporary") ||
         (filterType === "iceroad" && item.type === "iceroad") ||
-        (filterType === "speedlimit" && item.type === "speedlimit");
+        (filterType === "speed_limit" && item.type === "speed_limit");
       return matchesSearch && matchesFilter;
     });
   };
@@ -315,7 +315,7 @@ function TempRoads(props) {
               >
                 <option value="all">Show All Types</option>
                 <option value="iceroad">Show Ice Roads</option>
-                <option value="speedlimit">Show Speed Limits</option>
+                <option value="speed_limit">Show Speed Limits</option>
                 <option value="temporary">Show Temporary Roads</option>
               </select>
             </div>
