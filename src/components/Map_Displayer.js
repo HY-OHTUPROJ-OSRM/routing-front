@@ -92,8 +92,8 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     //{lat: '', lng: ''}
     const [updateFlag, setUpdateFlag] = useState(false);
     const [popupPosition, setPopupPosition] = useState(null);
-    const [showPopup, setShowPopup] = useState(false);
     const [popupCoordinates, setPopupCoordinates] = useState(null);
+    const popupContainer = useRef(null);
     
     //Alternative start icon replaced with html marker
     const start_icon = new L.Icon({
@@ -608,25 +608,32 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                 const destinationMarker = createDestinationMarker({lat, lng});
             } else if (markerCount === 2) {
                 // Show popup to ask which marker to move
-                //Get the map container's position relative to the viewport
-                //const mapContainerRect = map.getContainer().getBoundingClientRect();
-
-                // Calculate the popup position relative to the map container
-                /*const cursorPosition = {
-                    x: event.originalEvent.clientX - mapContainerRect.left,
-                    y: event.originalEvent.clientY - mapContainerRect.top
-                };*/
+                const mapContainerRect = map.getContainer().getBoundingClientRect();
                 const cursorPosition = {
-                    x: event.originalEvent.clientX,
-                    y: event.originalEvent.clientY
-                };                
-                setPopupPosition({cursorPosition});
-                setPopupCoordinates({ lat, lng });
-                setShowPopup(true);
-          }
+                    x: event.originalEvent.clientX - mapContainerRect.left,
+                    y: event.originalEvent.clientY - mapContainerRect.top,
+                };
+              
+                if (!popupPosition) {
+                    setPopupPosition(cursorPosition);
+                    setPopupCoordinates({ lat, lng });
+                } else {
+                    if (!popupContainer.current) { return null }
+                    const buttonPosition = popupContainer.current.getBoundingClientRect();
+
+                    if (cursorPosition.x < buttonPosition.left - mapContainerRect.left || 
+                        cursorPosition.x > buttonPosition.right - mapContainerRect.left || 
+                        cursorPosition.y < buttonPosition.top - mapContainerRect.top || 
+                        cursorPosition.y > buttonPosition.bottom - mapContainerRect.top) {
+
+                        setPopupPosition(null);
+                        setPopupCoordinates(null);
+                    }
+                }
+            }
         });
         return null;
-      };
+    };
       
     const handleClick = (event) => {
         };
@@ -927,17 +934,20 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                 }}
                 />
             </FeatureGroup>}
-            {showPopup && popupPosition && (
+            {popupPosition && (
                 <div
                     style={{
                         position: 'absolute',
-                        top: `${popupPosition.y}px`,
-                        left: `${popupPosition.x}px`,
-                        zIndex: 1000
+                        top: popupPosition.y,
+                        left: popupPosition.x,
+                        zIndex: 1000,
+                        display: 'flex',
+                        flexDirection: 'column',
                     }}
+                    ref={popupContainer}
                 >
-                    <button onClick={() => {router.startMarker.setPosition({lat: popupCoordinates.lat, lng: popupCoordinates.lng}); setShowPopup(false)}}>Start Marker</button>
-                    <button onClick={() => {router.destinationMarker.setPosition({lat: popupCoordinates.lat, lng: popupCoordinates.lng}); setShowPopup(false)}}>End Marker</button>
+                    <button onClick={() => {router.startMarker.setPosition({lat: popupCoordinates.lat, lng: popupCoordinates.lng}); setPopupPosition(null)}}>Start Marker</button>
+                    <button onClick={() => {router.destinationMarker.setPosition({lat: popupCoordinates.lat, lng: popupCoordinates.lng}); setPopupPosition(null)}}>End Marker</button>
                 </div>
             )}
             <ClickHandler onClick={handleClick} />
