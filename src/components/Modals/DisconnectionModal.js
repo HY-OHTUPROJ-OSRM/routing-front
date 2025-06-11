@@ -1,10 +1,13 @@
-import "./comp_styles.scss";
-import React, { useState, useMemo } from "react";
+import "../comp_styles.scss";
+import React, { useState, useMemo, useContext } from "react";
+import MapContext from "../Map/MapContext";
 import { useSelector, useDispatch } from 'react-redux';
-import { addTempRoad } from '../features/temproads/TempRoadsSlice';
-import { getDisconnections } from "../services/DisconnectionsService";
+import { addTempRoad } from '../../features/temproads/TempRoadsSlice';
+import { getDisconnections } from "../../services/DisconnectionsService";
 
-const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
+const DisconnectionModal = ({ onClose }) => {
+  const { state } = useContext(MapContext);
+
   const [disconnections, setDisconnections] = useState([]);
   const [filteredDisconnections, setFilteredDisconnections] = useState([]);
 
@@ -15,7 +18,7 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
 
-  const dispatch = useDispatch();
+  const reduxDispatch = useDispatch();
   const handleCreateTempRoad = async (disconnection) => {
     const node_id_a = disconnection.startNode.id
     const node_id_b = disconnection.endNode.id
@@ -62,7 +65,7 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
     };
 
     try {
-      const resultAction = await dispatch(addTempRoad(payload));
+      const resultAction = await reduxDispatch(addTempRoad(payload));
       if (addTempRoad.fulfilled.match(resultAction)) {
         console.log("✅ AddTempRoad called via disconnection list", resultAction.payload);
       } else {
@@ -115,8 +118,6 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
       return matchesSearch && matchesFilter;
     });
   };
-
-  if (!isOpen) return null;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -172,14 +173,14 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
           </button>
 
           <button
-            onClick={disconnectedRoadRef.current[1]}
+            onClick={state.disconnectedRoadRef.current.clear}
             className="disconnection-button"
           >
             Delete disconnections
           </button>
 
           <button
-            onClick={disconnectedRoadRef.current[2]}
+            onClick={state.disconnectedRoadRef.current.list}
             className="disconnection-button"
           >
             Set nodelist
@@ -278,7 +279,7 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
                       <button
                         className="disconnection-button"
                         onClick={() => {
-                          disconnectedRoadRef.current[0]({
+                          state.disconnectedRoadRef.current.show({
                             a_lat: item.startNode.lat,
                             a_lng: item.startNode.lon,
                             b_lat: item.endNode.lat,

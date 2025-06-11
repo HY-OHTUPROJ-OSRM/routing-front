@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./Polygon.css"; // Import the CSS file
 import { useDispatch } from "react-redux";
-import { modifyPolygon, setFaults, setCanceledits } from "../features/polygons/modifiedPolygonsSlice";
-import { validateName, validateType, validateEffectValue } from "../services/FormValidationService"; // Import the validation functions
+import { modifyPolygon, setFaults, setCanceledits } from "../../features/polygons/modifiedPolygonsSlice";
+import { validateName, validateType, validateEffectValue } from "../../services/FormValidationService"; // Import the validation functions
 import { useSelector } from 'react-redux';
 
 /*
@@ -10,7 +10,7 @@ Another version of polygon list component used in editmode. enables the editing 
 Uses similar validation functions as the CreatePolygon component
 
 */
-const ModifiedPolygonDisplay = (p, isOpen) => {
+const ModifiedPolygonDisplay = (p) => {
   const [highlightedId, setHighlightedId] = useState(null);
   const listViewId = useSelector((state) => state.view.listView);
   const dispatch = useDispatch();
@@ -33,7 +33,7 @@ const ModifiedPolygonDisplay = (p, isOpen) => {
   const scrollToElement = () => {
     if (listViewId) {
       const element = document.getElementById(listViewId);
-      if (element && isOpen) {
+      if (element) {
         setHighlightedId(listViewId);
         element.scrollIntoView({ behavior: "smooth" });
       }

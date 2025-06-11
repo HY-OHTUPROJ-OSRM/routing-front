@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Alert, ProgressBar } from 'react-bootstrap';
 import { removeTimedAlert } from '../features/messages/timedAlertSlice';
-import './comp_styles.scss';
+import '../comp_styles.scss';
 import { ROUTING_API_URL } from '../Utils/config';
 import { showTimedAlert, clearTimedAlert } from '../Utils/dispatchUtility';
 import { fetchPolygons } from '../features/polygons/polygonsSlice';
@@ -10,7 +10,7 @@ import { fetchRouteLine } from '../features/routes/routeSlice';
 import { refreshTileLayer } from '../features/map/tileLayerSlice';
 
 // A component that displays alerts for a certain amount of time. Displays also a progress bar on editmode saving, which is dynamically updated from backend url /status
-export default function TimedAlert() {
+const TimedAlert = () => {
     const alerts = useSelector(state => state.timedAlert);
     const dispatch = useDispatch();
     const [percentage, setPercentage] = useState(0);
@@ -83,3 +83,5 @@ export default function TimedAlert() {
     </>
 );
 }
+
+export default TimedAlert;

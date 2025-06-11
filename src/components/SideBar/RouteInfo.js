@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import './comp_styles.scss';
+import '../comp_styles.scss';
 //Component for displaying info about generated routes, such as their distance and duration
 
 const RouteList = () => {

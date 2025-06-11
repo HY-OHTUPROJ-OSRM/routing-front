@@ -1,4 +1,7 @@
 import React from "react";
+
+// Currently unused
+
 //import "./HeadLine.css";
 //Currently displays Routing pap text, but could be upgraded to use three.js for 3d modelling and making the text spin while zones are updated
 const HeadLine = props => {

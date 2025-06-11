@@ -1,10 +1,10 @@
 import React, { useState, useContext, useEffect } from 'react';
 import './RouteField.css';
-import { validateCoordinate } from '../services/FormValidationService';
+import { validateCoordinate } from '../../services/FormValidationService';
 import { RouteContext } from './CoordinatesContext';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchRouteLine } from '../features/routes/routeSlice';
-import RouteList from './RouteInfo';
+import { fetchRouteLine } from '../../features/routes/routeSlice';
+import RouteList from '../SideBar/RouteInfo';
 
 function RoutingForm() {
   const dispatch = useDispatch();

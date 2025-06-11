@@ -1,21 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { MapContext } from '../Map/MapContext';
+import { AppContext } from '../AppContext';
 import { 
   fetchTempRoads, 
   addTempRoad, 
   deleteTempRoadAsync,
   toggleTempRoadAsync,
   selectRoad 
-} from '../features/temproads/TempRoadsSlice';
-import { changeMapView } from '../features/view/ViewSlice'; 
+} from '../../features/temproads/TempRoadsSlice';
+import { changeMapView } from '../../features/view/ViewSlice'; 
 import './Polygon.css';
 
-function TempRoads(props) {
-  const dispatch = useDispatch();
+const TempRoads = () => {
+  const reduxDispatch = useDispatch();
+  const { dispatch, state } = useContext(AppContext);
+  const mapContext = useContext(MapContext);
+
   const tempRoads = useSelector(state => state.tempRoads.list);
   const status = useSelector(state => state.tempRoads.status);
   const selectedRoadId = useSelector(state => state.tempRoads.selectedRoadId);
-  const [visibleRoads, setVisibleRoads] = useState(new Set());
   
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
@@ -52,46 +56,44 @@ function TempRoads(props) {
     description: ''
   });
 
-  const [nodeSelectionMode, setNodeSelectionMode] = useState({
-    active: false,
-    selecting: null
-  });
-
   useEffect(() => {
     if (status === 'idle') {
-      dispatch(fetchTempRoads());
+      reduxDispatch(fetchTempRoads());
     }
-  }, [status, dispatch]);
+  }, [status, reduxDispatch]);
 
+  const onVisibleRoadsChange = useCallback((visibleRoads) => {
+    dispatch({ type: 'SET_VISIBLE_TEMP_ROADS', payload: visibleRoads });
+  });
   useEffect(() => {
-    if (props.onVisibleRoadsChange) {
-      props.onVisibleRoadsChange(visibleRoads);
-    }
-  }, [visibleRoads, props.onVisibleRoadsChange]);
+    onVisibleRoadsChange(state.visibleRoads);
+  }, [state.visibleRoads, onVisibleRoadsChange]);
 
+  const onNodeSelectionModeChange = useCallback((mode) => {
+    dispatch({ type: 'SET_NODE_SELECTION_MODE', payload: mode });
+  });
   useEffect(() => {
-    if (props.onNodeSelectionModeChange) {
-      props.onNodeSelectionModeChange(nodeSelectionMode);
-    }
-  }, [nodeSelectionMode, props.onNodeSelectionModeChange]);
+    onNodeSelectionModeChange(state.nodeSelectionMode);
+  }, [state.nodeSelectionMode, onNodeSelectionModeChange]);
 
   const handleNodeSelection = (nodeId, coordinates) => {
-    console.log('Node selection - nodeId:', nodeId, 'mode:', nodeSelectionMode.selecting);
+    console.log('Node selection - nodeId:', nodeId, 'mode:', state.nodeSelectionMode.selecting);
 
-    if (nodeSelectionMode.selecting === 'start') {
+    if (state.nodeSelectionMode.selecting === 'start') {
       setFormData(prev => ({ ...prev, start_node: nodeId.toString() }));
-    } else if (nodeSelectionMode.selecting === 'end') {
+    } else if (state.nodeSelectionMode.selecting === 'end') {
       setFormData(prev => ({ ...prev, end_node: nodeId.toString() }));
     }
     
-    setNodeSelectionMode({ active: false, selecting: null });
+    mapContext.dispatch({ type: 'SET_NODE_SELECTION_MODE', payload: { active: false, selecting: null } });
   };
 
+  const onNodeSelectionHandler = useCallback((handler) => {
+    mapContext.dispatch({ type: 'SET_NODE_SELECTION_HANDLER', payload: handler });
+  });
   useEffect(() => {
-    if (props.onNodeSelectionHandler) {
-      props.onNodeSelectionHandler(handleNodeSelection);
-    }
-  }, [nodeSelectionMode]);
+    onNodeSelectionHandler(handleNodeSelection);
+  }, [state.nodeSelectionMode, onNodeSelectionHandler]);
 
   // Get node coordinates from API
   const fetchNodeCoordinates = async (nodeId) => {
@@ -167,7 +169,7 @@ function TempRoads(props) {
         const center = calculateCenter(startCoords, endCoords);
         const zoom = calculateZoomLevel(startCoords, endCoords);
         
-        dispatch(changeMapView({ 
+        reduxDispatch(changeMapView({ 
           center: center, 
           zoom: zoom 
         }));
@@ -218,7 +220,7 @@ function TempRoads(props) {
       end_node: parseInt(formData.end_node) || null
     };
     
-    dispatch(addTempRoad(dataToSubmit));
+    reduxDispatch(addTempRoad(dataToSubmit));
     setShowAddForm(false);
     resetForm();
   };
@@ -233,46 +235,39 @@ function TempRoads(props) {
       end_node: '',
       description: ''
     });
-    setNodeSelectionMode({ active: false, selecting: null });
+    dispatch({ type: 'SET_NODE_SELECTION_MODE', payload: { active: false, selecting: null } });
   };
 
   const handleDelete = (roadId) => {
     if (window.confirm('Are you sure you want to delete this road segment?')) {
-      dispatch(deleteTempRoadAsync(roadId));
-      setVisibleRoads(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(roadId);
-        return newSet;
-      });
+      reduxDispatch(deleteTempRoadAsync(roadId));
+      const newVisibleRoads = state.visibleRoads.delete(roadId);
+      dispatch({ type: 'SET_VISIBLE_TEMP_ROADS', payload: newVisibleRoads });
     }
   };
 
   const handleToggle = (roadId, currentStatus) => {
     const action = currentStatus ? 'deactivate' : 'activate';
     if (window.confirm(`Are you sure you want to ${action} this road segment?`)) {
-      dispatch(toggleTempRoadAsync(roadId));
+      reduxDispatch(toggleTempRoadAsync(roadId));
     }
   };
 
   const handleSelectRoad = (id) => {
-    dispatch(selectRoad(id));
+    reduxDispatch(selectRoad(id));
   };
 
   const showOnMap = (road) => {
-    setVisibleRoads(prev => {
-      const newSet = new Set(prev);
-      const roadId = road.id;
-      
-      if (newSet.has(roadId)) {
-        newSet.delete(roadId);
+    const newVisibleRoads = state.visibleRoads
+    const roadId = road.id;
+    if (newVisibleRoads.has(roadId)) {
+        newVisibleRoads.delete(roadId);
       } else {
-        newSet.add(roadId);
+        newVisibleRoads.add(roadId);
       }
-      
-      return newSet;
-    });
+    dispatch({ type: 'SET_VISIBLE_TEMP_ROADS', payload: newVisibleRoads });
     
-    dispatch(selectRoad(road.id));
+    reduxDispatch(selectRoad(road.id));
   };
 
   const getTypeDisplay = (type) => {
@@ -285,14 +280,11 @@ function TempRoads(props) {
   };
 
   const startNodeSelection = (nodeType) => {
-    setNodeSelectionMode({
-      active: true,
-      selecting: nodeType
-    });
+    dispatch({ type: 'SET_NODE_SELECTION_MODE', payload: { active: true, selecting: nodeType } });
   };
 
   const cancelNodeSelection = () => {
-    setNodeSelectionMode({ active: false, selecting: null });
+    dispatch({ type: 'SET_NODE_SELECTION_MODE', payload: { active: false, selecting: null } });
   };
 
   if (status === 'loading') {
@@ -331,7 +323,7 @@ function TempRoads(props) {
       </div>
 
       {/* Node Selection Mode Indicator */}
-      {nodeSelectionMode.active && (
+      {state.nodeSelectionMode.active && (
         <div style={{ 
           padding: '10px 20px',
           backgroundColor: '#fff3cd',
@@ -341,7 +333,7 @@ function TempRoads(props) {
           alignItems: 'center'
         }}>
           <span style={{ fontSize: '14px', color: '#856404' }}>
-            📍 Click on the map to select {nodeSelectionMode.selecting} node
+            📍 Click on the map to select {state.nodeSelectionMode.selecting} node
           </span>
           <button
             onClick={cancelNodeSelection}
@@ -474,20 +466,20 @@ function TempRoads(props) {
                 <button
                   type="button"
                   onClick={() => startNodeSelection('start')}
-                  disabled={nodeSelectionMode.active}
+                  disabled={state.nodeSelectionMode.active}
                   style={{
-                    background: nodeSelectionMode.selecting === 'start' ? '#28a745' : '#17a2b8',
+                    background: state.nodeSelectionMode.selecting === 'start' ? '#28a745' : '#17a2b8',
                     color: 'white',
                     border: 'none',
                     padding: '8px 12px',
                     borderRadius: '4px',
                     fontSize: '12px',
-                    cursor: nodeSelectionMode.active ? 'not-allowed' : 'pointer',
+                    cursor: state.nodeSelectionMode.active ? 'not-allowed' : 'pointer',
                     whiteSpace: 'nowrap',
-                    opacity: nodeSelectionMode.active && nodeSelectionMode.selecting !== 'start' ? 0.5 : 1
+                    opacity: state.nodeSelectionMode.active && state.nodeSelectionMode.selecting !== 'start' ? 0.5 : 1
                   }}
                 >
-                  {nodeSelectionMode.selecting === 'start' ? 'Selecting...' : 'Select on Map'}
+                  {state.nodeSelectionMode.selecting === 'start' ? 'Selecting...' : 'Select on Map'}
                 </button>
               </div>
             </div>
@@ -515,20 +507,20 @@ function TempRoads(props) {
                 <button
                   type="button"
                   onClick={() => startNodeSelection('end')}
-                  disabled={nodeSelectionMode.active}
+                  disabled={state.nodeSelectionMode.active}
                   style={{
-                    background: nodeSelectionMode.selecting === 'end' ? '#28a745' : '#17a2b8',
+                    background: state.nodeSelectionMode.selecting === 'end' ? '#28a745' : '#17a2b8',
                     color: 'white',
                     border: 'none',
                     padding: '8px 12px',
                     borderRadius: '4px',
                     fontSize: '12px',
-                    cursor: nodeSelectionMode.active ? 'not-allowed' : 'pointer',
+                    cursor: state.nodeSelectionMode.active ? 'not-allowed' : 'pointer',
                     whiteSpace: 'nowrap',
-                    opacity: nodeSelectionMode.active && nodeSelectionMode.selecting !== 'end' ? 0.5 : 1
+                    opacity: state.nodeSelectionMode.active && state.nodeSelectionMode.selecting !== 'end' ? 0.5 : 1
                   }}
                 >
-                  {nodeSelectionMode.selecting === 'end' ? 'Selecting...' : 'Select on Map'}
+                  {state.nodeSelectionMode.selecting === 'end' ? 'Selecting...' : 'Select on Map'}
                 </button>
               </div>
             </div>
@@ -536,17 +528,17 @@ function TempRoads(props) {
             <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
               <button
                 type="submit"
-                disabled={nodeSelectionMode.active}
+                disabled={state.nodeSelectionMode.active}
                 style={{
-                  background: nodeSelectionMode.active ? '#6c757d' : '#28a745',
+                  background: state.nodeSelectionMode.active ? '#6c757d' : '#28a745',
                   color: 'white',
                   border: 'none',
                   padding: '10px 20px',
                   borderRadius: '4px',
                   fontSize: '14px',
-                  cursor: nodeSelectionMode.active ? 'not-allowed' : 'pointer',
+                  cursor: state.nodeSelectionMode.active ? 'not-allowed' : 'pointer',
                   fontWeight: '500',
-                  opacity: nodeSelectionMode.active ? 0.5 : 1
+                  opacity: state.nodeSelectionMode.active ? 0.5 : 1
                 }}
               >
                 Add
@@ -653,7 +645,7 @@ function TempRoads(props) {
                       </span>
                     </div>
                     <div style={{ display: 'flex', gap: '5px' }}>
-                      {visibleRoads.has(road.id) && (
+                      {state.visibleRoads.has(road.id) && (
                         <span style={{ 
                           color: '#28a745', 
                           fontSize: '16px',

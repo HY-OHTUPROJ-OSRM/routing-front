@@ -1,7 +1,10 @@
-import React, { useState } from "react";
-import "./comp_styles.scss";
+import React, { useState, useContext } from "react";
+import { AppContext } from "../AppContext";
+import "../comp_styles.scss";
 
-const Header = ({ onClickA, onClickP, onClickGuide, handleToolsClick, handleShowProfileModal, selectedProfile, handleShowDisconnectionModal }) => {
+const Header = () => {
+  const { dispatch } = useContext(AppContext);
+
   const [selectedTool, setSelectedTool] = useState("None");
   const formattedProfile = selectedProfile.display.replace(/\s*,\s*/, " / ");
 
@@ -10,13 +13,13 @@ const Header = ({ onClickA, onClickP, onClickGuide, handleToolsClick, handleShow
     setSelectedTool("None");
 
     if (value === "temproad") {
-      handleToolsClick();
+      dispatch({ type: 'SET_SIDEBAR_TYPE', payload: 'temproad' });
     }
     if (value === 'select-profile') {
-      handleShowProfileModal();
+      dispatch({ type: 'SET_MODAL_TYPE', payload: 'profile' });
     }
-    if (value === 'info') {
-      handleShowDisconnectionModal();
+    if (value === 'disconnected-roads') {
+      dispatch({ type: 'SET_MODAL_TYPE', payload: 'disconnection' });
     }
     else {
     }
@@ -32,31 +35,29 @@ const Header = ({ onClickA, onClickP, onClickGuide, handleToolsClick, handleShow
           <span className="tools-label">Tools ▾</span>
           <select className="header-select" value={selectedTool} onChange={handleChange}>
             <option disabled value="None">Tools ▾</option>
-
             <option value="select-profile">Select profile</option>
-            <option value="info">Disconneted roads</option>
+            <option value="disconnected-roads">Disconneted roads</option>
             <option value="temproad">Temporary roads</option>
-
           </select>
         </label>
 
         <img 
           src="/add.png"
           alt="Add"
-          onClick={onClickA}
+          onClick={() => dispatch({ type: 'SET_SIDEBAR_TYPE', payload: 'add' })}
           className="header-icon"
         />
         <img 
           src="/menu.png"
           alt="List"
-          onClick={onClickP}
+          onClick={() => dispatch({ type: 'SET_SIDEBAR_TYPE', payload: 'list' })}
           className="header-icon"
         />
         <img
-          onClick={onClickGuide}
-          className="header-icon"
           src="/guide.png"
           alt="Guide"
+          onClick={() => dispatch({ type: 'SET_SIDEBAR_TYPE', payload: 'guide' })}
+          className="header-icon"
         />
       </div>
     </div>

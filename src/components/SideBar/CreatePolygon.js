@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import './CreatePolygon.css';
-import { CoordinatesContext, ProfileContext } from './CoordinatesContext';
-import { validateName, validateType, validateCoordinate, validateEffectValue } from '../services/FormValidationService';
-import { CreatePolygon } from '../services/PolygonService';
+import { CoordinatesContext, ProfileContext } from '../Map/CoordinatesContext';
+import { validateName, validateType, validateCoordinate, validateEffectValue } from '../../services/FormValidationService';
+import { CreatePolygon } from '../../services/PolygonService';
 import { useDispatch } from 'react-redux';
-import { fetchPolygons } from '../features/polygons/polygonsSlice';
-import { convertToGeoJSON } from '../services/JSONToGeoJSON';
-import { fetchRouteLine } from '../features/routes/routeSlice';
-import { generateName } from '../services/nameGiverService';
+import { fetchPolygons } from '../../features/polygons/polygonsSlice';
+import { convertToGeoJSON } from '../../services/JSONToGeoJSON';
+import { fetchRouteLine } from '../../features/routes/routeSlice';
+import { generateName } from '../../services/nameGiverService';
 
 // Form for creating polygons. Can receive coordinates from the map component when user draws a new polygon using the polygon icon displayed.
 // The form is validated and the polygon is created when the user clicks submit. The form is reset after submission.
-function CreatePolygons() {
+const CreatePolygons = () => {
   const dispatch = useDispatch();
   const { selectedProfile } = useContext(ProfileContext);
   const profileRef = useRef();

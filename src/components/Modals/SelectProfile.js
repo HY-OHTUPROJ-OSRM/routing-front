@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { ins } from "../api/api";
-import { fetchRouteLine } from "../features/routes/routeSlice";
-import "./comp_styles.scss";
+import { ins } from "../../api/api";
+import { fetchRouteLine } from "../../features/routes/routeSlice";
+import "../comp_styles.scss";
 
 /*
  * SelectProfile (Option A – dropdown includes "No profile")
@@ -12,7 +12,7 @@ import "./comp_styles.scss";
 
 const NO_PROFILE = { display: "No profile", apiKey: null };
 
-const SelectProfile = ({ isOpen, onClose, onSelect }) => {
+const SelectProfile = ({ onClose, onSelect }) => {
   const dispatch = useDispatch();
   const [vehicleClasses, setVehicleClasses] = useState([]);
   const [selectedVehicleId, setSelectedVehicleId] = useState("none"); // "none" = reset
@@ -21,7 +21,6 @@ const SelectProfile = ({ isOpen, onClose, onSelect }) => {
    *  Fetch vehicle classes whenever modal opens
    * ----------------------------------------------------------*/
   useEffect(() => {
-    if (!isOpen) return;
     (async () => {
       try {
         const { data } = await ins.get("vehicle-config");
@@ -30,12 +29,7 @@ const SelectProfile = ({ isOpen, onClose, onSelect }) => {
         console.error("vehicle-config fetch failed", err);
       }
     })();
-  }, [isOpen]);
-
-  /* ------------------------------------------------------------
-   *  Guard for closed modal
-   * ----------------------------------------------------------*/
-  if (!isOpen) return null;
+  }, []);
 
   /* ------------------------------------------------------------
    *  Confirm handler

@@ -2,40 +2,42 @@ import { MapContainer, FeatureGroup, Polygon, Tooltip, Polyline, GeoJSON, useMap
 import React, { useRef, useEffect, useState, useContext } from 'react';
 import { EditControl } from 'react-leaflet-draw';
 import { CoordinatesContext, RouteContext, ProfileContext } from './CoordinatesContext';
+import { MapContext } from './MapContext';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
-import { fetchRouteLine, setStartPosition as setStartDispatchPosition, setEndPosition as setDestinationDispatchPosition } from '../features/routes/routeSlice';
+import { fetchRouteLine, setStartPosition as setStartDispatchPosition, setEndPosition as setDestinationDispatchPosition } from '../../features/routes/routeSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import 'leaflet-editable';
 import ReactLeafletEditable from 'react-leaflet-editable';
-import { setModifiedPolygons, addPolygon, modifyPolygon, setFaults } from '../features/polygons/modifiedPolygonsSlice';
+import { setModifiedPolygons, addPolygon, modifyPolygon, setFaults } from '../../features/polygons/modifiedPolygonsSlice';
 import { v4 as uuidv4 } from 'uuid';
-import { ChangePolygons } from '../services/PolygonService';
-import { fetchPolygons } from '../features/polygons/polygonsSlice';
+import { ChangePolygons } from '../../services/PolygonService';
+import { fetchPolygons } from '../../features/polygons/polygonsSlice';
 import "./Polygon.css"
-import { generateName } from '../services/nameGiverService';
-import { showTimedAlert } from '../Utils/dispatchUtility';
-import { intersectSelf } from '../services/Intersect_self';
-import { getColorAndOpacity } from '../services/PolygonVisualService';
+import { generateName } from '../../services/nameGiverService';
+import { showTimedAlert } from '../../Utils/dispatchUtility';
+import { intersectSelf } from '../../services/Intersect_self';
+import { getColorAndOpacity } from '../../services/PolygonVisualService';
 import {startti_icon, desti_icon, dis_icon} from './leafletHTMLIcon';
-import { changeListView } from '../features/view/ViewSlice';
+import { changeListView } from '../../features/view/ViewSlice';
 import VectorTileLayer from "react-leaflet-vector-tile-layer";
-import roadStyle from '../roadStyle';
-import { refreshTileLayer } from '../features/map/tileLayerSlice';
+import roadStyle from '../../roadStyle';
+import { refreshTileLayer } from '../../features/map/tileLayerSlice';
 import TempRoadDisplay from './TempRoadDisplay';
-import { getNodeList } from '../services/nodelist_service';
+import { getNodeList } from '../../services/nodelist_service';
 
 /* 
 Massive component handling all map functionalities. 
 */
 
 // Import the node service from TempRoadService
-import { findNearestNode } from '../services/TempRoadService';
+import { findNearestNode } from '../../services/TempRoadService';
 import { destination } from '@turf/turf';
 
-const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRoads, disconnectedRoadRef, nodeSelectionMode, onNodeSelection}) => {
-    const dispatch = useDispatch()
+const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRoads, nodeSelectionMode, onNodeSelection}) => {
+    const reduxDispatch = useDispatch()
+    const { dispatch, state } = useContext(MapContext)
     const { selectedProfile } = useContext(ProfileContext)
     const profileRef = useRef(selectedProfile)
     useEffect(() => { profileRef.current = selectedProfile }, [selectedProfile])
@@ -146,7 +148,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
 
             this._setIconCoordinates(this);
 
-            dispatch(this._setDispatchCoordinates(this));
+            reduxDispatch(this._setDispatchCoordinates(this));
 
             this._updateRoute();
         }
@@ -210,7 +212,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
             setRoute(newRoute);
 
             if (newRoute[0] && newRoute[1]) {
-                dispatch(fetchRouteLine(newRoute, profileRef.current))
+                reduxDispatch(fetchRouteLine(newRoute, profileRef.current))
             };
         }
     }
@@ -264,83 +266,92 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     const createDestinationMarker = ({lat, lng}) => { return router.createDestinationMarker({ lat: lat, lng: lng }) };
 
     const disconnecteRoadMarkerRef = useRef([]);
-    disconnectedRoadRef.current = [(d) => {
-        const map = mapRef.current;
-        if (!map) return;
+    newCurrentDisconnectedRoadRef = {
+        show: (d) => {
+            // Show a disconnected road on the map
 
-        disconnecteRoadMarkerRef.current.forEach((marker) => marker.remove());
-        disconnecteRoadMarkerRef.current = [];
+            const map = mapRef.current;
+            if (!map) return;
 
-        const posA = [d.a_lat, d.a_lng];
-        const posB = [d.b_lat, d.b_lng];
-        const markerA = L.marker(posA, { icon: dis_icon, draggable: false })
-            .addTo(map)
-            .bindPopup("PosA");
-        const markerB = L.marker(posB, { icon: dis_icon, draggable: false })
-            .addTo(map)
-            .bindPopup("PosB");
-            
-        const pp = L.polyline([posA, posB], {
-            color: 'blue',
-            weight: 8,
-            opacity: 0.7,
-            smoothFactor: 1
-        }).addTo(map);
+            disconnecteRoadMarkerRef.current.forEach((marker) => marker.remove());
+            disconnecteRoadMarkerRef.current = [];
 
-        disconnecteRoadMarkerRef.current.push(markerA, markerB, pp);
+            const posA = [d.a_lat, d.a_lng];
+            const posB = [d.b_lat, d.b_lng];
+            const markerA = L.marker(posA, { icon: dis_icon, draggable: false })
+                .addTo(map)
+                .bindPopup("PosA");
+            const markerB = L.marker(posB, { icon: dis_icon, draggable: false })
+                .addTo(map)
+                .bindPopup("PosB");
+                
+            const pp = L.polyline([posA, posB], {
+                color: 'blue',
+                weight: 8,
+                opacity: 0.7,
+                smoothFactor: 1
+            }).addTo(map);
 
-        mapRef.current.flyTo(posA, mapView.zoom, {
-          duration: 1
-        });
-    },
-    () => {
-        disconnecteRoadMarkerRef.current.forEach((marker) => marker.remove());
-        disconnecteRoadMarkerRef.current = [];
-    },
-    async () => {
-        const map = mapRef.current;
-        if (!map) return;
-        const data = await getNodeList();
-        console.log(data);
+            disconnecteRoadMarkerRef.current.push(markerA, markerB, pp);
 
-        const ways = data.ways;
-        const nodes = {};
+            mapRef.current.flyTo(posA, mapView.zoom, {
+            duration: 1
+            });
+        },
+        clear: () => {
+            // Clear the disconnected roads from the map 
 
-        for (let node of data.nodes) {
-            nodes[node.id] = node;
-        }
+            disconnecteRoadMarkerRef.current.forEach((marker) => marker.remove());
+            disconnecteRoadMarkerRef.current = [];
+        },
+        list: async () => {
+            // List and show all nodes on the map
 
-        const layerGroup = L.layerGroup().addTo(map);
-        for (let way of ways) {
-            const randomInt = Math.floor(Math.random() * 0xffffff);
-            const hex = randomInt.toString(16).padStart(6, '0');
-            const clo = `#${hex}`;
+            const map = mapRef.current;
+            if (!map) return;
+            const data = await getNodeList();
+            console.log(data);
 
-            const latlngs = [];
-            for (let id of way.nodes) {
-                let node = nodes[id];
-                latlngs.push([node.lat / 1e7, node.lon / 1e7]);
+            const ways = data.ways;
+            const nodes = {};
+
+            for (let node of data.nodes) {
+                nodes[node.id] = node;
             }
 
-            const polyline = L.polyline(latlngs, {
-                color: clo,
-                weight: 5,
-                opacity: 0.7,
-            }).addTo(layerGroup);
-            /*latlngs.forEach(latlng => {
-                L.circleMarker(latlng, {
-                radius: 10,
-                color: clo,
-                fillColor: clo,
-                fillOpacity: 1,
+            const layerGroup = L.layerGroup().addTo(map);
+            for (let way of ways) {
+                const randomInt = Math.floor(Math.random() * 0xffffff);
+                const hex = randomInt.toString(16).padStart(6, '0');
+                const clo = `#${hex}`;
+
+                const latlngs = [];
+                for (let id of way.nodes) {
+                    let node = nodes[id];
+                    latlngs.push([node.lat / 1e7, node.lon / 1e7]);
+                }
+
+                const polyline = L.polyline(latlngs, {
+                    color: clo,
+                    weight: 5,
+                    opacity: 0.7,
                 }).addTo(layerGroup);
-            });
-            
-            
-            
-            */
+                /*latlngs.forEach(latlng => {
+                    L.circleMarker(latlng, {
+                    radius: 10,
+                    color: clo,
+                    fillColor: clo,
+                    fillOpacity: 1,
+                    }).addTo(layerGroup);
+                });
+                
+                
+                
+                */
+            }
         }
-    }];
+    };
+    dispatch({ type: 'SET_DISCONNECTED_ROAD_REF_CURRENT', payload: newCurrentDisconnectedRoadRef });
 
     //Used when a new polygon/line is drawn.
     const onDrawCreated = async (e) => {
@@ -379,12 +390,12 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     //Used when changing to editmode
     const enableEditMode = () => {
         if (!isOpen)    {
-        dispatch(changeListView(null));
+        reduxDispatch(changeListView(null));
         setSidebar(true)
         }
         setEditing(true)
         setEditMode(true)
-        dispatch(setModifiedPolygons(polygons))
+        reduxDispatch(setModifiedPolygons(polygons))
         if (Lines) {
             editRef.current.startPolyline()
         } else {
@@ -394,8 +405,8 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     //Used when canceling editmode
     const cancelEdits = () => {
         //remove all tracked faults as data resets on cancel
-        dispatch(setFaults({id: 0, type: 2}))
-        dispatch(changeListView(null));
+        reduxDispatch(setFaults({id: 0, type: 2}))
+        reduxDispatch(changeListView(null));
         setEditing(false)
         setEditMode(false)
         setLines(0)
@@ -416,7 +427,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         }
         shape.layer.remove()
         if (!intersectSelf(geoJSON)) {
-            dispatch(addPolygon(geoJSON))
+            reduxDispatch(addPolygon(geoJSON))
         } else {
             editRef.current.props.map.editTools.stopDrawing()
            if (Lines) {
@@ -435,7 +446,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     const saveEdits = async () => {
         //console.log("modified polygons", modifiedPolygons)
         //console.log("delete ids", deleteIds)
-        dispatch(changeListView(null));
+        reduxDispatch(changeListView(null));
         const added = Object.values(modifiedPolygons).filter(zone => 
             Object.keys(sendIds).includes(String(zone.properties.id)) &&
             !Object.keys(calcelEditIds).includes(String(zone.properties.id))
@@ -448,9 +459,9 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         setEditing(false)
         setLines(0)
         setSidebar(false)
-        dispatch(refreshTileLayer())
-        dispatch(fetchPolygons())
-        dispatch(fetchRouteLine(undefined, profileRef.current))
+        reduxDispatch(refreshTileLayer())
+        reduxDispatch(fetchPolygons())
+        reduxDispatch(fetchRouteLine(undefined, profileRef.current))
         cancelEdits()
     }
     //Used to change the list view when a polygon is clicked on map
@@ -458,7 +469,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         if (!isOpen)    {
         setSidebar(true)
         }
-        dispatch(changeListView(properties.id));
+        reduxDispatch(changeListView(properties.id));
       };
     
       const setupClickListener = (layer) => {
@@ -489,7 +500,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                   name, type, id, IsLine, effectValue
                 };
                 if(!intersectSelf(geoJSON)){
-                    dispatch(modifyPolygon(geoJSON));
+                    reduxDispatch(modifyPolygon(geoJSON));
                 } else {
                     layer.setLatLngs(originalLatLngs);
                     layer.redraw()

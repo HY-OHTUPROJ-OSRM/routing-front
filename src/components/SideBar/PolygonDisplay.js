@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { ProfileContext } from './CoordinatesContext'; // varmista että polku on oikea
+import { ProfileContext } from '../Map/CoordinatesContext'; // varmista että polku on oikea
 import "./Polygon.css"; // Import the CSS file
-import { DeletePolygon, UpdatePolygon }  from "../services/PolygonService";
+import { DeletePolygon, UpdatePolygon }  from "../../services/PolygonService";
 import { useDispatch } from "react-redux";
-import { fetchPolygons } from "../features/polygons/polygonsSlice"
-import { fetchRouteLine } from "../features/routes/routeSlice"
+import { fetchPolygons } from "../../features/polygons/polygonsSlice"
+import { fetchRouteLine } from "../../features/routes/routeSlice"
 import { useSelector } from 'react-redux';
-import { getCentroid, zoomFit } from "../services/Intersect_self";
-import {changeMapView} from "../features/view/ViewSlice";
+import { getCentroid, zoomFit } from "../../services/Intersect_self";
+import {changeMapView} from "../../features/view/ViewSlice";
 
 /*
 List component used to display info of all created polygons while outside of editmode
 
 */
-const PolygonDisplay = ({ type, geometry, properties, isOpen, index }) => {
+const PolygonDisplay = ({ type, geometry, properties, index }) => {
   const [highlightedId, setHighlightedId] = useState(null);
   const listViewId = useSelector((state) => state.view.listView);
         const dispatch = useDispatch()
@@ -43,7 +43,7 @@ const PolygonDisplay = ({ type, geometry, properties, isOpen, index }) => {
        const scrollToElement = () => {
         if (listViewId) {
           const element = document.getElementById(listViewId);
-          if (element && isOpen) {
+          if (element) {
             setHighlightedId(listViewId);
             element.scrollIntoView({ behavior: "smooth" });
           }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import PolygonDisplay from "./PolygonDisplay";
 import ModifiedPolygonDisplay from "./ModifiedPolygonDisplay";
 import { useSelector } from 'react-redux';
@@ -6,13 +6,16 @@ import { useSelector } from 'react-redux';
 /*
 A list component which displays all polygons in a list form. If in editmode uses ModifiedPolygon display and if not uses PolygonDisplay
 */
-function PolygonList({editMode, setEditMode, isOpen}) {
+const PolygonList = () => {
+  const { dispatch, state } = useContext(AppContext);
+
   const polygons = useSelector((state) => state.polygons);
   const modifiedPolygons = useSelector((state) => state.modifiedPolygons);
 
-    const activeList = editMode
+  const activeList = state.editMode
     ? Object.values(modifiedPolygons.polygons || {})
-    : polygons || [];
+    : polygons || []
+  ;
 
   if (activeList.length === 0) {
     return <p className="empty-list-msg">No polygons to display.</p>;
@@ -20,12 +23,12 @@ function PolygonList({editMode, setEditMode, isOpen}) {
 
   return (
     <div>
-      {editMode
+      {state.editMode
         ? activeList.reverse().map((polygon) => (
-            <ModifiedPolygonDisplay key={polygon.properties.id} {...polygon} isOpen={isOpen} />
+            <ModifiedPolygonDisplay key={polygon.properties.id} {...polygon} />
           ))
         : activeList.map((polygon, index) => (
-            <PolygonDisplay key={polygon.properties.id} {...polygon} isOpen={isOpen} index={index} />
+            <PolygonDisplay key={polygon.properties.id} {...polygon} index={index} />
           ))}
     </div>
   );

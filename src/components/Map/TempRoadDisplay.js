@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { getNodeCoordinates } from '../services/TempRoadService';
+import { getNodeCoordinates } from '../../services/TempRoadService';
 
 const TempRoadDisplay = ({ visibleRoads = new Set() }) => {
   const map = useMap();
