@@ -1,7 +1,7 @@
 import "./comp_styles.scss";
 import React, { useState, useMemo } from "react";
 import { useSelector, useDispatch } from 'react-redux';
-import { addTempRoad } from '../features/temproads/TempRoadsSlice';
+import { addTempRoad, deleteTempRoadAsync } from '../features/temproads/TempRoadsSlice';
 import { getDisconnections, attachTempRoadToDisconnection, } from "../services/DisconnectionsService";
 
 const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
@@ -69,6 +69,7 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
         const newTempId = resultAction.payload.id; // 🆔 temp-road ID
           try {
             await attachTempRoadToDisconnection(disconnection.id, newTempId);
+            await handleGetDisconnections();
             console.log("📝 Disconnection", disconnection.id, "updated with temp_road_id", newTempId);
           } catch (linkErr) {
             console.error("Failed to attach temp road to disconnection", linkErr);
@@ -78,6 +79,21 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
       }
     } catch (err) {
       console.error("Error dispatching addTempRoad via disconnection list", err);
+    }
+  };
+
+  const handleDeleteTempRoad = async (disconnection) => {
+    if (!disconnection.temp_road_id) return;
+
+    const resultAction = await dispatch(
+      deleteTempRoadAsync(disconnection.temp_road_id)
+    );
+
+    if (deleteTempRoadAsync.fulfilled.match(resultAction)) {
+      // Päivitä lista palvelimelta, jotta näkymä pysyy synkassa
+      await handleGetDisconnections();
+    } else {
+      console.error("Failed to delete temp road", resultAction);
     }
   };
 
@@ -366,12 +382,22 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
                       </button>
                     </td>
                     <td style={{ padding: "8px", textAlign: "center" }}>
-                      <button
-                        className="disconnection-button"
-                        onClick={() => handleCreateTempRoad(item)}
-                      >
-                        Add temporary
-                      </button>
+                      {item.temp_road_id ? (
+                        <button
+                          className="disconnection-button"
+                          style={{ backgroundColor: "#d9534f" }}
+                          onClick={() => handleDeleteTempRoad(item)}
+                        >
+                          Delete temporary
+                        </button>
+                      ) : (
+                        <button
+                          className="disconnection-button"
+                          onClick={() => handleCreateTempRoad(item)}
+                        >
+                          Add temporary
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
