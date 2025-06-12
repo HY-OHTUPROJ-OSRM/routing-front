@@ -2,7 +2,7 @@ import "./comp_styles.scss";
 import React, { useState, useMemo } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import { addTempRoad, deleteTempRoadAsync } from '../features/temproads/TempRoadsSlice';
-import { getDisconnections, attachTempRoadToDisconnection, } from "../services/DisconnectionsService";
+import { getDisconnections, attachTempRoadToDisconnection, toggleHideStatus } from "../services/DisconnectionsService";
 
 const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
   const [disconnections, setDisconnections] = useState([]);
@@ -124,11 +124,18 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
       const matchesSearch = item.startNode.way_name.toLowerCase().includes(searchTerm)
         || item.endNode.way_name.toLowerCase().includes(searchTerm)
         || item.county_name.toLowerCase().includes(searchTerm);
-      const matchesFilter =
-        filterType === "all" ||
-        (filterType === "undefined" && item.temp_road_id == null) ||
-        (filterType === "actual"    && item.temp_road_id == null) ||
-        (filterType === "patched"   && item.temp_road_id != null);
+       let matchesFilter = true;
+          switch (filterType) {
+            case "undefined":
+              matchesFilter = !item.hide_status && item.temp_road_id == null;
+              break;
+            case "actual":
+              matchesFilter =  item.hide_status;
+              break;
+            case "patched":
+              matchesFilter = item.temp_road_id != null;
+              break;
+          }
       return matchesSearch && matchesFilter;
     });
   };
@@ -145,17 +152,27 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
   };
 
   const getValue = (item, key) => {
-      switch (key) {
-        case "startId":   return item.startNode.id;
-        case "endId":     return item.endNode.id;
-        case "lat":       return item.startNode.lat;
-        case "lon":       return item.startNode.lon;
-        case "distance":  return item.distance ?? 0;
-        case "distance":  return item.distance ?? 0;
-        case "county":    return item.county_name ?? "";
-        default:          return "";
-      }
-    };
+    switch (key) {
+      case "startId":   return item.startNode.id;
+      case "endId":     return item.endNode.id;
+      case "lat":       return item.startNode.lat;
+      case "lon":       return item.startNode.lon;
+      case "distance":  return item.distance ?? 0;
+      case "distance":  return item.distance ?? 0;
+      case "county":    return item.county_name ?? "";
+      default:          return "";
+    }
+  };
+
+  const handleToggleHideStatus = async (disc) => {
+    try {
+      await toggleHideStatus(disc.id);
+      console.log("📝 Disconnection", disc.id, "updated hide status");
+      await handleGetDisconnections();
+    } catch (err) {
+      console.error("toggleHideStatus failed:", err);
+    }
+  };
 
 
   const sortedDisconnections = useMemo(() => {
@@ -336,6 +353,7 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
                   {/* Ei lajittelua näissä kahdessa */}
                   <th style={{ textAlign: "center", borderBottom: "1px solid #ccc", padding: "8px" }}>Show</th>
                   <th style={{ textAlign: "center", borderBottom: "1px solid #ccc", padding: "8px" }}>Add</th>
+                  <th style={{ textAlign:"center", borderBottom:"1px solid #ccc" }}>Hide</th>
                 </tr>
               </thead>
 
@@ -384,12 +402,43 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
                         >
                           Delete temporary
                         </button>
-                      ) : (
+                      ) : item.hide_status ? (
+                        <button
+                          className="disconnection-button"
+                          disabled                               /* ← estää klikkauksen  */
+                          style={{ backgroundColor: "#ddd", cursor: "not-allowed" }}
+                        >
+                          Actual disconnection
+                        </button>
+                        ) : (
                         <button
                           className="disconnection-button"
                           onClick={() => handleCreateTempRoad(item)}
                         >
                           Add temporary
+                        </button>
+                      )}
+                    </td>
+                      <td style={{ padding: "8px", textAlign: "center" }}>
+                      {item.temp_road_id ? (
+                        <button
+                          className="disconnection-button"
+                          disabled
+                          style={{ backgroundColor: "#ddd", cursor: "not-allowed" }}
+                        >
+                          Patched
+                        </button>
+                      ) : (
+                        <button
+                          className="disconnection-button"
+                          onClick={() => handleToggleHideStatus(item)}
+                          style={
+                            item.hide_status
+                              ? { backgroundColor: "#b7e6b7" }
+                              : {}
+                          }
+                        >
+                          {item.hide_status ? "Show" : "Hide"}
                         </button>
                       )}
                     </td>
