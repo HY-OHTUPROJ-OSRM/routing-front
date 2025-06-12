@@ -35,7 +35,7 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
       type: "temporary",
       status: true,
       speed: 50,
-      length: disconnection.distance,
+      length: parseFloat(disconnection.distance),
       tags: ["from_disconnection_ui"],
       description: ""
     };
@@ -61,6 +61,7 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
   };
 
   const handleDeleteTempRoad = async (disconnection) => {
+    console.log("Deleting temp road for disconnection:", disconnection);
     if (!disconnection.temp_road_id) return;
 
     const resultAction = await dispatch(
@@ -68,7 +69,7 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
     );
 
     if (deleteTempRoadAsync.fulfilled.match(resultAction)) {
-      // Päivitä lista palvelimelta, jotta näkymä pysyy synkassa
+      console.log("🗑️ Temp road deleted successfully", resultAction.payload);
       await handleGetDisconnections();
     } else {
       console.error("Failed to delete temp road", resultAction);
@@ -135,7 +136,6 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
       case "endId":     return item.endNode.id;
       case "lat":       return item.startNode.lat;
       case "lon":       return item.startNode.lon;
-      case "distance":  return item.distance ?? 0;
       case "distance":  return item.distance ?? 0;
       case "county":    return item.county_name ?? "";
       default:          return "";
