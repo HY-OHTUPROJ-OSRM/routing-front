@@ -1,7 +1,7 @@
 import { ins } from '../api/api';
 import { showTimedAlert, clearTimedAlert } from '../Utils/dispatchUtility';
 import handleAxiosError from './handleAxiosError';
-import axios from "axios";
+
 //fetch route from backend
 export const getDisconnections = async (minDistance, maxDistance, isSameName) => {
   const alertId = `loading-${Date.now()}`;
@@ -32,4 +32,8 @@ export const attachTempRoadToDisconnection = (discId, tempRoadId) => {
   return ins.patch(`disconnected_links/${discId}`, {
     temp_road_id: tempRoadId,
   });
+};
+
+export const toggleHideStatus = (discId) => {
+  return ins.patch(`disconnected_links/${discId}/hide`);
 };

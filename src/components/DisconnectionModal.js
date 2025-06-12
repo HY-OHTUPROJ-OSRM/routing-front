@@ -117,13 +117,6 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
       setFilteredDisconnections([]);
     }
 
-    // Reset search term and dropdown
-    if (document.querySelector(".search-disconnections") != null) {
-      setSearchTerm("");
-      setFilterType("all");
-      document.querySelector(".search-disconnections").value = "";
-      document.querySelector(".filter-dropdown").value = "all";
-    }
   };
 
   const applyFilters = (disconnections, searchTerm, filterType) => {
@@ -253,6 +246,7 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
               <input
                 type="text"
                 placeholder="Search street names, counties, ..."
+                value={searchTerm}     
                 className="search-disconnections"
                 onChange={(e) => {
                   const newSearchTerm = e.target.value.toLowerCase();
