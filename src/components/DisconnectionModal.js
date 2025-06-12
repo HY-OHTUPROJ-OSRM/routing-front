@@ -27,28 +27,6 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
 
       return `Temp road: ${clean(nameA)} → ${clean(nameB)}`;
     };
-    const toRadians = (deg) => (deg * Math.PI) / 180;
-
-    const calculateDistance = (lat1, lon1, lat2, lon2) => {
-      const R = 6371000;
-      const φ1 = toRadians(lat1);
-      const φ2 = toRadians(lat2);
-      const Δφ = toRadians(lat2 - lat1);
-      const Δλ = toRadians(lon2 - lon1);
-
-      const a =
-        Math.sin(Δφ / 2) ** 2 +
-        Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2;
-
-      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    };
-
-    const length = calculateDistance(
-      disconnection.a_lat,
-      disconnection.a_lng,
-      disconnection.b_lat,
-      disconnection.b_lng
-    );
 
     const payload = {
       start_node: parseInt(node_id_a),
@@ -57,7 +35,7 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
       type: "temporary",
       status: true,
       speed: 50,
-      length: length,
+      length: disconnection.distance,
       tags: ["from_disconnection_ui"],
       description: ""
     };
