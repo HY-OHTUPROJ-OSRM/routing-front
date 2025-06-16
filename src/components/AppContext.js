@@ -14,7 +14,7 @@ const initialState = {
     sidebarType: null, // 'list' | 'add' | 'temproad' | 'guide' | null
     modalType: null, // 'profile' | 'disconnection' | null
     editMode: false,
-    visibleTempRoads: new Set(), // uhhh idkk
+    visibleTempRoads: new Set(), // This should maybe moved to Redux store
     nodeSelectionMode: {
         active: false,
         selecting: null // 'start' or 'end'
