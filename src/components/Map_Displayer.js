@@ -45,74 +45,96 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         lat: 60.205,
         zoom: 15
     };
-    //Variable for tracking if user is hovering over the edit button. Used to prevent marker placement when edit button is clicked
+    
+    // Variable for tracking if user is hovering over the edit button. Used to prevent marker placement when edit button is clicked
     const [editHover, setEditHover]=useState(false)
+    
+    // NEW: Track if polygon drawing is in progress
+    const [isDrawingPolygon, setIsDrawingPolygon] = useState(false);
+    
     // Variable containing geometry of the generated route(s)
     const routedata = useSelector((state) => state.routeLine.routeLine);
-    //Variable used to make sure polygons set to be deleted are not re created on when save is clicked
+    
+    // Variable used to make sure polygons set to be deleted are not re created on when save is clicked
     const calcelEditIds = useSelector((state) => state.modifiedPolygons.cancelSendIds);
-    //Variable used to make sure all changes are valid before saving, if not save cannot be clicked
+    
+    // Variable used to make sure all changes are valid before saving, if not save cannot be clicked
     const cansave =useSelector((state) => state.modifiedPolygons.faultval)
-    //Initial position of the map view
+    
+    // Initial position of the map view
     const position = [initialState.lat, initialState.long];
-    //Variable for tracking if user is in editing mode
+    
+    // Variable for tracking if user is in editing mode
     const [editing, setEditing] = useState(false)
-    //Variable containing all polygons received from the backend
+    
+    // Variable containing all polygons received from the backend
     const polygons = useSelector((state) => state.polygons)
-    //Currently not used. Could be used if user want to see all segments on the map affected by polygons
+    
+    // Currently not used. Could be used if user want to see all segments on the map affected by polygons
     const segments = useSelector((state) => state.segments)
-    //Same as polygon but used in editmode
+    
+    // Same as polygon but used in editmode
     const modifiedPolygons = useSelector((state) => state.modifiedPolygons.polygons)
-    //Variable for tracking all polygon to be sent to backend when save is clicked
+    
+    // Variable for tracking all polygon to be sent to backend when save is clicked
     const sendIds = useSelector((state) => state.modifiedPolygons.sendIds)
-    //Variable for tracking all polygon to be deleted when save is clicked
+    
+    // Variable for tracking all polygon to be deleted when save is clicked
     const deleteIds = useSelector((state) => state.modifiedPolygons.deleteIds)
-    //Variable used to track amount of markers placed on the map. Used to track whether placed marker should be start or end position and if both already exist no marker should be placed
+    
+    // Variable used to track amount of markers placed on the map. Used to track whether placed marker should be start or end position and if both already exist no marker should be placed
     const [markerCount, setMarkerCount] = useState(0);
-    //Variable for tracking if user is drawing lines or polygons
+    
+    // Variable for tracking if user is drawing lines or polygons
     const [Lines, setLines] = useState(0);
-    //Reference to the leaflet edit functionalities
+    
+    // Reference to the leaflet edit functionalities
     const editRef = useRef();
-    //Reference to the map component of leaflet
+    
+    // Reference to the map component of leaflet
     const mapRef = useRef();
-    //Reference to the polygons drawn on the map outside of editmode
+    
+    // Reference to the polygons drawn on the map outside of editmode
     const zonesRef = useRef(null);
-    //Reference to the polygons drawn on the map inside of editmode
+    
+    // Reference to the polygons drawn on the map inside of editmode
     const editingZonesRef = useRef(null);
-    //context replaced by redux in most places, but may still be used in some spots
+    
+    // Context replaced by redux in most places, but may still be used in some spots
     const { setCoordinates } = useContext(CoordinatesContext);
     const { route, setRoute } = useContext(RouteContext);
-    //Variable for changing map view when new view is requested from list component
+    
+    // Variable for changing map view when new view is requested from list component
     const mapView = useSelector((state) => state.view.mapView);
+    
     // For refreshing the VectorTileLayer
     const tileLayer = useSelector((state) => state.tileLayer)
+    
     let mountingHelper=0
     let maphelp=null
     let originalLatLngs = 0;
-    //{lat: '', lng: ''}
+    
     const [updateFlag, setUpdateFlag] = useState(false);
     const [popupPosition, setPopupPosition] = useState(null);
     const [popupCoordinates, setPopupCoordinates] = useState(null);
     const popupContainer = useRef(null);
     
-    //Alternative start icon replaced with html marker
+    // Alternative start icon replaced with html marker
     const start_icon = new L.Icon({
         iconUrl: require('../img/amb.webp'),
-        //iconUrl: icon,
-        //iconUrl: startti_icon,
         iconSize: [60, 60],
         iconAnchor: [30, 40],
         popupAnchor: [0, -30],
     });
-    //Alternative destination icon replaced with html marker
+    
+    // Alternative destination icon replaced with html marker
     const destination_icon = new L.Icon({
         iconUrl: require('../img/goal.png'),
-        //iconUrl: icon,
         iconSize: [40, 40],
         iconAnchor: [11, 38],
-        //iconAnchor: [13, 40],
         popupAnchor: [0, -30],
     });
+    
     const placehold_icon = new L.Icon({
         iconUrl: icon,
         iconSize: [25, 41],
@@ -327,24 +349,26 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                 weight: 5,
                 opacity: 0.7,
             }).addTo(layerGroup);
-            /*latlngs.forEach(latlng => {
-                L.circleMarker(latlng, {
-                radius: 10,
-                color: clo,
-                fillColor: clo,
-                fillOpacity: 1,
-                }).addTo(layerGroup);
-            });
-            
-            
-            
-            */
         }
     }];
 
-    //Used when a new polygon/line is drawn.
+    // NEW: Listen for drawing start event
+    const onDrawStart = (e) => {
+        setIsDrawingPolygon(true);
+    };
+
+    // NEW: Listen for drawing stop/cancel event
+    const onDrawStop = (e) => {
+        setIsDrawingPolygon(false);
+    };
+
+    // Used when a new polygon/line is drawn.
     const onDrawCreated = async (e) => {
         const { layerType, layer } = e;
+        
+        // NEW: Reset drawing state when polygon is completed
+        setIsDrawingPolygon(false);
+        
         if (layerType === 'polygon' || layerType === 'Linestring') {
             const cords={geometry: {type: "Polygon", coordinates: [layer.getLatLngs()[0].map(latlng => ([latlng.lng, latlng.lat]))]}};
             cords.geometry.coordinates[0].push(cords.geometry.coordinates[0][0]);
@@ -357,7 +381,8 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
             }
         }
     };
-    //Used when user hovers over a polygon/line
+
+    // Used when user hovers over a polygon/line
     const handleMouseOver = (e) => {
         const layer = e.target;
         layer.setStyle({
@@ -368,7 +393,8 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         onClickHandler(e.target.options);
         }
     };
-    //Used when user stops hovering over a polygon/line
+
+    // Used when user stops hovering over a polygon/line
     const handleMouseOut = (e) => {
         const layer = e.target;
         layer.setStyle({
@@ -376,7 +402,8 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
             fillOpacity: 0.5
         });
     };
-    //Used when changing to editmode
+
+    // Used when changing to editmode
     const enableEditMode = () => {
         if (!isOpen)    {
         dispatch(changeListView(null));
@@ -391,9 +418,10 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
             editRef.current.startPolygon()
         }
     }
-    //Used when canceling editmode
+
+    // Used when canceling editmode
     const cancelEdits = () => {
-        //remove all tracked faults as data resets on cancel
+        // Remove all tracked faults as data resets on cancel
         dispatch(setFaults({id: 0, type: 2}))
         dispatch(changeListView(null));
         setEditing(false)
@@ -405,7 +433,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         editRef.current.props.map.editTools.stopDrawing()
     }
 
-    //Used when a new polygon is drawn in editmode
+    // Used when a new polygon is drawn in editmode
     const onDrawingCommit = (shape) => {
         const geoJSON = shape.layer.toGeoJSON()
         geoJSON.properties = {
@@ -431,16 +459,13 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         e.layer.remove()
     }
 
-    //Used when saving edits. sends all added/deleted polygons to the backend and updates the map with new polygons and new route
+    // Used when saving edits. sends all added/deleted polygons to the backend and updates the map with new polygons and new route
     const saveEdits = async () => {
-        //console.log("modified polygons", modifiedPolygons)
-        //console.log("delete ids", deleteIds)
         dispatch(changeListView(null));
         const added = Object.values(modifiedPolygons).filter(zone => 
             Object.keys(sendIds).includes(String(zone.properties.id)) &&
             !Object.keys(calcelEditIds).includes(String(zone.properties.id))
         );
-        //console.log("added", added)
         
         editRef.current.props.map.editTools.stopDrawing()
         await ChangePolygons(added, Object.keys(deleteIds))
@@ -453,7 +478,8 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         dispatch(fetchRouteLine(undefined, profileRef.current))
         cancelEdits()
     }
-    //Used to change the list view when a polygon is clicked on map
+
+    // Used to change the list view when a polygon is clicked on map
     const onClickHandler = (properties) => {
         if (!isOpen)    {
         setSidebar(true)
@@ -468,7 +494,8 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
           });
         }
       };
-    //Used to update polygon when user edits an already drawn polygon by draggin its vertices in editmode
+
+    // Used to update polygon when user edits an already drawn polygon by draggin its vertices in editmode
       const enableLayerEdits = () => {
         if (editingZonesRef.current !== null) {
           editingZonesRef.current.getLayers().forEach((layer) => {
@@ -478,7 +505,6 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
             layer.on("editable:vertex:dragstart", (e) => {
                 // Store the original coordinates before drag starts
                originalLatLngs = layer.getLatLngs();
-               //console.log(layer.getLatLngs(), originalLatLngs)
               });
             }
             if (!layer.listens("editable:vertex:dragend")) {
@@ -512,7 +538,8 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
           }
         }
       };
-      //UseEffect used to enable click listeners for all polygons.
+
+      // UseEffect used to enable click listeners for all polygons.
       useEffect(() => {
         if (zonesRef.current !== null) {
           zonesRef.current.getLayers().forEach(setupClickListener);
@@ -521,7 +548,27 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
 
     useEffect(enableLayerEdits)
 
-    //Generates the color and opacity for the polygons based on their type and effect value. Used outside of editmode
+    // NEW: Effect to control marker dragging based on drawing state
+    useEffect(() => {
+        if (router && router.startMarker && router.destinationMarker) {
+            const startMarker = router.startMarker.marker;
+            const destMarker = router.destinationMarker.marker;
+            
+            if (startMarker && destMarker) {
+                if (isDrawingPolygon) {
+                    // Disable marker dragging during polygon drawing
+                    startMarker.dragging.disable();
+                    destMarker.dragging.disable();
+                } else {
+                    // Enable marker dragging when not drawing
+                    startMarker.dragging.enable();
+                    destMarker.dragging.enable();
+                }
+            }
+        }
+    }, [isDrawingPolygon, router]);
+
+    // Generates the color and opacity for the polygons based on their type and effect value. Used outside of editmode
     const geoJsonStyle = (feature) => {
         let {color, opacity} = getColorAndOpacity(feature.properties.type, feature.properties.effect_value);
         if(!Number(opacity)){
@@ -532,8 +579,10 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
           fillOpacity: opacity
         };
       };
-      //Adds hover listeners to each polygon/line. Used outside of editmode
+
+      // Adds hover listeners to each polygon/line. Used outside of editmode
       const onEachFeature = (feature, layer) => {
+        // Keep polygon hover functionality regardless of drawing state
         layer.on({
           mouseover: handleMouseOver,
           mouseout: handleMouseOut,
@@ -543,24 +592,23 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
           layer.bindTooltip(`${feature.properties.name} | ${feature.properties.type}`);
         }
       };
-    //Toggle to use lines instead of polygons when drawing
+
+    // Toggle to use lines instead of polygons when drawing
     const ChangeLines= () => {
         setLines(1)
         editRef.current.props.map.editTools.stopDrawing()
         editRef.current.startPolyline()
     }
-    //Toggle to use polygons instead of lines when drawing
+
+    // Toggle to use polygons instead of lines when drawing
     const ChangedrawPolygons= () => {
-        //console.log(Lines)
         setLines(0)
         editRef.current.props.map.editTools.stopDrawing()
         editRef.current.startPolygon()
- 
-
     }
-    //Used to change view to the center of the selected polygon/line
+
+    // Used to change view to the center of the selected polygon/line
     function handleOnFlyTo() {
-        
         const { leafletElement: map } = mapRef;
         if (mapView.center!==undefined){
         mapRef.current.flyTo(mapView.center, mapView.zoom, {
@@ -572,9 +620,9 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         handleOnFlyTo();
       }, [mapView]);
     
-    //Used to place start and destination positions on the map when user clicks on the map. If in editmode or hovering over edit button, a marker will not be placed
+    // MODIFIED: Used to place start and destination positions on the map when user clicks on the map. 
+    // Now also prevents marker placement during polygon drawing
     const ClickHandler = () => {
-
         useMapEvent('click', async (event) => {
            let {lat, lng} = event.latlng;
            const map = mapRef.current;
@@ -597,7 +645,8 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                }
            }
            
-           if (editMode || editHover){
+           // NEW: Prevent marker placement during polygon drawing
+           if (editMode || editHover || isDrawingPolygon){
             return null
            } 
             if (markerCount ===0){
@@ -638,7 +687,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     const handleClick = (event) => {
         };
 
-        //Used to bring route polylines to the front, so that the polylines are not hidden by polygons
+        // Used to bring route polylines to the front, so that the polylines are not hidden by polygons
     useEffect(() => {
             let map=mapRef.current
             if (map===null){
@@ -662,7 +711,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
             
     }, [routedata]);  
         
-    //Used to track if user hovers over the edit button
+    // Used to track if user hovers over the edit button
     const handleEditMouseOver = () => {
         setEditHover(true);
           };
@@ -920,6 +969,8 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                 <EditControl
                 position="topright"
                 onCreated={onDrawCreated}
+                onDrawStart={onDrawStart}  // NEW: Listen for drawing start
+                onDrawStop={onDrawStop}    // NEW: Listen for drawing stop/cancel
                 draw={{
                     polygon: true,
                     rectangle: false,
@@ -934,7 +985,8 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                 }}
                 />
             </FeatureGroup>}
-            {popupPosition && (
+            {/* NEW: Hide popup during polygon drawing */}
+            {popupPosition && !isDrawingPolygon && (
                 <div
                     style={{
                         position: 'absolute',
