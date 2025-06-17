@@ -151,12 +151,11 @@ const DeletePolygon = async (id) => {
   }
 };
 
-// Batch delete function using sequential deletion to avoid array serialization issues
+// Batch delete polygons by IDs
 const BatchDeletePolygons = async (polygonIds) => {
   const alertId = `batch-delete-${Date.now()}`;
   
   try {
-    // Validate input
     if (!Array.isArray(polygonIds) || polygonIds.length === 0) {
       throw new Error('Invalid polygon IDs provided');
     }
@@ -167,7 +166,6 @@ const BatchDeletePolygons = async (polygonIds) => {
       id: alertId 
     });
     
-    // Ensure all IDs are integer format
     const integerIds = polygonIds.map(id => {
       const parsed = typeof id === 'string' ? parseInt(id, 10) : id;
       if (isNaN(parsed)) {
@@ -176,71 +174,36 @@ const BatchDeletePolygons = async (polygonIds) => {
       return parsed;
     });
     
-    // Delete polygons sequentially to avoid array serialization issues
-    let deletedCount = 0;
-    const errors = [];
+    const data = { added: [], deleted: integerIds };
     
-    for (let i = 0; i < integerIds.length; i++) {
-      const id = integerIds[i];
-      
-      try {
-        const data = { added: [], deleted: [id] };
-        
-        await ins({
-          url: 'zones/diff',
-          method: "post",
-          data: JSON.stringify(data),
-          headers: { 
-            "content-type": "application/json",
-            "accept": "application/json"
-          },
-          timeout: 10000
-        });
-        
-        deletedCount++;
-        
-        // Brief delay to avoid server overload
-        if (i < integerIds.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 200));
-        }
-        
-      } catch (singleError) {
-        errors.push({ id, error: singleError.message || 'Unknown error' });
-      }
-    }
+    await ins({
+      url: 'zones/diff',
+      method: "post",
+      data: JSON.stringify(data),
+      headers: { 
+        "content-type": "application/json",
+        "accept": "application/json"
+      },
+      timeout: 30000
+    });
     
     clearTimedAlert(alertId);
-    
-    if (errors.length === 0) {
-      showTimedAlert({ 
-        text: `Successfully deleted all ${deletedCount} polygon(s)`, 
-        variant: 'success' 
-      });
-    } else if (deletedCount > 0) {
-      showTimedAlert({ 
-        text: `Partially successful: deleted ${deletedCount}/${integerIds.length} polygon(s). ${errors.length} failed.`, 
-        variant: 'warning' 
-      });
-    } else {
-      throw new Error(`Failed to delete any polygons. Errors: ${errors.map(e => `ID ${e.id}: ${e.error}`).join(', ')}`);
-    }
+    showTimedAlert({ 
+      text: `Successfully deleted all ${integerIds.length} polygon(s)`, 
+      variant: 'success' 
+    });
     
   } catch (error) {
     clearTimedAlert(alertId);
-    
-    let errorMessage = 'Failed to delete polygons';
-    if (error.message) {
-      errorMessage = `Error: ${error.message}`;
-    }
-    
     showTimedAlert({ 
-      text: errorMessage, 
+      text: `Failed to delete polygons: ${error.message}`, 
       variant: 'error' 
     });
-    
     handleAxiosError(error);
     throw error;
   }
 };
+    
+    
 
 export { getPolygons, CreatePolygon, DeletePolygon, ChangePolygons, getSegments, BatchDeletePolygons };
