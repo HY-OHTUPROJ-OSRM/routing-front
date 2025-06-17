@@ -139,4 +139,5 @@ report.html
 poetry.lock
 report.html
 
+# MacOS specific files
 .DS_Store
