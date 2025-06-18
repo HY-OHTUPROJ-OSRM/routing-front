@@ -18,8 +18,6 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
 
   const dispatch = useDispatch();
   const handleCreateTempRoad = async (disconnection) => {
-    const node_id_a = disconnection.startNode.id
-    const node_id_b = disconnection.endNode.id
 
     const getReadableName = (nameA, nameB) => {
       const clean = (name) =>
@@ -29,8 +27,7 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
     };
 
     const payload = {
-      start_node: parseInt(node_id_a),
-      end_node: parseInt(node_id_b),
+      geom: `LINESTRING(${disconnection.startNode.lon} ${disconnection.startNode.lat}, ${disconnection.endNode.lon} ${disconnection.endNode.lat})`,
       name: getReadableName(disconnection.startNode.way_name, disconnection.endNode.way_name),
       type: "temporary",
       status: true,
