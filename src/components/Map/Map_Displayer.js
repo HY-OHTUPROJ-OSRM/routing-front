@@ -35,7 +35,7 @@ Massive component handling all map functionalities.
 import { findNearestNode } from '../../services/TempRoadService';
 import { destination } from '@turf/turf';
 
-const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRoads, nodeSelectionMode, onNodeSelection}) => {
+const Map_Displayer = ({onNodeSelection}) => {
     const reduxDispatch = useDispatch()
     const { dispatch, state } = useContext(MapContext)
     const { selectedProfile } = useContext(ProfileContext)
@@ -58,8 +58,6 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     //Initial position of the map view
     const position = [initialState.lat, initialState.long];
     //Variable for tracking if user is in editing mode
-    const [editing, setEditing] = useState(false)
-    //Variable containing all polygons received from the backend
     const polygons = useSelector((state) => state.polygons)
     //Currently not used. Could be used if user want to see all segments on the map affected by polygons
     const segments = useSelector((state) => state.segments)
@@ -375,7 +373,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
             fillColor: 'black',
             fillOpacity: 0.7
         });
-        if (editMode){
+        if (state.editMode){
         onClickHandler(e.target.options);
         }
     };
@@ -389,12 +387,11 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     };
     //Used when changing to editmode
     const enableEditMode = () => {
-        if (!isOpen)    {
-        reduxDispatch(changeListView(null));
-        setSidebar(true)
+        if (state.sidebarType === 'list') {
+            reduxDispatch(changeListView(null));
+            dispatch({type: "SET_SIDEBAR_TYPE", payload: 'list'})
         }
-        setEditing(true)
-        setEditMode(true)
+        dispatch({type: "SET_EDIT_MODE", payload: true})
         reduxDispatch(setModifiedPolygons(polygons))
         if (Lines) {
             editRef.current.startPolyline()
@@ -407,11 +404,10 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         //remove all tracked faults as data resets on cancel
         reduxDispatch(setFaults({id: 0, type: 2}))
         reduxDispatch(changeListView(null));
-        setEditing(false)
-        setEditMode(false)
+        dispatch({type: "SET_EDIT_MODE", payload: true})
         setLines(0)
-        if (isOpen) {
-        setSidebar(false)
+        if (state.sidebarType === 'list') {
+            dispatch({type: "SET_SIDEBAR_TYPE", payload: null})
         }
         editRef.current.props.map.editTools.stopDrawing()
     }
@@ -455,10 +451,9 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         
         editRef.current.props.map.editTools.stopDrawing()
         await ChangePolygons(added, Object.keys(deleteIds))
-        setEditMode(false)
-        setEditing(false)
+        dispatch({type: "SET_EDIT_MODE", payload: false})
         setLines(0)
-        setSidebar(false)
+        dispatch({type: "SET_SIDEBAR_TYPE", payload: null})
         reduxDispatch(refreshTileLayer())
         reduxDispatch(fetchPolygons())
         reduxDispatch(fetchRouteLine(undefined, profileRef.current))
@@ -466,8 +461,8 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     }
     //Used to change the list view when a polygon is clicked on map
     const onClickHandler = (properties) => {
-        if (!isOpen)    {
-        setSidebar(true)
+        if (!state.sidebarType === 'list') {
+            dispatch({type: "SET_SIDEBAR_TYPE", payload: 'list'})
         }
         reduxDispatch(changeListView(properties.id));
       };
@@ -591,7 +586,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
            const map = mapRef.current;
            
            // Handle node selection for temporary roads
-           if (nodeSelectionMode && nodeSelectionMode.active) {
+           if (state.nodeSelectionMode && state.nodeSelectionMode.active) {
                try {
                    // Find nearest node to clicked coordinates
                    const nearestNodeId = await findNearestNode(lat, lng);
@@ -608,7 +603,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                }
            }
            
-           if (editMode || editHover){
+           if (state.editMode || editHover){
             return null
            } 
             if (markerCount ===0){
@@ -728,7 +723,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         // Update map container and body class based on node selection mode
         const mapContainer = mapRef.current?.getContainer();
         if (mapContainer) {
-            if (nodeSelectionMode && nodeSelectionMode.active) {
+            if (state.nodeSelectionMode && state.nodeSelectionMode.active) {
                 mapContainer.classList.add('node-selection-active');
                 document.body.style.cursor = 'crosshair';
                 mapContainer.style.cursor = 'crosshair !important';
@@ -741,14 +736,14 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
 
         // Cleanup function
         return () => {
-            if (nodeSelectionMode && !nodeSelectionMode.active) {
+            if (state.nodeSelectionMode && !state.nodeSelectionMode.active) {
                 document.body.style.cursor = '';
                 if (mapContainer) {
                     mapContainer.style.cursor = '';
                 }
             }
         };
-    }, [nodeSelectionMode]);
+    }, [state.nodeSelectionMode]);
 
     return (
         <ReactLeafletEditable
@@ -819,7 +814,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                 styleUrl={roadStyle}
             />
 
-            <TempRoadDisplay visibleRoads={visibleTempRoads} />
+            <TempRoadDisplay visibleRoads={state.visibleTempRoads} />
 
             {routedata.slice().reverse().map((route, index) => (
             <Polyline key={index} positions={route.route} color={route.color} pathOptions={{

@@ -1,5 +1,5 @@
 import L from 'leaflet';
-import { fetchRouteLine, setStartPosition as setStartDispatchPosition, setEndPosition as setDestinationDispatchPosition } from '../routes/routeSlice';
+import { fetchRouteLine, setStartPosition as setStartDispatchPosition, setEndPosition as setDestinationDispatchPosition } from './routeSlice';
 
 // A single coordinate class to handle all this shit
 const Coordinates = class {
