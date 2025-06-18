@@ -8,6 +8,7 @@ import segmentsReducer from "../features/segments/segmentSlice"
 import ViewSliceReducer from "../features/view/ViewSlice"
 import tileLayerReducer from "../features/map/tileLayerSlice"
 import tempRoadsReducer from "../features/temproads/TempRoadsSlice"
+import limitsReducer from "../features/limits/LimitsSlice"
 
 //store to add all used reducers
 export default configureStore({
@@ -19,6 +20,7 @@ export default configureStore({
         segments: segmentsReducer,
         view: ViewSliceReducer,
         tileLayer: tileLayerReducer,
-        tempRoads: tempRoadsReducer
+        tempRoads: tempRoadsReducer,
+        limits: limitsReducer
     }
 })

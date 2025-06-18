@@ -1,7 +1,16 @@
 import React, { useState } from "react";
 import "./comp_styles.scss";
 
-const Header = ({ onClickA, onClickP, onClickGuide, handleToolsClick, handleShowProfileModal, selectedProfile, handleShowDisconnectionModal }) => {
+const Header = ({ 
+  onClickA, 
+  onClickP, 
+  onClickGuide, 
+  handleToolsClick, 
+  handleShowProfileModal, 
+  selectedProfile, 
+  handleShowDisconnectionModal,
+  handleShowLimitsModal
+}) => {
   const [selectedTool, setSelectedTool] = useState("None");
   const formattedProfile = selectedProfile.display.replace(/\s*,\s*/, " / ");
 
@@ -17,6 +26,9 @@ const Header = ({ onClickA, onClickP, onClickGuide, handleToolsClick, handleShow
     }
     if (value === 'info') {
       handleShowDisconnectionModal();
+    }
+    if (value === 'limits') {
+      handleShowLimitsModal();
     }
     else {
     }
@@ -36,6 +48,7 @@ const Header = ({ onClickA, onClickP, onClickGuide, handleToolsClick, handleShow
             <option value="select-profile">Select profile</option>
             <option value="info">Disconneted roads</option>
             <option value="temproad">Temporary roads</option>
+            <option value="limits">Weight & Height Limits</option>
 
           </select>
         </label>

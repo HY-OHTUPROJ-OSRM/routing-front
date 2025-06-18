@@ -8,6 +8,7 @@ import IceRoadSidebar from './components/ToolsSidebar';
 import SelectProfile from './components/SelectProfile';
 import TempRoadSidebar from './components/ToolsSidebar';
 import TempRoads from './components/TempRoad';
+import LimitsDisplay from './components/LimitsDisplay';
 import Map_displayer from './components/Map_Displayer';
 import { fetchPolygons } from './features/polygons/polygonsSlice';
 import { AppProviders, ProfileContext } from './components/CoordinatesContext';
@@ -22,7 +23,7 @@ export default function App() {
     dispatch(fetchPolygons());
   }, [dispatch]);
 
-  const [sidebarType, setSidebarType] = useState(null); // 'list' | 'add' | 'TempRoad' | null
+  const [sidebarType, setSidebarType] = useState(null); // 'list' | 'add' | 'TempRoad' | 'limits' | null
   const [editMode, setEditMode] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState({ display: "No profile", apiKey: null });
   const [showDisconnectionModal, setShowDisconnectionModal] = useState(false);
@@ -43,9 +44,10 @@ export default function App() {
   const handleAddClick = () => handleSidebarClick('add');
   const handleListClick = () => handleSidebarClick('list');
   const handleToolsClick = () => handleSidebarClick('TempRoad');
+  const handleLimitsClick = () => handleSidebarClick('limits');
 
   const openListSidebar = () => {
-    if (sidebarType === 'list') return; // jo auki → ei tehdä mitään
+    if (sidebarType === 'list') return;
     setSidebarType('list');
   };
 
@@ -55,9 +57,9 @@ export default function App() {
     setShowProfileModal(false);
     console.log("Selected profile:", profileObj);
   }
+  
   const closeSidebar = () => {
     setSidebarType(null);
-
   };
 
   // Callback to handle changes in visible temp roads
@@ -93,6 +95,7 @@ export default function App() {
             handleShowProfileModal={() => setShowProfileModal(true)}
             selectedProfile={selectedProfile}
             handleShowDisconnectionModal={() => setShowDisconnectionModal(true)}
+            handleShowLimitsModal={handleLimitsClick}
           />
         <TimedAlert />
 
@@ -100,7 +103,7 @@ export default function App() {
         {nodeSelectionMode.active && (
           <div style={{
             position: 'fixed',
-            top: '80px', // Adjust based on your header height
+            top: '80px',
             left: '50%',
             transform: 'translateX(-50%)',
             backgroundColor: '#fff3cd',
@@ -176,6 +179,17 @@ export default function App() {
                     onVisibleRoadsChange={handleVisibleRoadsChange}
                     onNodeSelectionModeChange={handleNodeSelectionModeChange}
                     onNodeSelectionHandler={handleNodeSelectionHandlerRegistration}
+                  />
+                )}
+              />
+            )}
+
+            {sidebarType === 'limits' && (
+              <TempRoadSidebar
+                isOpen={true}
+                toBeDisplayed={() => (
+                  <LimitsDisplay 
+                    isOpen={true}
                   />
                 )}
               />
