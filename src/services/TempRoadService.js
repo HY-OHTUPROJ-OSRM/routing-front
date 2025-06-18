@@ -58,13 +58,14 @@ const getTempRoadById = async (id) => {
   }
 };
 
-const deleteTempRoad = async (id) => {
+const deleteTempRoad = async (id, updated_at) => {
   const alertId = `loading-${Date.now()}`;
   try {
     showTimedAlert({ text: 'Deleting temporary road...', variant: 'info', id: alertId });
     const response = await ins({
       url: `temps/${id}`,
       method: "delete",
+      data: { updated_at },
       headers: { "content-type": "application/json" },
     });
     clearTimedAlert(alertId);
@@ -73,7 +74,7 @@ const deleteTempRoad = async (id) => {
   } catch (error) {
     clearTimedAlert(alertId);
     handleAxiosError(error);
-    throw error; // re-throw to handle it in the calling function
+    throw error;
   }
 };
 

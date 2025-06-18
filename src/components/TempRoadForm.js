@@ -42,7 +42,13 @@ function TempRoadForm({
       };
       dispatch(addTempRoad(newRoadData));
     } else {
-      dispatch(updateTempRoadAsync({ id: road.id, updates: dataToSubmit }));
+      dispatch(updateTempRoadAsync({ 
+        id: road.id, 
+        updates: { 
+          ...dataToSubmit, 
+          updated_at: road.updated_at
+        } 
+      }));
     }
 
     onFormClose();

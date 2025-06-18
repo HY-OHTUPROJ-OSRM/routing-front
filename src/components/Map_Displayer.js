@@ -25,14 +25,12 @@ import roadStyle from '../roadStyle';
 import { refreshTileLayer } from '../features/map/tileLayerSlice';
 import TempRoadDisplay from './TempRoadDisplay';
 import { getNodeList } from '../services/nodelist_service';
+import { findNearestNode } from '../services/TempRoadService';
+import { destination } from '@turf/turf';
 
 /* 
 Massive component handling all map functionalities. 
 */
-
-// Import the node service from TempRoadService
-import { findNearestNode } from '../services/TempRoadService';
-import { destination } from '@turf/turf';
 
 const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRoads, disconnectedRoadRef, nodeSelectionMode, onNodeSelection}) => {
     const dispatch = useDispatch()
@@ -47,9 +45,9 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     };
     
     // Variable for tracking if user is hovering over the edit button. Used to prevent marker placement when edit button is clicked
-    const [editHover, setEditHover]=useState(false)
+    const [editHover, setEditHover] = useState(false)
     
-    // NEW: Track if polygon drawing is in progress
+    // Track if polygon drawing is in progress
     const [isDrawingPolygon, setIsDrawingPolygon] = useState(false);
     
     // Variable containing geometry of the generated route(s)
@@ -59,7 +57,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     const calcelEditIds = useSelector((state) => state.modifiedPolygons.cancelSendIds);
     
     // Variable used to make sure all changes are valid before saving, if not save cannot be clicked
-    const cansave =useSelector((state) => state.modifiedPolygons.faultval)
+    const cansave = useSelector((state) => state.modifiedPolygons.faultval)
     
     // Initial position of the map view
     const position = [initialState.lat, initialState.long];
@@ -110,8 +108,12 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     // For refreshing the VectorTileLayer
     const tileLayer = useSelector((state) => state.tileLayer)
     
-    let mountingHelper=0
-    let maphelp=null
+    // Reference to the selected polygon when user clicks on a polygon
+    const [selectedPolygon, setSelectedPolygon] = useState(null);
+    const [showEditButton, setShowEditButton] = useState(false);
+    
+    let mountingHelper = 0
+    let maphelp = null
     let originalLatLngs = 0;
     
     const [updateFlag, setUpdateFlag] = useState(false);
@@ -151,7 +153,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         className: 'node-selection-marker'
     });
 
-    // A single coordinate class to handle all this shit
+    // A single coordinate class to handle all coordinates
     const Coordinates = class {
         constructor(dispatchCoordinatesSetter, routeUpdater, iconCoordinatesSetter) {
             this._lat = null;
@@ -323,7 +325,6 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         const map = mapRef.current;
         if (!map) return;
         const data = await getNodeList();
-        console.log(data);
 
         const ways = data.ways;
         const nodes = {};
@@ -352,12 +353,12 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         }
     }];
 
-    // NEW: Listen for drawing start event
+    // Listen for drawing start event
     const onDrawStart = (e) => {
         setIsDrawingPolygon(true);
     };
 
-    // NEW: Listen for drawing stop/cancel event
+    // Listen for drawing stop/cancel event
     const onDrawStop = (e) => {
         setIsDrawingPolygon(false);
     };
@@ -366,7 +367,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     const onDrawCreated = async (e) => {
         const { layerType, layer } = e;
         
-        // NEW: Reset drawing state when polygon is completed
+        // Reset drawing state when polygon is completed
         setIsDrawingPolygon(false);
         
         if (layerType === 'polygon' || layerType === 'Linestring') {
@@ -405,32 +406,78 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
 
     // Used when changing to editmode
     const enableEditMode = () => {
-        if (!isOpen)    {
-        dispatch(changeListView(null));
-        setSidebar(true)
+        if (!isOpen) {
+            dispatch(changeListView(null));
+            setSidebar(true)
         }
-        setEditing(true)
-        setEditMode(true)
-        dispatch(setModifiedPolygons(polygons))
+        setEditing(true);
+        setEditMode(true);
+        dispatch(setModifiedPolygons(polygons));
+
+        enableSelectedPolygonEdit();
+
         if (Lines) {
-            editRef.current.startPolyline()
+            editRef.current.startPolyline();
         } else {
-            editRef.current.startPolygon()
+            editRef.current.startPolygon();
         }
-    }
+    };
+
+    // Enable editing for only the selected polygon
+    const enableSelectedPolygonEdit = () => {
+        if (!editingZonesRef.current || !selectedPolygon) return;
+        
+        editingZonesRef.current.getLayers().forEach((layer) => {
+            // edit only the selected polygon
+            if (layer.options.id === selectedPolygon) {
+                layer.disableEdit();
+                layer.enableEdit();
+                
+                if (!layer.listens("editable:vertex:dragstart")) {
+                    layer.on("editable:vertex:dragstart", (e) => {
+                        originalLatLngs = layer.getLatLngs();
+                    });
+                }
+                
+                if (!layer.listens("editable:vertex:dragend")) {
+                    layer.on("editable:vertex:dragend", (e) => {
+                        const { name, type, id, IsLine, effectValue } = e.layer.options;
+                        const geoJSON = e.layer.toGeoJSON();
+                        geoJSON.properties = {
+                            name, type, id, IsLine, effectValue
+                        };
+                        
+                        if (!intersectSelf(geoJSON)) {
+                            dispatch(modifyPolygon(geoJSON));
+                        } else {
+                            layer.setLatLngs(originalLatLngs);
+                            layer.redraw();
+                            setUpdateFlag((prev) => !prev);
+                            showTimedAlert({ text: "Polygon can't intersect itself", variant: 'failure'});
+                        }
+                    });
+                }
+                
+                setupClickListener(layer);
+            }
+        });
+    };
 
     // Used when canceling editmode
     const cancelEdits = () => {
         // Remove all tracked faults as data resets on cancel
-        dispatch(setFaults({id: 0, type: 2}))
+        dispatch(setFaults({id: 0, type: 2}));
         dispatch(changeListView(null));
-        setEditing(false)
-        setEditMode(false)
-        setLines(0)
+        setEditing(false);
+        setEditMode(false);
+        setLines(0);
+        setSelectedPolygon(null);
+        setShowEditButton(false);
+
         if (isOpen) {
-        setSidebar(false)
+            setSidebar(false)
         }
-        editRef.current.props.map.editTools.stopDrawing()
+        editRef.current.props.map.editTools.stopDrawing();
     }
 
     // Used when a new polygon is drawn in editmode
@@ -467,88 +514,95 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
             !Object.keys(calcelEditIds).includes(String(zone.properties.id))
         );
         
-        editRef.current.props.map.editTools.stopDrawing()
-        await ChangePolygons(added, Object.keys(deleteIds))
-        setEditMode(false)
-        setEditing(false)
-        setLines(0)
-        setSidebar(false)
-        dispatch(refreshTileLayer())
-        dispatch(fetchPolygons())
-        dispatch(fetchRouteLine(undefined, profileRef.current))
-        cancelEdits()
-    }
+        editRef.current.props.map.editTools.stopDrawing();
+        await ChangePolygons(added, Object.keys(deleteIds));
+        setEditMode(false);
+        setEditing(false);
+        setLines(0);
+        setSidebar(false);
+        setSelectedPolygon(null);  
+        setShowEditButton(false);
+
+        dispatch(refreshTileLayer());
+        dispatch(fetchPolygons());
+        dispatch(fetchRouteLine(undefined, profileRef.current));
+        cancelEdits();
+    };
 
     // Used to change the list view when a polygon is clicked on map
     const onClickHandler = (properties) => {
-        if (!isOpen)    {
-        setSidebar(true)
+        if (!isOpen) {
+            setSidebar(true);
         }
         dispatch(changeListView(properties.id));
-      };
-    
-      const setupClickListener = (layer) => {
-        if (!layer.listens("click")) {
-          layer.on("click", (e) => {
-            onClickHandler(e.layer.feature.properties);
-          });
-        }
-      };
 
-    // Used to update polygon when user edits an already drawn polygon by draggin its vertices in editmode
-      const enableLayerEdits = () => {
+        setSelectedPolygon(properties.id);
+        setShowEditButton(true);
+    };
+    
+    // Set up click listeners for layers
+    const setupClickListener = (layer) => {
+        if (!layer.listens("click")) {
+            layer.on("click", (e) => {
+                // Handle both GeoJSON and direct polygon data structures
+                const properties = e.layer.feature?.properties || e.layer.options;
+                onClickHandler(properties);
+            });
+        }
+    };
+
+    // Used to update polygon when user edits an already drawn polygon by dragging its vertices in editmode
+    const enableLayerEdits = () => {
         if (editingZonesRef.current !== null) {
-          editingZonesRef.current.getLayers().forEach((layer) => {
-            layer.disableEdit();
-            layer.enableEdit();
-            if (!layer.listens("editable:vertex:dragstart")) {
-            layer.on("editable:vertex:dragstart", (e) => {
-                // Store the original coordinates before drag starts
-               originalLatLngs = layer.getLatLngs();
-              });
-            }
-            if (!layer.listens("editable:vertex:dragend")) {
-              layer.on("editable:vertex:dragend", (e) => {
-                const { name, type, id, IsLine, effectValue } = e.layer.options;
-                const geoJSON = e.layer.toGeoJSON();
-                geoJSON.properties = {
-                  name, type, id, IsLine, effectValue
-                };
-                if(!intersectSelf(geoJSON)){
-                    dispatch(modifyPolygon(geoJSON));
-                } else {
-                    layer.setLatLngs(originalLatLngs);
-                    layer.redraw()
-                    setUpdateFlag((prev) => !prev);
-                    showTimedAlert({ text: "Polygon can't intersect itself", variant: 'failure'});
+            editingZonesRef.current.getLayers().forEach((layer) => {
+                layer.disableEdit();
+                layer.enableEdit();
+                if (!layer.listens("editable:vertex:dragstart")) {
+                    layer.on("editable:vertex:dragstart", (e) => {
+                        // Store the original coordinates before drag starts
+                       originalLatLngs = layer.getLatLngs();
+                    });
                 }
-              });
-            }
-            setupClickListener(layer);
-          });
+                if (!layer.listens("editable:vertex:dragend")) {
+                    layer.on("editable:vertex:dragend", (e) => {
+                        const { name, type, id, IsLine, effectValue } = e.layer.options;
+                        const geoJSON = e.layer.toGeoJSON();
+                        geoJSON.properties = {
+                            name, type, id, IsLine, effectValue
+                        };
+                        if(!intersectSelf(geoJSON)){
+                            dispatch(modifyPolygon(geoJSON));
+                        } else {
+                            layer.setLatLngs(originalLatLngs);
+                            layer.redraw()
+                            setUpdateFlag((prev) => !prev);
+                            showTimedAlert({ text: "Polygon can't intersect itself", variant: 'failure'});
+                        }
+                    });
+                }
+                setupClickListener(layer);
+            });
         }
     
         if (editing && editRef.current != null) {
-          if (!editRef.current.props.map?.editTools?.drawing()) {
-            if (Lines) {
-              editRef.current.startPolyline();
-            } else {
-              editRef.current.startPolygon();
+            if (!editRef.current.props.map?.editTools?.drawing()) {
+                if (Lines) {
+                    editRef.current.startPolyline();
+                } else {
+                    editRef.current.startPolygon();
+                }
             }
-          }
         }
-      };
+    };
 
-      // UseEffect used to enable click listeners for all polygons.
-      useEffect(() => {
-        if (zonesRef.current !== null) {
-          zonesRef.current.getLayers().forEach(setupClickListener);
+    // Effect for selected polygon editing
+    useEffect(() => {
+        if (editing && selectedPolygon) {
+            enableSelectedPolygonEdit();
         }
-      }, [polygons, modifiedPolygons, editingZonesRef.current, mountingHelper]);
+    }, [editing, selectedPolygon, Lines]);
 
-    useEffect(enableLayerEdits)
-
-    // NEW: Effect to control marker dragging based on drawing state
+    // Effect to control marker dragging based on drawing state
     useEffect(() => {
         if (router && router.startMarker && router.destinationMarker) {
             const startMarker = router.startMarker.marker;
@@ -575,33 +629,38 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
             opacity=0.5
         }
         return {
-          color: color,
-          fillOpacity: opacity
+            color: color,
+            fillOpacity: opacity
         };
-      };
+    };
 
-      // Adds hover listeners to each polygon/line. Used outside of editmode
-      const onEachFeature = (feature, layer) => {
+    // Adds hover listeners and click handlers to each polygon/line. Used outside of editmode
+    const onEachFeature = (feature, layer) => {
         // Keep polygon hover functionality regardless of drawing state
         layer.on({
-          mouseover: handleMouseOver,
-          mouseout: handleMouseOut,
+            mouseover: handleMouseOver,
+            mouseout: handleMouseOut,
         });
-    
+
+        // Direct click handler for GeoJSON polygons
+        layer.on('click', (e) => {
+            onClickHandler(feature.properties);
+        });
+
         if (feature.properties.type && feature.properties.name) {
-          layer.bindTooltip(`${feature.properties.name} | ${feature.properties.type}`);
+            layer.bindTooltip(`${feature.properties.name} | ${feature.properties.type}`);
         }
-      };
+    };
 
     // Toggle to use lines instead of polygons when drawing
-    const ChangeLines= () => {
+    const ChangeLines = () => {
         setLines(1)
         editRef.current.props.map.editTools.stopDrawing()
         editRef.current.startPolyline()
     }
 
     // Toggle to use polygons instead of lines when drawing
-    const ChangedrawPolygons= () => {
+    const ChangedrawPolygons = () => {
         setLines(0)
         editRef.current.props.map.editTools.stopDrawing()
         editRef.current.startPolygon()
@@ -610,46 +669,62 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     // Used to change view to the center of the selected polygon/line
     function handleOnFlyTo() {
         const { leafletElement: map } = mapRef;
-        if (mapView.center!==undefined){
-        mapRef.current.flyTo(mapView.center, mapView.zoom, {
-          duration: 1
-        });
+        if (mapView.center !== undefined){
+            mapRef.current.flyTo(mapView.center, mapView.zoom, {
+                duration: 1
+            });
         }
-      }
+    }
+    
     useEffect(() => {
         handleOnFlyTo();
-      }, [mapView]);
+    }, [mapView]);
     
-    // MODIFIED: Used to place start and destination positions on the map when user clicks on the map. 
-    // Now also prevents marker placement during polygon drawing
+    // Used to place start and destination positions on the map when user clicks on the map
     const ClickHandler = () => {
         useMapEvent('click', async (event) => {
-           let {lat, lng} = event.latlng;
-           const map = mapRef.current;
-           
-           // Handle node selection for temporary roads
-           if (nodeSelectionMode && nodeSelectionMode.active) {
-               try {
-                   // Find nearest node to clicked coordinates
-                   const nearestNodeId = await findNearestNode(lat, lng);
-                   
-                   if (onNodeSelection) {
-                   onNodeSelection(nearestNodeId, [lat, lng]);
-               }
-               
-               return;
-           } catch (error) {
-               console.error('Error handling node selection:', error);
-               alert('Failed to find nearest node. Please try again.');
-               return;
-               }
-           }
-           
-           // NEW: Prevent marker placement during polygon drawing
-           if (editMode || editHover || isDrawingPolygon){
-            return null
-           } 
-            if (markerCount ===0){
+            let {lat, lng} = event.latlng;
+            const map = mapRef.current;
+            
+            // Handle node selection for temporary roads
+            if (nodeSelectionMode && nodeSelectionMode.active) {
+                try {
+                    // Find nearest node to clicked coordinates
+                    const nearestNodeId = await findNearestNode(lat, lng);
+                    
+                    if (onNodeSelection) {
+                        onNodeSelection(nearestNodeId, [lat, lng]);
+                    }
+                    
+                    return;
+                } catch (error) {
+                    console.error('Error handling node selection:', error);
+                    alert('Failed to find nearest node. Please try again.');
+                    return;
+                }
+            }
+            
+            // Check if polygon was clicked
+            const clickedPolygon = event.originalEvent.target.closest('.leaflet-interactive');
+            
+            if (clickedPolygon) {
+                // Polygon was clicked, skip other logic
+                return;
+            }
+            
+            // Clicked on empty area, hide edit button
+            if (!editing) {
+                setShowEditButton(false);
+                setSelectedPolygon(null);
+            }
+            
+            // Prevent marker placement during polygon drawing or edit mode
+            if (editMode || editHover || isDrawingPolygon) {
+                return null;
+            }
+            
+            // Marker placement logic
+            if (markerCount === 0) {
                 setMarkerCount(prevCount => prevCount + 1);
                 const startMarker = createStartMarker({lat, lng});
             } else if (markerCount === 1) {
@@ -685,40 +760,37 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     };
       
     const handleClick = (event) => {
+        // Empty function kept for compatibility
+    };
+
+    // Used to bring route polylines to the front, so that the polylines are not hidden by polygons
+    useEffect(() => {
+        let map = mapRef.current
+        if (map === null) {
+            return
+        }
+        const bringPolylinesToFront = () => {
+            map.eachLayer((layer) => {
+                if (layer instanceof L.Polyline) {
+                    if (layer._latlngs.length > 2 && layer.options.weight === 7){
+                        layer.bringToFront();
+                    }
+                }
+            });
         };
 
-        // Used to bring route polylines to the front, so that the polylines are not hidden by polygons
-    useEffect(() => {
-            let map=mapRef.current
-            if (map===null){
-                return
-            }
-            const bringPolylinesToFront = () => {
-                map.eachLayer((layer) => {
-                    if (layer instanceof L.Polyline) {
-                        if (layer._latlngs.length > 2 && layer.options.weight === 7){
-                        layer.bringToFront();
-                        }
-                        
-                    }
-                });
-            };
-    
-            // Call this function initially and whenever routedata changes
-            bringPolylinesToFront();
-    
-            // Listen for the map's moveend event to bring polylines to the front
-            
+        // Call this function initially and whenever routedata changes
+        bringPolylinesToFront();
     }, [routedata]);  
         
     // Used to track if user hovers over the edit button
     const handleEditMouseOver = () => {
         setEditHover(true);
-          };
+    };
           
     const handleEditMouseOut = () => {
         setEditHover(false);
-          };
+    };
 
     // Add CSS for node selection visual feedback
     useEffect(() => {
@@ -801,209 +873,231 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
             map={mapRef.current}
             onDrawingCommit={onDrawingCommit}
             onCancelDrawing={onCancelDrawing}
-            
         >
-        <MapContainer
-            editable={true}
-            center={position}
-            zoom={initialState.zoom}
-            scrollWheelZoom={true}
-            style={{ flex: 1, width: "100%", height: "100%", zIndex: 0,}}
-            whenCreated={(map) => { mapRef.current = map; }}
-            ref={mapRef}
-        >   
-            <div className="edit-pane">
-                <button
-                    hidden={editing}
-                    onClick={enableEditMode}
-                    onMouseOver={handleEditMouseOver}
-                    onMouseOut={handleEditMouseOut}
-                    className="edit-button"
-                >Edit</button>
-                {cansave !== 0 && (
-                    <div className="alert-message">
-                        Some changes are forbidden
-                    </div>
-                )}
+            <MapContainer
+                editable={true}
+                center={position}
+                zoom={initialState.zoom}
+                scrollWheelZoom={true}
+                style={{ flex: 1, width: "100%", height: "100%", zIndex: 0,}}
+                whenCreated={(map) => { mapRef.current = map; }}
+                ref={mapRef}
+            >   
+                <div className="edit-pane" style={{
+                    display: (showEditButton || editing) ? 'block' : 'none'
+                }}>
+                    <button
+                        onClick={enableEditMode}
+                        onMouseOver={handleEditMouseOver}
+                        onMouseOut={handleEditMouseOut}
+                        className="edit-button"
+                        style={{ 
+                            display: (showEditButton && !editing) ? 'inline-block' : 'none'
+                        }}
+                    >
+                        Edit Selected
+                    </button>
 
-                <button
-                    hidden={!editing}
-                    disabled={cansave !== 0}
-                    onClick={saveEdits}
-                    className="edit-button"
-                >
-                    Save
-                </button>
-                <button
-                    hidden={!editing}
-                    onClick={cancelEdits}
-                    className="edit-button"
-                >Cancel</button>
-                
-                {Lines === 0 ? (
-                <button
-                    hidden={!editing}
-                    disabled={!editing}
-                    onClick={() => ChangeLines()}
-                    className="toggle-button"
-                >
-                    Change to Lines
-                </button>
-            ) : (
-                <button
-                    hidden={!editing}
-                    onClick={() => ChangedrawPolygons()}
-                    className="toggle-button"
-                >
-                    Change to Polygons
-                </button>
-            )}
-            </div>
-            <VectorTileLayer
-                key={tileLayer}
-                styleUrl={roadStyle}
-            />
+                    {cansave !== 0 && (
+                        <div className="alert-message">
+                            Some changes are forbidden
+                        </div>
+                    )}
 
-            <TempRoadDisplay visibleRoads={visibleTempRoads} />
-
-            {routedata.slice().reverse().map((route, index) => (
-            <Polyline key={index} positions={route.route} color={route.color} pathOptions={{
-            color: route.color, 
-            zIndex: route.color === '#661e87' ? 1000000000 : 100000000,
-            weight: 7,
-          }}
-          eventHandlers={{
-            add: (e) => {
-                    e.target.bringToFront();
-            },
-        }}  />
-            ))}
-            {segments.map((segment, index) => (
-                
-                <Polyline
-                key={index}
-                id={segment.id}
-                positions={segment.map(point => [point.lat, point.lon])}
-                color="red"
-                >
-                <Tooltip>
-                {"ids: " + segment.map(point => point.id).join(' ') + 
-                " difference: " + Math.abs(segment[0].id - segment[1].id)}
-                </Tooltip>
-                </Polyline>
-            ))}
-            {editing 
-            ?
-            <FeatureGroup ref={editingZonesRef}>
-                {(Object.values(modifiedPolygons).map((polygon, index) => {
-                     const { color, opacity } = getColorAndOpacity(polygon.properties.type, polygon.properties.effectValue);
-                    if (polygon.properties.IsLine === 1) {
-                    return (
-                       
-
-                        <Polyline
-                            key={polygon.properties.id}
-                            id={polygon.properties.id}
-                            name={polygon.properties.name}
-                            type={polygon.properties.type}
-                            effectValue={polygon.properties.effectValue}
-                            IsLine={polygon.properties.IsLine}
-                            positions={polygon.geometry.coordinates.map(coord => [coord[1], coord[0]])}
-                            color={color}
-                            fillOpacity={0.5}
-                            weight={7}
-                            width={7}
-                            eventHandlers={{
-                                mouseover: handleMouseOver,
-                                mouseout: handleMouseOut,
-                            }}
-                            pathOptions={{
-                                zIndex: 10000000
-                            }}
-                            originalColor={color}
-                            originalOpacity={opacity} // Store original color for mouseout event
-                        >
-                            <Tooltip>{`${polygon.properties.name} | ${polygon.properties.type}`}</Tooltip>
-                            
-                        </Polyline>
-                    )
-                    } else {
-                        return (
-                        <Polygon
-                            key={polygon.properties.id}
-                            id={polygon.properties.id}
-                            name={polygon.properties.name}
-                            type={polygon.properties.type}
-                            effectValue={polygon.properties.effectValue}
-                            positions={polygon.geometry.coordinates[0].map(coord => [coord[1], coord[0]])}
-                            color={color}
-                            fillOpacity={0.5}
-                            eventHandlers={{
-                                mouseover: handleMouseOver,
-                                mouseout: handleMouseOut,
-                            }}
-                            originalColor={color}
-                            originalOpacity={opacity}// Store original color for mouseout event
-                        >
-                            <Tooltip>{`${polygon.properties.name} | ${polygon.properties.type}`}</Tooltip>
-                            
-                        </Polygon>
-                        
+                    <button
+                        hidden={!editing}
+                        disabled={cansave !== 0}
+                        onClick={saveEdits}
+                        className="edit-button"
+                    >
+                        Save
+                    </button>
                     
-                    )};
-                mountingHelper=1;
-                }))}
+                    <button
+                        hidden={!editing}
+                        onClick={cancelEdits}
+                        className="edit-button"
+                    >
+                        Cancel
+                    </button>
+                    
+                    {Lines === 0 ? (
+                        <button
+                            hidden={!editing}
+                            disabled={!editing}
+                            onClick={() => ChangeLines()}
+                            className="toggle-button"
+                        >
+                            Change to Lines
+                        </button>
+                    ) : (
+                        <button
+                            hidden={!editing}
+                            onClick={() => ChangedrawPolygons()}
+                            className="toggle-button"
+                        >
+                            Change to Polygons
+                        </button>
+                    )}
+                </div>
+                
+                <VectorTileLayer
+                    key={tileLayer}
+                    styleUrl={roadStyle}
+                />
 
-            </FeatureGroup>
-            :
-            <FeatureGroup ref={zonesRef}>
-                {polygons.map((feature, index) => (
-                    <GeoJSON
-                        key={feature.properties.id}
-                        data={feature}
-                        style={geoJsonStyle}
-                        onEachFeature={onEachFeature}
-                        
+                <TempRoadDisplay visibleRoads={visibleTempRoads} />
+
+                {routedata.slice().reverse().map((route, index) => (
+                    <Polyline 
+                        key={index} 
+                        positions={route.route} 
+                        color={route.color} 
+                        pathOptions={{
+                            color: route.color, 
+                            zIndex: route.color === '#661e87' ? 1000000000 : 100000000,
+                            weight: 7,
+                        }}
+                        eventHandlers={{
+                            add: (e) => {
+                                e.target.bringToFront();
+                            },
+                        }}  
                     />
                 ))}
-                <EditControl
-                position="topright"
-                onCreated={onDrawCreated}
-                onDrawStart={onDrawStart}  // NEW: Listen for drawing start
-                onDrawStop={onDrawStop}    // NEW: Listen for drawing stop/cancel
-                draw={{
-                    polygon: true,
-                    rectangle: false,
-                    polyline: false,
-                    circle: false,
-                    circlemarker: false,
-                    marker: false
-                }}
-                edit={{
-                    edit: false,
-                    remove: false
-                }}
-                />
-            </FeatureGroup>}
-            {/* NEW: Hide popup during polygon drawing */}
-            {popupPosition && !isDrawingPolygon && (
-                <div
-                    style={{
-                        position: 'absolute',
-                        top: popupPosition.y,
-                        left: popupPosition.x,
-                        zIndex: 1000,
-                        display: 'flex',
-                        flexDirection: 'column',
-                    }}
-                    ref={popupContainer}
-                >
-                    <button onClick={() => {router.startMarker.setPosition({lat: popupCoordinates.lat, lng: popupCoordinates.lng}); setPopupPosition(null)}}>Start Marker</button>
-                    <button onClick={() => {router.destinationMarker.setPosition({lat: popupCoordinates.lat, lng: popupCoordinates.lng}); setPopupPosition(null)}}>End Marker</button>
-                </div>
-            )}
-            <ClickHandler onClick={handleClick} />
-        </MapContainer>
+                
+                {segments.map((segment, index) => (
+                    <Polyline
+                        key={index}
+                        id={segment.id}
+                        positions={segment.map(point => [point.lat, point.lon])}
+                        color="red"
+                    >
+                        <Tooltip>
+                            {"ids: " + segment.map(point => point.id).join(' ') + 
+                            " difference: " + Math.abs(segment[0].id - segment[1].id)}
+                        </Tooltip>
+                    </Polyline>
+                ))}
+                
+                {editing ? (
+                    <FeatureGroup ref={editingZonesRef}>
+                        {Object.values(modifiedPolygons).map((polygon, index) => {
+                            const { color, opacity } = getColorAndOpacity(polygon.properties.type, polygon.properties.effectValue);
+                            
+                            if (polygon.properties.IsLine === 1) {
+                                return (
+                                    <Polyline
+                                        key={polygon.properties.id}
+                                        id={polygon.properties.id}
+                                        name={polygon.properties.name}
+                                        type={polygon.properties.type}
+                                        effectValue={polygon.properties.effectValue}
+                                        IsLine={polygon.properties.IsLine}
+                                        positions={polygon.geometry.coordinates.map(coord => [coord[1], coord[0]])}
+                                        color={color}
+                                        fillOpacity={0.5}
+                                        weight={7}
+                                        width={7}
+                                        eventHandlers={{
+                                            mouseover: handleMouseOver,
+                                            mouseout: handleMouseOut,
+                                        }}
+                                        pathOptions={{
+                                            zIndex: 10000000
+                                        }}
+                                        originalColor={color}
+                                        originalOpacity={opacity}
+                                    >
+                                        <Tooltip>{`${polygon.properties.name} | ${polygon.properties.type}`}</Tooltip>
+                                    </Polyline>
+                                );
+                            } else {
+                                return (
+                                    <Polygon
+                                        key={polygon.properties.id}
+                                        id={polygon.properties.id}
+                                        name={polygon.properties.name}
+                                        type={polygon.properties.type}
+                                        effectValue={polygon.properties.effectValue}
+                                        positions={polygon.geometry.coordinates[0].map(coord => [coord[1], coord[0]])}
+                                        color={color}
+                                        fillOpacity={0.5}
+                                        eventHandlers={{
+                                            mouseover: handleMouseOver,
+                                            mouseout: handleMouseOut,
+                                        }}
+                                        originalColor={color}
+                                        originalOpacity={opacity}
+                                    >
+                                        <Tooltip>{`${polygon.properties.name} | ${polygon.properties.type}`}</Tooltip>
+                                    </Polygon>
+                                );
+                            }
+                        })}
+                    </FeatureGroup>
+                ) : (
+                    <FeatureGroup ref={zonesRef}>
+                        {polygons.map((feature, index) => (
+                            <GeoJSON
+                                key={feature.properties.id}
+                                data={feature}
+                                style={geoJsonStyle}
+                                onEachFeature={onEachFeature}
+                            />
+                        ))}
+                        
+                        <EditControl
+                            position="topright"
+                            onCreated={onDrawCreated}
+                            onDrawStart={onDrawStart}
+                            onDrawStop={onDrawStop}
+                            draw={{
+                                polygon: true,
+                                rectangle: false,
+                                polyline: false,
+                                circle: false,
+                                circlemarker: false,
+                                marker: false
+                            }}
+                            edit={{
+                                edit: false,
+                                remove: false
+                            }}
+                        />
+                    </FeatureGroup>
+                )}
+                
+                {/* Hide popup during polygon drawing */}
+                {popupPosition && !isDrawingPolygon && (
+                    <div
+                        style={{
+                            position: 'absolute',
+                            top: popupPosition.y,
+                            left: popupPosition.x,
+                            zIndex: 1000,
+                            display: 'flex',
+                            flexDirection: 'column',
+                        }}
+                        ref={popupContainer}
+                    >
+                        <button onClick={() => {
+                            router.startMarker.setPosition({lat: popupCoordinates.lat, lng: popupCoordinates.lng}); 
+                            setPopupPosition(null);
+                        }}>
+                            Start Marker
+                        </button>
+                        <button onClick={() => {
+                            router.destinationMarker.setPosition({lat: popupCoordinates.lat, lng: popupCoordinates.lng}); 
+                            setPopupPosition(null);
+                        }}>
+                            End Marker
+                        </button>
+                    </div>
+                )}
+                
+                <ClickHandler onClick={handleClick} />
+            </MapContainer>
         </ReactLeafletEditable>
     );
 }
