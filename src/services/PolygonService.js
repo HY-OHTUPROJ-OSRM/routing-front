@@ -69,19 +69,16 @@ const getSegments = async () => {
 const CreatePolygon = async (object) => {
   const alertId = `loading-${Date.now()}`;
   showTimedAlert({ text: 'Adding polygon...', variant: 'info', id: alertId });
-  const data = { added: object.features, deleted: [5225] };
   try {
     await ins({
-      url: 'zones/diff',
+      url: 'zones',
       method: "post",
-      data,
+      data: object, // Send the full FeatureCollection as required by backend
       headers: { "content-type": "application/json" },
       timeout: 0
     });
-    
     clearTimedAlert(alertId)
     showTimedAlert({ text: 'Polygon created successfully', variant: 'success' });
-    
   } catch (error) {
     clearTimedAlert(alertId)
     handleAxiosError(error);
@@ -89,9 +86,10 @@ const CreatePolygon = async (object) => {
 };
 
 // Used in edit mode save
-const ChangePolygons = async (added, deletedIds) => {
+// Accepts deletedPolygons: array of {id, updated_at}
+const ChangePolygons = async (added, deletedPolygons) => {
   const alertId = `loading-${Date.now()}`;
-  let deleted = filterUUIDv4(deletedIds);
+  // deletedPolygons should be [{id, updated_at}, ...]
   
   // Function to convert polyline to polygon if IsLine is 1
   const convertIfNeeded = (polygon) => {
@@ -104,6 +102,10 @@ const ChangePolygons = async (added, deletedIds) => {
   try {
     // Convert polygons if needed
     const convertedAdded = added.map(convertIfNeeded);
+    const deleted = deletedPolygons.map(({id, updated_at}) => ({
+      id: typeof id === 'string' ? parseInt(id, 10) : id,
+      updated_at
+    }));
     const data = { added: convertedAdded, deleted };
 
     await ins({
@@ -120,28 +122,21 @@ const ChangePolygons = async (added, deletedIds) => {
 };
 
 // Used in polygon display delete button (trash can)
-const DeletePolygon = async (id) => {
+const DeletePolygon = async (id, updated_at) => {
   const alertId = `loading-${Date.now()}`;
   showTimedAlert({ text: 'Deleting polygon...', variant: 'info', id: alertId });
   try {
     // Ensure ID is integer format
     const integerId = typeof id === 'string' ? parseInt(id, 10) : id;
-    if (isNaN(integerId)) {
-      throw new Error(`Invalid ID format: ${id}`);
-    }
-    
-    const data = { added: [], deleted: [integerId] };
-    
     await ins({
-      url: 'zones/diff',
-      method: "post",
-      data: JSON.stringify(data),
+      url: `zones/${integerId}`,
+      method: "delete",
+      data: { updated_at },
       headers: { 
         "content-type": "application/json",
         "accept": "application/json"
       },
-      timeout: 0,
-      transformRequest: [(data) => data]
+      timeout: 0
     });
     clearTimedAlert(alertId)
     showTimedAlert({ text: 'Polygon deleted successfully', variant: 'success' });
@@ -151,48 +146,39 @@ const DeletePolygon = async (id) => {
   }
 };
 
-// Batch delete polygons by IDs
-const BatchDeletePolygons = async (polygonIds) => {
+// Batch delete polygons by IDs 
+const BatchDeletePolygons = async (polygonIdsWithUpdatedAt) => {
   const alertId = `batch-delete-${Date.now()}`;
-  
   try {
-    if (!Array.isArray(polygonIds) || polygonIds.length === 0) {
+    if (!Array.isArray(polygonIdsWithUpdatedAt) || polygonIdsWithUpdatedAt.length === 0) {
       throw new Error('Invalid polygon IDs provided');
     }
-
     showTimedAlert({ 
-      text: `Deleting ${polygonIds.length} polygon(s)...`, 
+      text: `Deleting ${polygonIdsWithUpdatedAt.length} polygon(s)...`, 
       variant: 'info', 
       id: alertId 
     });
-    
-    const integerIds = polygonIds.map(id => {
-      const parsed = typeof id === 'string' ? parseInt(id, 10) : id;
-      if (isNaN(parsed)) {
-        throw new Error(`Invalid ID format: ${id}`);
-      }
-      return parsed;
+    // Use /zones/diff for batch delete, must provide [{id, updated_at}]
+    const deleted = polygonIdsWithUpdatedAt.map(({id, updated_at}) => {
+      const parsedId = typeof id === 'string' ? parseInt(id, 10) : id;
+      return { id: parsedId, updated_at };
     });
-    
-    const data = { added: [], deleted: integerIds };
-    
+    const data = { added: [], deleted };
     await ins({
       url: 'zones/diff',
       method: "post",
-      data: JSON.stringify(data),
+      data,
       headers: { 
         "content-type": "application/json",
         "accept": "application/json"
       },
       timeout: 30000
     });
-    
     clearTimedAlert(alertId);
     showTimedAlert({ 
-      text: `Successfully deleted all ${integerIds.length} polygon(s)`, 
+      text: `Successfully deleted all ${deleted.length} polygon(s)`, 
       variant: 'success' 
     });
-    
   } catch (error) {
     clearTimedAlert(alertId);
     showTimedAlert({ 

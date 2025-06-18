@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PolygonDisplay from "./PolygonDisplay";
 import ModifiedPolygonDisplay from "./ModifiedPolygonDisplay";
 import { useSelector, useDispatch } from 'react-redux';
-import { DeletePolygon, BatchDeletePolygons } from "../services/PolygonService";
+import { BatchDeletePolygons } from "../services/PolygonService";
 import { fetchPolygons } from "../features/polygons/polygonsSlice";
 import { fetchRouteLine } from "../features/routes/routeSlice";
 
@@ -58,18 +58,26 @@ function PolygonList({ editMode, setEditMode, isOpen }) {
     
     try {
       // Convert Set to Array for the API call
-      const polygonIds = Array.from(selectedPolygons);
+      const polygonIdObjs = Array.from(selectedPolygons).map(id => {
+        const polygon = polygons.find(p => String(p.properties.id) === String(id));
+        return {
+          id,
+          updated_at: polygon?.properties?.updated_at
+        };
+      }).filter(obj => obj.updated_at); // Only include if updated_at is present
       
       // Validate IDs
-      const invalidIds = polygonIds.filter(id => 
-        id === null || id === undefined || (typeof id === 'string' && id.trim() === '')
+      const invalidIds = polygonIdObjs.filter(obj => 
+        obj.id === null || obj.id === undefined || 
+        (typeof obj.id === 'string' && obj.id.trim() === '') ||
+        !obj.updated_at
       );
       
       if (invalidIds.length > 0) {
-        throw new Error(`Invalid IDs found: ${JSON.stringify(invalidIds)}`);
+        throw new Error(`Invalid IDs or missing updated_at: ${JSON.stringify(invalidIds)}`);
       }
       
-      await BatchDeletePolygons(polygonIds);
+      await BatchDeletePolygons(polygonIdObjs);
       
       // Refresh the data
       await dispatch(fetchPolygons());

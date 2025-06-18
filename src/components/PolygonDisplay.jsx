@@ -27,7 +27,7 @@ const PolygonDisplay = ({ type, geometry, properties, isOpen, index, isSelected 
       profileRef.current = selectedProfile;
 
       const HandleDelete = async () => {
-        await DeletePolygon(properties.id);
+        await DeletePolygon(properties.id, properties.updated_at);
         dispatch(fetchPolygons());
         dispatch(fetchRouteLine(undefined, profileRef.current));
        }

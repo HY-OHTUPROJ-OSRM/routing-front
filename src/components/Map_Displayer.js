@@ -513,9 +513,19 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
             Object.keys(sendIds).includes(String(zone.properties.id)) &&
             !Object.keys(calcelEditIds).includes(String(zone.properties.id))
         );
-        
+
+        // Prepare deleted polygons as [{id, updated_at}]
+        const deleted = Object.keys(deleteIds).map(id => {
+            // Find the original polygon from polygons array
+            const polygon = polygons.find(p => String(p.properties.id) === String(id));
+            return {
+                id,
+                updated_at: polygon?.properties?.updated_at
+            };
+        }).filter(d => d.updated_at); // Only include if updated_at is present
+
         editRef.current.props.map.editTools.stopDrawing();
-        await ChangePolygons(added, Object.keys(deleteIds));
+        await ChangePolygons(added, deleted);
         setEditMode(false);
         setEditing(false);
         setLines(0);
