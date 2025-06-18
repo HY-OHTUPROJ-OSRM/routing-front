@@ -39,8 +39,8 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
 
     try {
       const resultAction = await dispatch(addTempRoad(payload));
+      console.log("✅ AddTempRoad called via disconnection list", payload);
       if (addTempRoad.fulfilled.match(resultAction)) {
-        console.log("✅ AddTempRoad called via disconnection list", resultAction.payload);
         const newTempId = resultAction.payload.id; // 🆔 temp-road ID
           try {
             await attachTempRoadToDisconnection(disconnection.id, newTempId);
