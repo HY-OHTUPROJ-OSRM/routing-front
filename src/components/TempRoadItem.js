@@ -138,13 +138,13 @@ function TempRoadItem({
 
   const handleDelete = (roadId) => {
     if (window.confirm('Are you sure you want to delete this road segment?')) {
-      dispatch(deleteTempRoadAsync(roadId));
+      dispatch(deleteTempRoadAsync({ id: road.id, updated_at: road.updated_at }));
       onVisibleRoadsChange(prev => {
         const newSet = new Set(prev);
         newSet.delete(roadId);
         return newSet;
       });
-      
+
       // Cancel edit if deleting currently edited road
       if (editingRoadId === roadId) {
         onCancelEdit();
