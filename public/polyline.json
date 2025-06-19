@@ -1,1 +1,1086 @@
-{"code":"Ok","routes":[{"legs":[{"steps":[{"geometry":"{`fnJondwCd@s@","maneuver":{"bearing_after":145,"bearing_before":0,"location":[24.931759,60.165415],"modifier":"right","type":"depart"},"mode":"driving","driving_side":"right","name":"Albertinkatu","intersections":[{"out":0,"entry":[true],"bearings":[145],"location":[24.931759,60.165415]}],"weight":9.1,"duration":9.1,"distance":24.8},{"geometry":"u_fnJcpdwCqDsNEMIc@sC{K","maneuver":{"bearing_after":53,"bearing_before":143,"location":[24.932018,60.165234],"modifier":"left","type":"turn"},"mode":"driving","driving_side":"right","name":"Kalevankatu","intersections":[{"out":0,"in":3,"entry":[true,true,true,false],"bearings":[60,150,240,330],"location":[24.932018,60.165234]},{"out":0,"in":2,"entry":[true,false,false,true],"bearings":[60,150,240,330],"location":[24.934522,60.166118]}],"weight":54.3,"duration":54.3,"distance":327.6},{"geometry":"kjfnJenewCkBtCgDdFg@l@","maneuver":{"bearing_after":324,"bearing_before":53,"location":[24.936832,60.166935],"modifier":"left","type":"turn"},"mode":"driving","driving_side":"right","name":"Annankatu","intersections":[{"out":3,"in":2,"entry":[true,true,false,true],"bearings":[60,150,240,330],"location":[24.936832,60.166935]},{"out":3,"in":1,"entry":[true,false,true,true],"bearings":[60,150,240,330],"location":[24.936077,60.16748]},{"out":2,"in":0,"entry":[false,true,true],"bearings":[150,240,330],"location":[24.934925,60.168316]}],"weight":33.5,"duration":33.5,"distance":212.7},{"geometry":"gtfnJ{`ewCeBcHiAkEK[iAkE","maneuver":{"bearing_after":54,"bearing_before":330,"location":[24.934695,60.168519],"modifier":"right","type":"turn"},"mode":"driving","driving_side":"right","name":"Simonkatu","intersections":[{"out":0,"in":1,"entry":[true,false,true],"bearings":[60,150,330],"location":[24.934695,60.168519]},{"out":0,"in":2,"entry":[true,false,false],"bearings":[60,150,240],"location":[24.93616,60.169026]},{"out":0,"in":1,"entry":[true,false,true],"bearings":[60,240,315],"location":[24.937182,60.169402]}],"weight":37.6,"duration":37.6,"distance":249.9},{"geometry":"m|fnJswewCCg@Ek@uA}EMaQAmDA_BEcAKy@Mc@G]","maneuver":{"bearing_after":57,"bearing_before":53,"location":[24.938344,60.169833],"modifier":"straight","type":"new name"},"mode":"driving","driving_side":"right","name":"Kaivokatu","intersections":[{"out":0,"in":2,"entry":[true,true,false,false],"bearings":[60,150,240,330],"location":[24.938344,60.169833]},{"out":0,"in":2,"entry":[true,false,false,true],"bearings":[45,150,240,315],"location":[24.938756,60.169875]},{"out":0,"in":1,"entry":[true,false,false],"bearings":[90,225,330],"location":[24.939865,60.170306]},{"out":1,"in":3,"entry":[false,true,true,false],"bearings":[0,90,180,270],"location":[24.942763,60.170378]}],"weight":59.5,"duration":59.5,"distance":396.3},{"geometry":"gagnJuagwCuAmF_@}AY_AEUGWKMGMa@U[O[_@Y]g@k@{AmBc@e@g@o@Sa@cBsBQc@ACEM","maneuver":{"bearing_after":53,"bearing_before":59,"location":[24.945074,60.170602],"modifier":"straight","type":"new name"},"mode":"driving","driving_side":"right","name":"Kaisaniemenkatu","intersections":[{"out":1,"in":3,"entry":[true,true,true,false],"bearings":[15,60,150,240],"location":[24.945074,60.170602]},{"out":0,"in":2,"entry":[true,false,false],"bearings":[30,135,210],"location":[24.948691,60.172733]}],"weight":65.5,"duration":65.5,"distance":468.4},{"geometry":"ougnJkahwCEIKSSQSIOAa@Ai@B}AFsCP","maneuver":{"bearing_after":30,"bearing_before":42,"location":[24.950136,60.173842],"modifier":"slight left","type":"turn"},"mode":"driving","driving_side":"right","name":"Unioninkatu","intersections":[{"out":0,"in":2,"entry":[true,true,false,false],"bearings":[30,150,225,300],"location":[24.950136,60.173842]},{"out":0,"in":2,"entry":[true,true,false],"bearings":[15,90,210],"location":[24.950377,60.174026]},{"out":0,"in":1,"entry":[true,false,true],"bearings":[0,195,315],"location":[24.950438,60.174206]}],"weight":25.2,"duration":25.2,"distance":223.3},{"geometry":"wahnJkbhwCo@DgCJa@@","maneuver":{"bearing_after":355,"bearing_before":355,"location":[24.950303,60.175803],"modifier":"straight","type":"new name"},"mode":"driving","driving_side":"right","name":"Pitkäsilta","intersections":[{"out":0,"in":2,"entry":[true,true,false,true],"bearings":[0,75,180,270],"location":[24.950303,60.175803]}],"weight":13.6,"duration":13.6,"distance":121},{"geometry":"qhhnJwahwCkABiBFWAOCMEi@}@SWUI[Da@@aAFeBLK?","maneuver":{"bearing_after":357,"bearing_before":357,"location":[24.950199,60.176888],"modifier":"straight","type":"new name"},"mode":"driving","driving_side":"right","name":"Siltasaarenkatu","intersections":[{"out":0,"in":2,"entry":[true,false,false,true],"bearings":[0,90,180,270],"location":[24.950199,60.176888]},{"out":0,"in":2,"entry":[true,true,false,true],"bearings":[30,90,225,270],"location":[24.950509,60.178276]}],"weight":46.9,"duration":46.9,"distance":321.3},{"geometry":"czhnJychwCKNKHGVIZAXAFAZ","maneuver":{"bearing_after":329,"bearing_before":355,"location":[24.950529,60.179695],"modifier":"slight left","type":"fork"},"mode":"driving","driving_side":"right","name":"Siltasaarenkatu","intersections":[{"out":2,"in":1,"entry":[true,false,true],"bearings":[0,180,330],"location":[24.950529,60.179695]},{"out":3,"in":1,"entry":[false,false,true,true],"bearings":[45,90,210,285],"location":[24.95001,60.179921]}],"weight":8.5,"duration":8.5,"distance":50.9},{"geometry":"s{hnJm_hwCu@HuCRWAE@","maneuver":{"bearing_after":354,"bearing_before":278,"location":[24.949829,60.179936],"modifier":"right","type":"continue"},"mode":"driving","driving_side":"right","name":"Siltasaarenkatu","intersections":[{"out":0,"in":1,"entry":[true,false,true,true],"bearings":[0,105,180,270],"location":[24.949829,60.179936]}],"weight":20.2,"duration":20.2,"distance":131.3},{"geometry":"}binJo~gwCKg@yBaEwCgF{B}DWg@EI","maneuver":{"bearing_after":60,"bearing_before":357,"location":[24.949683,60.181111],"modifier":"right","type":"turn"},"mode":"driving","driving_side":"right","name":"Porthaninkatu","intersections":[{"out":0,"in":2,"entry":[true,true,false,true,true],"bearings":[60,120,180,270,315],"location":[24.949683,60.181111]},{"out":0,"in":2,"entry":[true,true,false,true],"bearings":[30,135,225,315],"location":[24.950849,60.181784]},{"out":0,"in":2,"entry":[true,true,false,true],"bearings":[45,135,210,315],"location":[24.952011,60.182539]}],"weight":47.599999999,"duration":47.599999999,"distance":314.6},{"geometry":"upinJqthwCyDTcGZ","maneuver":{"bearing_after":355,"bearing_before":36,"location":[24.953207,60.183312],"modifier":"left","type":"new name"},"mode":"driving","driving_side":"right","name":"Fleminginkatu","intersections":[{"out":0,"in":2,"entry":[true,true,false,false],"bearings":[0,120,225,315],"location":[24.953207,60.183312]},{"out":0,"in":2,"entry":[true,true,false,true],"bearings":[0,90,180,270],"location":[24.953095,60.184235]}],"weight":42.6,"duration":42.6,"distance":248.1},{"geometry":"s~inJ_shwCF]BW@UBa@Ac@?c@","maneuver":{"bearing_after":113,"bearing_before":355,"location":[24.95296,60.185535],"modifier":"right","type":"turn"},"mode":"driving","driving_side":"right","name":"Franzéninkatu","intersections":[{"out":1,"in":2,"entry":[true,true,false,true],"bearings":[60,120,180,270],"location":[24.95296,60.185535]}],"weight":13.3,"duration":13.3,"distance":51.9},{"geometry":"c~inJuxhwCc@DG?CACE","maneuver":{"bearing_after":354,"bearing_before":87,"location":[24.953867,60.18546],"modifier":"left","type":"continue"},"mode":"driving","driving_side":"right","name":"Franzéninkatu","intersections":[{"out":0,"in":2,"entry":[true,true,false],"bearings":[0,180,270],"location":[24.953867,60.18546]},{"out":0,"in":1,"entry":[true,true,true],"bearings":[15,180,270],"location":[24.953838,60.185639]}],"weight":4.4,"duration":4.4,"distance":29.5},{"geometry":"w_jnJwxhwC","maneuver":{"bearing_after":0,"bearing_before":40,"location":[24.953879,60.185718],"type":"arrive"},"mode":"driving","driving_side":"right","name":"Franzéninkatu","intersections":[{"in":0,"entry":[true],"bearings":[220],"location":[24.953879,60.185718]}],"weight":0,"duration":0,"distance":0}],"summary":"Kaisaniemenkatu, Siltasaarenkatu","weight":481.8,"duration":481.8,"distance":3171.5}],"weight_name":"routability","weight":481.8,"duration":481.8,"distance":3171.5},{"legs":[{"steps":[{"geometry":"{`fnJondwCd@s@","maneuver":{"bearing_after":145,"bearing_before":0,"location":[24.931759,60.165415],"modifier":"right","type":"depart"},"mode":"driving","driving_side":"right","name":"Albertinkatu","intersections":[{"out":0,"entry":[true],"bearings":[145],"location":[24.931759,60.165415]}],"weight":9.1,"duration":9.1,"distance":24.8},{"geometry":"u_fnJcpdwCqDsN","maneuver":{"bearing_after":53,"bearing_before":143,"location":[24.932018,60.165234],"modifier":"left","type":"turn"},"mode":"driving","driving_side":"right","name":"Kalevankatu","intersections":[{"out":0,"in":3,"entry":[true,true,true,false],"bearings":[60,150,240,330],"location":[24.932018,60.165234]}],"weight":31,"duration":31,"distance":170.3},{"geometry":"gefnJw_ewCiBtCCFyAzB]h@k@bAABgCfEYf@}BlDiErG","maneuver":{"bearing_after":323,"bearing_before":53,"location":[24.934522,60.166118],"modifier":"left","type":"turn"},"mode":"driving","driving_side":"right","name":"Fredrikinkatu","intersections":[{"out":3,"in":2,"entry":[true,false,false,true],"bearings":[60,150,240,330],"location":[24.934522,60.166118]},{"out":3,"in":1,"entry":[true,false,true,true],"bearings":[60,150,240,330],"location":[24.93373,60.166671]},{"out":3,"in":1,"entry":[true,false,true,true],"bearings":[60,150,240,330],"location":[24.932542,60.167497]},{"out":3,"in":1,"entry":[false,false,true,true],"bearings":[60,150,210,315],"location":[24.931544,60.168182]},{"out":3,"in":1,"entry":[true,false,true,true],"bearings":[45,150,240,330],"location":[24.930469,60.168938]}],"weight":81.9,"duration":81.9,"distance":522.7},{"geometry":"e}fnJy}cwCE_@AGy@}DGWcA{EI[EYG[Sw@Ic@Oe@QIGB","maneuver":{"bearing_after":68,"bearing_before":324,"location":[24.929089,60.169949],"modifier":"right","type":"turn"},"mode":"driving","driving_side":"right","name":"Eteläinen Rautatiekatu","intersections":[{"out":0,"in":1,"entry":[true,false,false,true],"bearings":[75,150,240,330],"location":[24.929089,60.169949]},{"out":0,"in":2,"entry":[true,true,false,true],"bearings":[60,150,240,330],"location":[24.930364,60.170319]},{"out":0,"in":2,"entry":[true,true,false,false],"bearings":[60,150,240,315],"location":[24.931602,60.170707]}],"weight":35.9,"duration":35.9,"distance":240},{"geometry":"sdgnJmsdwCOJMAACSO]eAWq@[eAa@sA[w@Sg@g@aA","maneuver":{"bearing_after":336,"bearing_before":0,"location":[24.932548,60.171144],"modifier":"slight left","type":"new name"},"mode":"driving","driving_side":"right","name":"Pohjoinen Rautatiekatu","intersections":[{"out":4,"in":2,"entry":[true,true,false,true,true],"bearings":[90,135,180,270,330],"location":[24.932548,60.171144]},{"out":0,"in":1,"entry":[true,false,true],"bearings":[45,210,240],"location":[24.932604,60.171396]},{"out":0,"in":1,"entry":[true,false,true],"bearings":[45,225,330],"location":[24.932954,60.171554]},{"out":0,"in":1,"entry":[true,false,true],"bearings":[45,225,345],"location":[24.934253,60.172122]}],"weight":28.4,"duration":28.4,"distance":196.2},{"geometry":"slgnJkaewCM]sFhF[NKJKF}@t@cAv@a@\\}AbBgC~CmA~AiChD[\\]^i@ZeAb@EB{CtAoBbAOFcCdAEB{Ap@WJ","maneuver":{"bearing_after":46,"bearing_before":39,"location":[24.934775,60.172418],"modifier":"left","type":"end of road"},"mode":"driving","driving_side":"right","name":"Mannerheimintie","intersections":[{"out":0,"in":2,"entry":[true,true,false,false],"bearings":[45,150,225,330],"location":[24.934775,60.172418]},{"out":2,"classes":["motorway"],"in":1,"entry":[false,false,true],"bearings":[150,225,330],"location":[24.934933,60.172492]},{"out":3,"classes":["motorway"],"in":1,"entry":[true,false,true,true],"bearings":[75,165,255,330],"location":[24.933676,60.173847]},{"out":2,"classes":["motorway"],"in":0,"entry":[false,false,true],"bearings":[165,255,345],"location":[24.929803,60.177523]},{"out":2,"classes":["motorway"],"in":0,"entry":[false,true,true],"bearings":[165,255,345],"location":[24.929599,60.177897]}],"weight":114.9,"duration":114.9,"distance":996.3},{"geometry":"u_inJuwcwCeAGqCpAQBMO","maneuver":{"bearing_after":1,"bearing_before":344,"location":[24.928113,60.180586],"modifier":"slight right","type":"turn"},"mode":"driving","driving_side":"right","name":"","intersections":[{"out":0,"in":1,"entry":[true,false,true],"bearings":[0,165,345],"location":[24.928113,60.180586]}],"weight":16.1,"duration":16.1,"distance":143.1},{"geometry":"mginJwucwCuBeJKe@_@_Ba@oBW{@Sc@UWWS[OYGqAi@e@WEAu@]USOSOc@Gi@KmAKoAMiBy@aKCk@]cEMuAcAaNOcAIUI]","maneuver":{"bearing_after":56,"bearing_before":26,"location":[24.9278,60.18183],"modifier":"straight","type":"turn"},"mode":"driving","driving_side":"right","name":"Helsinginkatu","intersections":[{"out":0,"in":1,"entry":[true,false,false],"bearings":[60,210,240],"location":[24.9278,60.18183]},{"out":0,"in":2,"entry":[true,true,false,false],"bearings":[60,150,240,345],"location":[24.929585,60.182415]},{"out":0,"in":2,"entry":[true,false,false,true],"bearings":[60,150,240,300],"location":[24.929779,60.182481]},{"out":0,"in":1,"entry":[true,false,true],"bearings":[15,195,285],"location":[24.931851,60.183941]},{"out":0,"in":1,"entry":[true,false,true],"bearings":[75,255,345],"location":[24.934043,60.184927]},{"out":0,"in":2,"entry":[true,true,false],"bearings":[75,165,255],"location":[24.935973,60.185218]},{"out":0,"in":2,"entry":[true,true,false],"bearings":[45,135,240],"location":[24.94035,60.185879]}],"weight":102.5,"duration":102.5,"distance":910.4},{"geometry":"kajnJyefwCGoBy@qLAI?UA[GuACsBA}BCoCAkBCg@?MEqAAg@CkAAmBAk@AcB@{ACcAA}ACq@Ei@Gc@I_@","maneuver":{"bearing_after":81,"bearing_before":50,"location":[24.940614,60.185982],"modifier":"slight right","type":"continue"},"mode":"driving","driving_side":"right","name":"Helsinginkatu","intersections":[{"out":1,"in":2,"entry":[true,true,false,true],"bearings":[45,90,225,285],"location":[24.940614,60.185982]},{"out":1,"in":3,"entry":[true,true,true,false],"bearings":[0,75,180,270],"location":[24.946807,60.186446]},{"out":0,"in":2,"entry":[true,true,false],"bearings":[90,180,270],"location":[24.948354,60.186524]},{"out":1,"in":2,"entry":[true,true,false],"bearings":[0,90,270],"location":[24.94857,60.186527]}],"weight":68.9,"duration":68.9,"distance":593.8},{"geometry":"{ejnJsghwCBCPYNO@?pAKfACf@ED?","maneuver":{"bearing_after":146,"bearing_before":53,"location":[24.951138,60.186702],"modifier":"right","type":"turn"},"mode":"driving","driving_side":"right","name":"Kaarlenkatu","intersections":[{"out":1,"in":2,"entry":[true,true,false],"bearings":[45,150,240],"location":[24.951138,60.186702]},{"out":1,"in":0,"entry":[false,true,true],"bearings":[0,180,255],"location":[24.951451,60.185728]}],"weight":25.1,"duration":25.1,"distance":137.2},{"geometry":"k~inJwihwCE_DAgC","maneuver":{"bearing_after":84,"bearing_before":175,"location":[24.951483,60.185504],"modifier":"left","type":"turn"},"mode":"driving","driving_side":"right","name":"Franzéninkatu","intersections":[{"out":1,"in":0,"entry":[false,true,true],"bearings":[0,90,180],"location":[24.951483,60.185504]}],"weight":12.3,"duration":12.3,"distance":82.1},{"geometry":"s~inJ_shwCF]BW@UBa@Ac@?c@","maneuver":{"bearing_after":113,"bearing_before":88,"location":[24.95296,60.185535],"modifier":"slight right","type":"continue"},"mode":"driving","driving_side":"right","name":"Franzéninkatu","intersections":[{"out":1,"in":3,"entry":[true,true,true,false],"bearings":[60,120,180,270],"location":[24.95296,60.185535]}],"weight":13.3,"duration":13.3,"distance":51.9},{"geometry":"c~inJuxhwCc@DG?CACE","maneuver":{"bearing_after":354,"bearing_before":87,"location":[24.953867,60.18546],"modifier":"left","type":"continue"},"mode":"driving","driving_side":"right","name":"Franzéninkatu","intersections":[{"out":0,"in":2,"entry":[true,true,false],"bearings":[0,180,270],"location":[24.953867,60.18546]},{"out":0,"in":1,"entry":[true,true,true],"bearings":[15,180,270],"location":[24.953838,60.185639]}],"weight":4.4,"duration":4.4,"distance":29.5},{"geometry":"w_jnJwxhwC","maneuver":{"bearing_after":0,"bearing_before":40,"location":[24.953879,60.185718],"type":"arrive"},"mode":"driving","driving_side":"right","name":"Franzéninkatu","intersections":[{"in":0,"entry":[true],"bearings":[220],"location":[24.953879,60.185718]}],"weight":0,"duration":0,"distance":0}],"summary":"Mannerheimintie, Helsinginkatu","weight":543.8,"duration":543.8,"distance":4098.2}],"weight_name":"routability","weight":543.8,"duration":543.8,"distance":4098.2}],"waypoints":[{"hint":"v0sAgP___39MAAAAcgAAAAAAAAAAAAAA3wxMQhIgxkEAAAAAAAAAAEwAAAByAAAAAAAAAAAAAABJAAAAr218AScNlgNVbXwBBw2WAwAADwnXiC7I","distance":6.137249848,"name":"Albertinkatu","location":[24.931759,60.165415]},{"hint":"RxkAgP___38DAAAAQwAAAAsAAAAAAAAAigwVQA35KEImWeVAAAAAAAMAAABDAAAACwAAAAAAAABJAAAAF8R8AXZclgPWw3wBkVyWAwIAjwLXiC7I","distance":4.697420405,"name":"Franzéninkatu","location":[24.953879,60.185718]}]}
+{
+    "code": "Ok",
+    "routes": [
+        {
+            "legs": [
+                {
+                    "steps": [
+                        {
+                            "geometry": "{`fnJondwCd@s@",
+                            "maneuver": {
+                                "bearing_after": 145,
+                                "bearing_before": 0,
+                                "location": [24.931759, 60.165415],
+                                "modifier": "right",
+                                "type": "depart"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Albertinkatu",
+                            "intersections": [
+                                {
+                                    "out": 0,
+                                    "entry": [true],
+                                    "bearings": [145],
+                                    "location": [24.931759, 60.165415]
+                                }
+                            ],
+                            "weight": 9.1,
+                            "duration": 9.1,
+                            "distance": 24.8
+                        },
+                        {
+                            "geometry": "u_fnJcpdwCqDsNEMIc@sC{K",
+                            "maneuver": {
+                                "bearing_after": 53,
+                                "bearing_before": 143,
+                                "location": [24.932018, 60.165234],
+                                "modifier": "left",
+                                "type": "turn"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Kalevankatu",
+                            "intersections": [
+                                {
+                                    "out": 0,
+                                    "in": 3,
+                                    "entry": [true, true, true, false],
+                                    "bearings": [60, 150, 240, 330],
+                                    "location": [24.932018, 60.165234]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, false, false, true],
+                                    "bearings": [60, 150, 240, 330],
+                                    "location": [24.934522, 60.166118]
+                                }
+                            ],
+                            "weight": 54.3,
+                            "duration": 54.3,
+                            "distance": 327.6
+                        },
+                        {
+                            "geometry": "kjfnJenewCkBtCgDdFg@l@",
+                            "maneuver": {
+                                "bearing_after": 324,
+                                "bearing_before": 53,
+                                "location": [24.936832, 60.166935],
+                                "modifier": "left",
+                                "type": "turn"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Annankatu",
+                            "intersections": [
+                                {
+                                    "out": 3,
+                                    "in": 2,
+                                    "entry": [true, true, false, true],
+                                    "bearings": [60, 150, 240, 330],
+                                    "location": [24.936832, 60.166935]
+                                },
+                                {
+                                    "out": 3,
+                                    "in": 1,
+                                    "entry": [true, false, true, true],
+                                    "bearings": [60, 150, 240, 330],
+                                    "location": [24.936077, 60.16748]
+                                },
+                                {
+                                    "out": 2,
+                                    "in": 0,
+                                    "entry": [false, true, true],
+                                    "bearings": [150, 240, 330],
+                                    "location": [24.934925, 60.168316]
+                                }
+                            ],
+                            "weight": 33.5,
+                            "duration": 33.5,
+                            "distance": 212.7
+                        },
+                        {
+                            "geometry": "gtfnJ{`ewCeBcHiAkEK[iAkE",
+                            "maneuver": {
+                                "bearing_after": 54,
+                                "bearing_before": 330,
+                                "location": [24.934695, 60.168519],
+                                "modifier": "right",
+                                "type": "turn"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Simonkatu",
+                            "intersections": [
+                                {
+                                    "out": 0,
+                                    "in": 1,
+                                    "entry": [true, false, true],
+                                    "bearings": [60, 150, 330],
+                                    "location": [24.934695, 60.168519]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, false, false],
+                                    "bearings": [60, 150, 240],
+                                    "location": [24.93616, 60.169026]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 1,
+                                    "entry": [true, false, true],
+                                    "bearings": [60, 240, 315],
+                                    "location": [24.937182, 60.169402]
+                                }
+                            ],
+                            "weight": 37.6,
+                            "duration": 37.6,
+                            "distance": 249.9
+                        },
+                        {
+                            "geometry": "m|fnJswewCCg@Ek@uA}EMaQAmDA_BEcAKy@Mc@G]",
+                            "maneuver": {
+                                "bearing_after": 57,
+                                "bearing_before": 53,
+                                "location": [24.938344, 60.169833],
+                                "modifier": "straight",
+                                "type": "new name"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Kaivokatu",
+                            "intersections": [
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, true, false, false],
+                                    "bearings": [60, 150, 240, 330],
+                                    "location": [24.938344, 60.169833]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, false, false, true],
+                                    "bearings": [45, 150, 240, 315],
+                                    "location": [24.938756, 60.169875]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 1,
+                                    "entry": [true, false, false],
+                                    "bearings": [90, 225, 330],
+                                    "location": [24.939865, 60.170306]
+                                },
+                                {
+                                    "out": 1,
+                                    "in": 3,
+                                    "entry": [false, true, true, false],
+                                    "bearings": [0, 90, 180, 270],
+                                    "location": [24.942763, 60.170378]
+                                }
+                            ],
+                            "weight": 59.5,
+                            "duration": 59.5,
+                            "distance": 396.3
+                        },
+                        {
+                            "geometry": "gagnJuagwCuAmF_@}AY_AEUGWKMGMa@U[O[_@Y]g@k@{AmBc@e@g@o@Sa@cBsBQc@ACEM",
+                            "maneuver": {
+                                "bearing_after": 53,
+                                "bearing_before": 59,
+                                "location": [24.945074, 60.170602],
+                                "modifier": "straight",
+                                "type": "new name"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Kaisaniemenkatu",
+                            "intersections": [
+                                {
+                                    "out": 1,
+                                    "in": 3,
+                                    "entry": [true, true, true, false],
+                                    "bearings": [15, 60, 150, 240],
+                                    "location": [24.945074, 60.170602]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, false, false],
+                                    "bearings": [30, 135, 210],
+                                    "location": [24.948691, 60.172733]
+                                }
+                            ],
+                            "weight": 65.5,
+                            "duration": 65.5,
+                            "distance": 468.4
+                        },
+                        {
+                            "geometry": "ougnJkahwCEIKSSQSIOAa@Ai@B}AFsCP",
+                            "maneuver": {
+                                "bearing_after": 30,
+                                "bearing_before": 42,
+                                "location": [24.950136, 60.173842],
+                                "modifier": "slight left",
+                                "type": "turn"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Unioninkatu",
+                            "intersections": [
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, true, false, false],
+                                    "bearings": [30, 150, 225, 300],
+                                    "location": [24.950136, 60.173842]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, true, false],
+                                    "bearings": [15, 90, 210],
+                                    "location": [24.950377, 60.174026]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 1,
+                                    "entry": [true, false, true],
+                                    "bearings": [0, 195, 315],
+                                    "location": [24.950438, 60.174206]
+                                }
+                            ],
+                            "weight": 25.2,
+                            "duration": 25.2,
+                            "distance": 223.3
+                        },
+                        {
+                            "geometry": "wahnJkbhwCo@DgCJa@@",
+                            "maneuver": {
+                                "bearing_after": 355,
+                                "bearing_before": 355,
+                                "location": [24.950303, 60.175803],
+                                "modifier": "straight",
+                                "type": "new name"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Pitkäsilta",
+                            "intersections": [
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, true, false, true],
+                                    "bearings": [0, 75, 180, 270],
+                                    "location": [24.950303, 60.175803]
+                                }
+                            ],
+                            "weight": 13.6,
+                            "duration": 13.6,
+                            "distance": 121
+                        },
+                        {
+                            "geometry": "qhhnJwahwCkABiBFWAOCMEi@}@SWUI[Da@@aAFeBLK?",
+                            "maneuver": {
+                                "bearing_after": 357,
+                                "bearing_before": 357,
+                                "location": [24.950199, 60.176888],
+                                "modifier": "straight",
+                                "type": "new name"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Siltasaarenkatu",
+                            "intersections": [
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, false, false, true],
+                                    "bearings": [0, 90, 180, 270],
+                                    "location": [24.950199, 60.176888]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, true, false, true],
+                                    "bearings": [30, 90, 225, 270],
+                                    "location": [24.950509, 60.178276]
+                                }
+                            ],
+                            "weight": 46.9,
+                            "duration": 46.9,
+                            "distance": 321.3
+                        },
+                        {
+                            "geometry": "czhnJychwCKNKHGVIZAXAFAZ",
+                            "maneuver": {
+                                "bearing_after": 329,
+                                "bearing_before": 355,
+                                "location": [24.950529, 60.179695],
+                                "modifier": "slight left",
+                                "type": "fork"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Siltasaarenkatu",
+                            "intersections": [
+                                {
+                                    "out": 2,
+                                    "in": 1,
+                                    "entry": [true, false, true],
+                                    "bearings": [0, 180, 330],
+                                    "location": [24.950529, 60.179695]
+                                },
+                                {
+                                    "out": 3,
+                                    "in": 1,
+                                    "entry": [false, false, true, true],
+                                    "bearings": [45, 90, 210, 285],
+                                    "location": [24.95001, 60.179921]
+                                }
+                            ],
+                            "weight": 8.5,
+                            "duration": 8.5,
+                            "distance": 50.9
+                        },
+                        {
+                            "geometry": "s{hnJm_hwCu@HuCRWAE@",
+                            "maneuver": {
+                                "bearing_after": 354,
+                                "bearing_before": 278,
+                                "location": [24.949829, 60.179936],
+                                "modifier": "right",
+                                "type": "continue"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Siltasaarenkatu",
+                            "intersections": [
+                                {
+                                    "out": 0,
+                                    "in": 1,
+                                    "entry": [true, false, true, true],
+                                    "bearings": [0, 105, 180, 270],
+                                    "location": [24.949829, 60.179936]
+                                }
+                            ],
+                            "weight": 20.2,
+                            "duration": 20.2,
+                            "distance": 131.3
+                        },
+                        {
+                            "geometry": "}binJo~gwCKg@yBaEwCgF{B}DWg@EI",
+                            "maneuver": {
+                                "bearing_after": 60,
+                                "bearing_before": 357,
+                                "location": [24.949683, 60.181111],
+                                "modifier": "right",
+                                "type": "turn"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Porthaninkatu",
+                            "intersections": [
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, true, false, true, true],
+                                    "bearings": [60, 120, 180, 270, 315],
+                                    "location": [24.949683, 60.181111]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, true, false, true],
+                                    "bearings": [30, 135, 225, 315],
+                                    "location": [24.950849, 60.181784]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, true, false, true],
+                                    "bearings": [45, 135, 210, 315],
+                                    "location": [24.952011, 60.182539]
+                                }
+                            ],
+                            "weight": 47.599999999,
+                            "duration": 47.599999999,
+                            "distance": 314.6
+                        },
+                        {
+                            "geometry": "upinJqthwCyDTcGZ",
+                            "maneuver": {
+                                "bearing_after": 355,
+                                "bearing_before": 36,
+                                "location": [24.953207, 60.183312],
+                                "modifier": "left",
+                                "type": "new name"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Fleminginkatu",
+                            "intersections": [
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, true, false, false],
+                                    "bearings": [0, 120, 225, 315],
+                                    "location": [24.953207, 60.183312]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, true, false, true],
+                                    "bearings": [0, 90, 180, 270],
+                                    "location": [24.953095, 60.184235]
+                                }
+                            ],
+                            "weight": 42.6,
+                            "duration": 42.6,
+                            "distance": 248.1
+                        },
+                        {
+                            "geometry": "s~inJ_shwCF]BW@UBa@Ac@?c@",
+                            "maneuver": {
+                                "bearing_after": 113,
+                                "bearing_before": 355,
+                                "location": [24.95296, 60.185535],
+                                "modifier": "right",
+                                "type": "turn"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Franzéninkatu",
+                            "intersections": [
+                                {
+                                    "out": 1,
+                                    "in": 2,
+                                    "entry": [true, true, false, true],
+                                    "bearings": [60, 120, 180, 270],
+                                    "location": [24.95296, 60.185535]
+                                }
+                            ],
+                            "weight": 13.3,
+                            "duration": 13.3,
+                            "distance": 51.9
+                        },
+                        {
+                            "geometry": "c~inJuxhwCc@DG?CACE",
+                            "maneuver": {
+                                "bearing_after": 354,
+                                "bearing_before": 87,
+                                "location": [24.953867, 60.18546],
+                                "modifier": "left",
+                                "type": "continue"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Franzéninkatu",
+                            "intersections": [
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, true, false],
+                                    "bearings": [0, 180, 270],
+                                    "location": [24.953867, 60.18546]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 1,
+                                    "entry": [true, true, true],
+                                    "bearings": [15, 180, 270],
+                                    "location": [24.953838, 60.185639]
+                                }
+                            ],
+                            "weight": 4.4,
+                            "duration": 4.4,
+                            "distance": 29.5
+                        },
+                        {
+                            "geometry": "w_jnJwxhwC",
+                            "maneuver": {
+                                "bearing_after": 0,
+                                "bearing_before": 40,
+                                "location": [24.953879, 60.185718],
+                                "type": "arrive"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Franzéninkatu",
+                            "intersections": [
+                                {
+                                    "in": 0,
+                                    "entry": [true],
+                                    "bearings": [220],
+                                    "location": [24.953879, 60.185718]
+                                }
+                            ],
+                            "weight": 0,
+                            "duration": 0,
+                            "distance": 0
+                        }
+                    ],
+                    "summary": "Kaisaniemenkatu, Siltasaarenkatu",
+                    "weight": 481.8,
+                    "duration": 481.8,
+                    "distance": 3171.5
+                }
+            ],
+            "weight_name": "routability",
+            "weight": 481.8,
+            "duration": 481.8,
+            "distance": 3171.5
+        },
+        {
+            "legs": [
+                {
+                    "steps": [
+                        {
+                            "geometry": "{`fnJondwCd@s@",
+                            "maneuver": {
+                                "bearing_after": 145,
+                                "bearing_before": 0,
+                                "location": [24.931759, 60.165415],
+                                "modifier": "right",
+                                "type": "depart"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Albertinkatu",
+                            "intersections": [
+                                {
+                                    "out": 0,
+                                    "entry": [true],
+                                    "bearings": [145],
+                                    "location": [24.931759, 60.165415]
+                                }
+                            ],
+                            "weight": 9.1,
+                            "duration": 9.1,
+                            "distance": 24.8
+                        },
+                        {
+                            "geometry": "u_fnJcpdwCqDsN",
+                            "maneuver": {
+                                "bearing_after": 53,
+                                "bearing_before": 143,
+                                "location": [24.932018, 60.165234],
+                                "modifier": "left",
+                                "type": "turn"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Kalevankatu",
+                            "intersections": [
+                                {
+                                    "out": 0,
+                                    "in": 3,
+                                    "entry": [true, true, true, false],
+                                    "bearings": [60, 150, 240, 330],
+                                    "location": [24.932018, 60.165234]
+                                }
+                            ],
+                            "weight": 31,
+                            "duration": 31,
+                            "distance": 170.3
+                        },
+                        {
+                            "geometry": "gefnJw_ewCiBtCCFyAzB]h@k@bAABgCfEYf@}BlDiErG",
+                            "maneuver": {
+                                "bearing_after": 323,
+                                "bearing_before": 53,
+                                "location": [24.934522, 60.166118],
+                                "modifier": "left",
+                                "type": "turn"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Fredrikinkatu",
+                            "intersections": [
+                                {
+                                    "out": 3,
+                                    "in": 2,
+                                    "entry": [true, false, false, true],
+                                    "bearings": [60, 150, 240, 330],
+                                    "location": [24.934522, 60.166118]
+                                },
+                                {
+                                    "out": 3,
+                                    "in": 1,
+                                    "entry": [true, false, true, true],
+                                    "bearings": [60, 150, 240, 330],
+                                    "location": [24.93373, 60.166671]
+                                },
+                                {
+                                    "out": 3,
+                                    "in": 1,
+                                    "entry": [true, false, true, true],
+                                    "bearings": [60, 150, 240, 330],
+                                    "location": [24.932542, 60.167497]
+                                },
+                                {
+                                    "out": 3,
+                                    "in": 1,
+                                    "entry": [false, false, true, true],
+                                    "bearings": [60, 150, 210, 315],
+                                    "location": [24.931544, 60.168182]
+                                },
+                                {
+                                    "out": 3,
+                                    "in": 1,
+                                    "entry": [true, false, true, true],
+                                    "bearings": [45, 150, 240, 330],
+                                    "location": [24.930469, 60.168938]
+                                }
+                            ],
+                            "weight": 81.9,
+                            "duration": 81.9,
+                            "distance": 522.7
+                        },
+                        {
+                            "geometry": "e}fnJy}cwCE_@AGy@}DGWcA{EI[EYG[Sw@Ic@Oe@QIGB",
+                            "maneuver": {
+                                "bearing_after": 68,
+                                "bearing_before": 324,
+                                "location": [24.929089, 60.169949],
+                                "modifier": "right",
+                                "type": "turn"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Eteläinen Rautatiekatu",
+                            "intersections": [
+                                {
+                                    "out": 0,
+                                    "in": 1,
+                                    "entry": [true, false, false, true],
+                                    "bearings": [75, 150, 240, 330],
+                                    "location": [24.929089, 60.169949]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, true, false, true],
+                                    "bearings": [60, 150, 240, 330],
+                                    "location": [24.930364, 60.170319]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, true, false, false],
+                                    "bearings": [60, 150, 240, 315],
+                                    "location": [24.931602, 60.170707]
+                                }
+                            ],
+                            "weight": 35.9,
+                            "duration": 35.9,
+                            "distance": 240
+                        },
+                        {
+                            "geometry": "sdgnJmsdwCOJMAACSO]eAWq@[eAa@sA[w@Sg@g@aA",
+                            "maneuver": {
+                                "bearing_after": 336,
+                                "bearing_before": 0,
+                                "location": [24.932548, 60.171144],
+                                "modifier": "slight left",
+                                "type": "new name"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Pohjoinen Rautatiekatu",
+                            "intersections": [
+                                {
+                                    "out": 4,
+                                    "in": 2,
+                                    "entry": [true, true, false, true, true],
+                                    "bearings": [90, 135, 180, 270, 330],
+                                    "location": [24.932548, 60.171144]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 1,
+                                    "entry": [true, false, true],
+                                    "bearings": [45, 210, 240],
+                                    "location": [24.932604, 60.171396]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 1,
+                                    "entry": [true, false, true],
+                                    "bearings": [45, 225, 330],
+                                    "location": [24.932954, 60.171554]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 1,
+                                    "entry": [true, false, true],
+                                    "bearings": [45, 225, 345],
+                                    "location": [24.934253, 60.172122]
+                                }
+                            ],
+                            "weight": 28.4,
+                            "duration": 28.4,
+                            "distance": 196.2
+                        },
+                        {
+                            "geometry": "slgnJkaewCM]sFhF[NKJKF}@t@cAv@a@\\}AbBgC~CmA~AiChD[\\]^i@ZeAb@EB{CtAoBbAOFcCdAEB{Ap@WJ",
+                            "maneuver": {
+                                "bearing_after": 46,
+                                "bearing_before": 39,
+                                "location": [24.934775, 60.172418],
+                                "modifier": "left",
+                                "type": "end of road"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Mannerheimintie",
+                            "intersections": [
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, true, false, false],
+                                    "bearings": [45, 150, 225, 330],
+                                    "location": [24.934775, 60.172418]
+                                },
+                                {
+                                    "out": 2,
+                                    "classes": ["motorway"],
+                                    "in": 1,
+                                    "entry": [false, false, true],
+                                    "bearings": [150, 225, 330],
+                                    "location": [24.934933, 60.172492]
+                                },
+                                {
+                                    "out": 3,
+                                    "classes": ["motorway"],
+                                    "in": 1,
+                                    "entry": [true, false, true, true],
+                                    "bearings": [75, 165, 255, 330],
+                                    "location": [24.933676, 60.173847]
+                                },
+                                {
+                                    "out": 2,
+                                    "classes": ["motorway"],
+                                    "in": 0,
+                                    "entry": [false, false, true],
+                                    "bearings": [165, 255, 345],
+                                    "location": [24.929803, 60.177523]
+                                },
+                                {
+                                    "out": 2,
+                                    "classes": ["motorway"],
+                                    "in": 0,
+                                    "entry": [false, true, true],
+                                    "bearings": [165, 255, 345],
+                                    "location": [24.929599, 60.177897]
+                                }
+                            ],
+                            "weight": 114.9,
+                            "duration": 114.9,
+                            "distance": 996.3
+                        },
+                        {
+                            "geometry": "u_inJuwcwCeAGqCpAQBMO",
+                            "maneuver": {
+                                "bearing_after": 1,
+                                "bearing_before": 344,
+                                "location": [24.928113, 60.180586],
+                                "modifier": "slight right",
+                                "type": "turn"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "",
+                            "intersections": [
+                                {
+                                    "out": 0,
+                                    "in": 1,
+                                    "entry": [true, false, true],
+                                    "bearings": [0, 165, 345],
+                                    "location": [24.928113, 60.180586]
+                                }
+                            ],
+                            "weight": 16.1,
+                            "duration": 16.1,
+                            "distance": 143.1
+                        },
+                        {
+                            "geometry": "mginJwucwCuBeJKe@_@_Ba@oBW{@Sc@UWWS[OYGqAi@e@WEAu@]USOSOc@Gi@KmAKoAMiBy@aKCk@]cEMuAcAaNOcAIUI]",
+                            "maneuver": {
+                                "bearing_after": 56,
+                                "bearing_before": 26,
+                                "location": [24.9278, 60.18183],
+                                "modifier": "straight",
+                                "type": "turn"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Helsinginkatu",
+                            "intersections": [
+                                {
+                                    "out": 0,
+                                    "in": 1,
+                                    "entry": [true, false, false],
+                                    "bearings": [60, 210, 240],
+                                    "location": [24.9278, 60.18183]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, true, false, false],
+                                    "bearings": [60, 150, 240, 345],
+                                    "location": [24.929585, 60.182415]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, false, false, true],
+                                    "bearings": [60, 150, 240, 300],
+                                    "location": [24.929779, 60.182481]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 1,
+                                    "entry": [true, false, true],
+                                    "bearings": [15, 195, 285],
+                                    "location": [24.931851, 60.183941]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 1,
+                                    "entry": [true, false, true],
+                                    "bearings": [75, 255, 345],
+                                    "location": [24.934043, 60.184927]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, true, false],
+                                    "bearings": [75, 165, 255],
+                                    "location": [24.935973, 60.185218]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, true, false],
+                                    "bearings": [45, 135, 240],
+                                    "location": [24.94035, 60.185879]
+                                }
+                            ],
+                            "weight": 102.5,
+                            "duration": 102.5,
+                            "distance": 910.4
+                        },
+                        {
+                            "geometry": "kajnJyefwCGoBy@qLAI?UA[GuACsBA}BCoCAkBCg@?MEqAAg@CkAAmBAk@AcB@{ACcAA}ACq@Ei@Gc@I_@",
+                            "maneuver": {
+                                "bearing_after": 81,
+                                "bearing_before": 50,
+                                "location": [24.940614, 60.185982],
+                                "modifier": "slight right",
+                                "type": "continue"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Helsinginkatu",
+                            "intersections": [
+                                {
+                                    "out": 1,
+                                    "in": 2,
+                                    "entry": [true, true, false, true],
+                                    "bearings": [45, 90, 225, 285],
+                                    "location": [24.940614, 60.185982]
+                                },
+                                {
+                                    "out": 1,
+                                    "in": 3,
+                                    "entry": [true, true, true, false],
+                                    "bearings": [0, 75, 180, 270],
+                                    "location": [24.946807, 60.186446]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, true, false],
+                                    "bearings": [90, 180, 270],
+                                    "location": [24.948354, 60.186524]
+                                },
+                                {
+                                    "out": 1,
+                                    "in": 2,
+                                    "entry": [true, true, false],
+                                    "bearings": [0, 90, 270],
+                                    "location": [24.94857, 60.186527]
+                                }
+                            ],
+                            "weight": 68.9,
+                            "duration": 68.9,
+                            "distance": 593.8
+                        },
+                        {
+                            "geometry": "{ejnJsghwCBCPYNO@?pAKfACf@ED?",
+                            "maneuver": {
+                                "bearing_after": 146,
+                                "bearing_before": 53,
+                                "location": [24.951138, 60.186702],
+                                "modifier": "right",
+                                "type": "turn"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Kaarlenkatu",
+                            "intersections": [
+                                {
+                                    "out": 1,
+                                    "in": 2,
+                                    "entry": [true, true, false],
+                                    "bearings": [45, 150, 240],
+                                    "location": [24.951138, 60.186702]
+                                },
+                                {
+                                    "out": 1,
+                                    "in": 0,
+                                    "entry": [false, true, true],
+                                    "bearings": [0, 180, 255],
+                                    "location": [24.951451, 60.185728]
+                                }
+                            ],
+                            "weight": 25.1,
+                            "duration": 25.1,
+                            "distance": 137.2
+                        },
+                        {
+                            "geometry": "k~inJwihwCE_DAgC",
+                            "maneuver": {
+                                "bearing_after": 84,
+                                "bearing_before": 175,
+                                "location": [24.951483, 60.185504],
+                                "modifier": "left",
+                                "type": "turn"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Franzéninkatu",
+                            "intersections": [
+                                {
+                                    "out": 1,
+                                    "in": 0,
+                                    "entry": [false, true, true],
+                                    "bearings": [0, 90, 180],
+                                    "location": [24.951483, 60.185504]
+                                }
+                            ],
+                            "weight": 12.3,
+                            "duration": 12.3,
+                            "distance": 82.1
+                        },
+                        {
+                            "geometry": "s~inJ_shwCF]BW@UBa@Ac@?c@",
+                            "maneuver": {
+                                "bearing_after": 113,
+                                "bearing_before": 88,
+                                "location": [24.95296, 60.185535],
+                                "modifier": "slight right",
+                                "type": "continue"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Franzéninkatu",
+                            "intersections": [
+                                {
+                                    "out": 1,
+                                    "in": 3,
+                                    "entry": [true, true, true, false],
+                                    "bearings": [60, 120, 180, 270],
+                                    "location": [24.95296, 60.185535]
+                                }
+                            ],
+                            "weight": 13.3,
+                            "duration": 13.3,
+                            "distance": 51.9
+                        },
+                        {
+                            "geometry": "c~inJuxhwCc@DG?CACE",
+                            "maneuver": {
+                                "bearing_after": 354,
+                                "bearing_before": 87,
+                                "location": [24.953867, 60.18546],
+                                "modifier": "left",
+                                "type": "continue"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Franzéninkatu",
+                            "intersections": [
+                                {
+                                    "out": 0,
+                                    "in": 2,
+                                    "entry": [true, true, false],
+                                    "bearings": [0, 180, 270],
+                                    "location": [24.953867, 60.18546]
+                                },
+                                {
+                                    "out": 0,
+                                    "in": 1,
+                                    "entry": [true, true, true],
+                                    "bearings": [15, 180, 270],
+                                    "location": [24.953838, 60.185639]
+                                }
+                            ],
+                            "weight": 4.4,
+                            "duration": 4.4,
+                            "distance": 29.5
+                        },
+                        {
+                            "geometry": "w_jnJwxhwC",
+                            "maneuver": {
+                                "bearing_after": 0,
+                                "bearing_before": 40,
+                                "location": [24.953879, 60.185718],
+                                "type": "arrive"
+                            },
+                            "mode": "driving",
+                            "driving_side": "right",
+                            "name": "Franzéninkatu",
+                            "intersections": [
+                                {
+                                    "in": 0,
+                                    "entry": [true],
+                                    "bearings": [220],
+                                    "location": [24.953879, 60.185718]
+                                }
+                            ],
+                            "weight": 0,
+                            "duration": 0,
+                            "distance": 0
+                        }
+                    ],
+                    "summary": "Mannerheimintie, Helsinginkatu",
+                    "weight": 543.8,
+                    "duration": 543.8,
+                    "distance": 4098.2
+                }
+            ],
+            "weight_name": "routability",
+            "weight": 543.8,
+            "duration": 543.8,
+            "distance": 4098.2
+        }
+    ],
+    "waypoints": [
+        {
+            "hint": "v0sAgP___39MAAAAcgAAAAAAAAAAAAAA3wxMQhIgxkEAAAAAAAAAAEwAAAByAAAAAAAAAAAAAABJAAAAr218AScNlgNVbXwBBw2WAwAADwnXiC7I",
+            "distance": 6.137249848,
+            "name": "Albertinkatu",
+            "location": [24.931759, 60.165415]
+        },
+        {
+            "hint": "RxkAgP___38DAAAAQwAAAAsAAAAAAAAAigwVQA35KEImWeVAAAAAAAMAAABDAAAACwAAAAAAAABJAAAAF8R8AXZclgPWw3wBkVyWAwIAjwLXiC7I",
+            "distance": 4.697420405,
+            "name": "Franzéninkatu",
+            "location": [24.953879, 60.185718]
+        }
+    ]
+}

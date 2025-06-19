@@ -3,47 +3,46 @@
     border-radius: 5px;
     padding: 10px;
     margin-bottom: 20px;
-  }
-  
-  .polygon h2 {
+}
+
+.polygon h2 {
     margin-top: 0;
-  }
-  
-  .polygon ul {
+}
+
+.polygon ul {
     list-style-type: none;
     padding: 0;
-  }
-  
-  .polygon li {
-    margin-bottom: 5px;
-  }
+}
 
-  .clickable-icon {
+.polygon li {
+    margin-bottom: 5px;
+}
+
+.clickable-icon {
     cursor: pointer;
     transition: transform 0.2s;
-  }
-  
-  .clickable-icon:hover {
+}
+
+.clickable-icon:hover {
     transform: scale(1.1);
-  }
+}
 
-  .error {
+.error {
     color: red;
-  }
-
+}
 
 .polygon-error {
-  border: 2px solid red;
+    border: 2px solid red;
 }
 
 .input-error {
-  border-color: red;
+    border-color: red;
 }
 
 .highlight {
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 10px;
-  margin-bottom: 20px;
-  box-shadow: inset 0 0 30px rgba(107, 255, 107, 0.899);
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 20px;
+    box-shadow: inset 0 0 30px rgba(107, 255, 107, 0.899);
 }

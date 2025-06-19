@@ -1,237 +1,238 @@
 :root {
-  --primary-blue: #166FE5;
+    --primary-blue: #166fe5;
 }
 
 #body {
-  min-height: 250px;
-  height: 100vh;
-  position: relative;
-  background-color: cyan;
+    min-height: 250px;
+    height: 100vh;
+    position: relative;
+    background-color: cyan;
 }
 
 .header-icons {
-  display: flex;
-  gap: 16px;
+    display: flex;
+    gap: 16px;
 }
 
 .header-icon {
-  width: 45px;
-  height: 45px;
-  cursor: pointer;
-  opacity: 1;
-  transition: opacity 0.2s;
-  filter: brightness(0) invert(1);
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+    opacity: 1;
+    transition: opacity 0.2s;
+    filter: brightness(0) invert(1);
 }
 
 .header-icon:hover {
-  opacity: 0.8;
+    opacity: 0.8;
 }
 
 .route-list-container {
-  display: flex;
-  flex-direction: row;
-  gap: 40px; 
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  margin-top: 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-top: 10px;
 }
 
 .route-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: auto; // Tämä takaa keskityksen riippumatta sisällön määrästä
-  margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: auto; // Tämä takaa keskityksen riippumatta sisällön määrästä
+    margin-bottom: 10px;
 
-  strong {
-    margin-bottom: 5px;
-  }
+    strong {
+        margin-bottom: 5px;
+    }
 }
 
 .route-info {
-  display: flex;
-  gap: 20px;
-  justify-content: center;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
 
-  p {
-    margin: 0;
-  }
+    p {
+        margin: 0;
+    }
 }
 
 .timed-alert {
-  font-weight: bold;
-  display: flex;
-  grid-area: header;
-  align-items: center;
-  justify-content: space-between;
-  width: 20%;
-  position: absolute;
-  top: 5%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1000;
+    font-weight: bold;
+    display: flex;
+    grid-area: header;
+    align-items: center;
+    justify-content: space-between;
+    width: 20%;
+    position: absolute;
+    top: 5%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
 }
 
 .image-container {
-  position: absolute;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  gap: 15px;
-  align-items: center;
-  z-index: 1001; // Ensure icons are above other elements
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    z-index: 1001; // Ensure icons are above other elements
 }
 
 .header-title {
-  font-size: 20px;
-  font-weight: bold;
-  color: white;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
 }
 
 .profile-display {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  font-weight: bold;
-  font-size: 16px;
-  color: white;
-  pointer-events: none; // estää klikkauksen keskiosaan
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+    font-size: 16px;
+    color: white;
+    pointer-events: none; // estää klikkauksen keskiosaan
 }
 
 .header-select-wrapper {
-  position: relative;
+    position: relative;
 
-  .tools-label {
-    cursor: pointer;
-    font-weight: bold;
-  }
+    .tools-label {
+        cursor: pointer;
+        font-weight: bold;
+    }
 
-  .header-select {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-  }
+    .header-select {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
 }
 
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.4); // tumma läpinäkyvä tausta
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4); // tumma läpinäkyvä tausta
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
 }
 
 .modal-close {
-  all: unset;
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: none;
-  border: none;
-  font-size: 28px;
-  font-weight: bold;
-  color: #666; // harmaa väri
-  cursor: pointer;
-  line-height: 1;
+    all: unset;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 28px;
+    font-weight: bold;
+    color: #666; // harmaa väri
+    cursor: pointer;
+    line-height: 1;
 
-  &:hover {
-    color: #333; // tummempi hover-efekti
-  }
+    &:hover {
+        color: #333; // tummempi hover-efekti
+    }
 }
 
 .custom-modal-content {
-  position: relative;
-  background-color: #fff;
-  border-radius: 12px;
-  padding: 24px 32px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  text-align: center;
-  min-width: 320px;
-  background: white;
-  width: 400px;
-  max-height: 500px;
-  overflow-y: auto;
+    position: relative;
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 24px 32px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    text-align: center;
+    min-width: 320px;
+    background: white;
+    width: 400px;
+    max-height: 500px;
+    overflow-y: auto;
 }
 
 .scrollable-list {
-  max-height: 300px;
-  overflow-y: auto;
-  border: 1px solid #ccc;
-  padding: 0.5rem;
-  margin-top: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    margin-top: 1rem;
 }
 
 .custom-modal-content h3 {
-  color: var(--primary-blue);
-  margin-bottom: 20px;
+    color: var(--primary-blue);
+    margin-bottom: 20px;
 }
 
 .profile-options label {
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-  font-weight: bold;
-  color: #333;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    font-weight: bold;
+    color: #333;
 }
 
 .profile-options select {
-  margin-top: 4px;
-  margin-bottom: 12px;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 16px;
+    margin-top: 4px;
+    margin-bottom: 12px;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
 }
 
 .profile-button {
-  padding: 12px 20px;
-  font-size: 16px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  background-color: var(--primary-blue);
-  color: white;
-  transition: background-color 0.2s;
+    padding: 12px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: var(--primary-blue);
+    color: white;
+    transition: background-color 0.2s;
 
-  &:hover {
-  background-color: #125bcc;
-}
+    &:hover {
+        background-color: #125bcc;
+    }
 }
 
 .temp-road-icon {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #007bff;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 18px;
-  transition: background-color 0.2s, transform 0.1s;
-  user-select: none;
-  
-  &:hover {
-    background: #0056b3;
-    transform: scale(1.05);
-  }
-  
-  &:active {
-    transform: scale(0.95);
-  }
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #007bff;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
+    transition:
+        background-color 0.2s,
+        transform 0.1s;
+    user-select: none;
 
+    &:hover {
+        background: #0056b3;
+        transform: scale(1.05);
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
 }
-  .disconnection-button {
+.disconnection-button {
     background-color: var(--primary-blue);
     color: white;
     border: none;
@@ -242,100 +243,100 @@
     font-weight: 500;
     transition: background-color 0.2s;
 
-  &:hover {
-    background-color: #3367d6;
-  }
+    &:hover {
+        background-color: #3367d6;
+    }
 }
 
 .search-disconnections {
-  font-family: inherit;
-  font-size: 14px;
-  line-height: 1.5;
-  color: #333;
-  background-color: #f9f9f9;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 8px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: border-color 0.2s;
-  max-width: 400px;
-  width: 100%;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.2s;
+    max-width: 400px;
+    width: 100%;
 
-  &:focus {
-    outline: none;
-    border-color: var(--primary-blue);
-  }
+    &:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+    }
 }
 
 .search-temproads {
-  font-family: inherit;
-  font-size: 14px;
-  line-height: 1.5;
-  color: #333;
-  background-color: #f9f9f9;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 8px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: border-color 0.2s;
-  max-width: 250px;
-  width: 100%;
-  margin-top: 1rem;
-  
-  &:focus {
-    outline: none;
-    border-color: var(--primary-blue);
-  }
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.2s;
+    max-width: 250px;
+    width: 100%;
+    margin-top: 1rem;
+
+    &:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+    }
 }
 
 .filter-dropdown {
-  font-family: inherit;
-  font-size: 14px;
-  line-height: 1.5;
-  color: #333;
-  background-color: #f9f9f9;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 8px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: border-color 0.2s;
-  max-width: 200px;
-  width: 100%;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.2s;
+    max-width: 200px;
+    width: 100%;
 
-  &:focus {
-    outline: none;
-    border-color: var(--primary-blue);
-  }
+    &:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+    }
 }
 
 .filter-temproads {
-  font-family: inherit;
-  font-size: 14px;
-  line-height: 1.5;
-  color: #333;
-  background-color: #f9f9f9;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 8px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: border-color 0.2s;
-  max-width: 200px;
-  width: 100%;
-  margin-top: 0.2rem;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.2s;
+    max-width: 200px;
+    width: 100%;
+    margin-top: 0.2rem;
 
-  &:focus {
-    outline: none;
-    border-color: var(--primary-blue);
-  }
+    &:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+    }
 }
 
 .button-container {
-  margin-bottom: 0.3rem;
-  display: flex;
-  justify-content: center;
-  gap: 8px;
+    margin-bottom: 0.3rem;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
 }
 
 .search-container {
-  margin-top: 0.3rem; // Ensure spacing above the search bar
+    margin-top: 0.3rem; // Ensure spacing above the search bar
 }

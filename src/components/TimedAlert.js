@@ -2,16 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Alert, ProgressBar } from 'react-bootstrap';
 import { removeTimedAlert } from '../features/messages/timedAlertSlice';
-import '../comp_styles.scss';
-import { ROUTING_API_URL } from '../Utils/config';
-import { showTimedAlert, clearTimedAlert } from '../Utils/dispatchUtility';
-import { fetchPolygons } from '../features/polygons/polygonsSlice';
-import { fetchRouteLine } from '../features/routes/routeSlice';
+import { ROUTING_API_URL } from '../utils/config';
+import { showTimedAlert, clearTimedAlert } from '../utils/dispatchUtility'; // uhh the point is to not use this here
 import { refreshTileLayer } from '../features/map/tileLayerSlice';
+import '../comp_styles.scss';
 
 // A component that displays alerts for a certain amount of time. Displays also a progress bar on editmode saving, which is dynamically updated from backend url /status
 const TimedAlert = () => {
-    const alerts = useSelector(state => state.timedAlert);
+    const alerts = useSelector((state) => state.timedAlert);
     const dispatch = useDispatch();
     const [percentage, setPercentage] = useState(0);
     const [estimate, setEstimate] = useState(0);
@@ -19,7 +17,7 @@ const TimedAlert = () => {
 
     // Removes alerts after a certain amount of time
     useEffect(() => {
-        alerts.forEach(alert => {
+        alerts.forEach((alert) => {
             setTimeout(() => dispatch(removeTimedAlert(alert.id)), alert.timeout);
         });
     }, [alerts, dispatch]);
@@ -28,25 +26,36 @@ const TimedAlert = () => {
         const socket = new EventSource(`${ROUTING_API_URL}/status`);
 
         socket.onmessage = (event) => {
-            console.log('WebSocket message received:', event.data)
+            console.log('WebSocket message received:', event.data);
             const data = JSON.parse(event.data);
             //console.log(data)
             if (data.status === 'processing') {
-                if (data.progress.percentage===0 && data.status==="processing"){
+                if (data.progress.percentage === 0 && data.status === 'processing') {
                     setAlertId(`loading-${Date.now()}`);
-                    showTimedAlert({ text: 'Updating roads...', variant: 'info', id: 1, progress: true });
+                    showTimedAlert({
+                        text: 'Updating roads...',
+                        variant: 'info',
+                        id: 1,
+                        progress: true,
+                    });
                 }
                 setPercentage(data.progress.percentage);
-                if (data.progress.estimate!==undefined){
+                if (data.progress.estimate !== undefined) {
                     //console.log(data.progress.estimate)
-                    setEstimate(formatTime(Math.max((new Date(data.progress.estimate).getTime() - Date.now())/1000, 0)));
+                    setEstimate(
+                        formatTime(
+                            Math.max(
+                                (new Date(data.progress.estimate).getTime() - Date.now()) / 1000,
+                                0
+                            )
+                        )
+                    );
                 }
                 //console.log(new Date(data.progress.estimate).getTime(), Date.now())
-            
             } else {
-                clearTimedAlert(1)
-                dispatch(refreshTileLayer())
-        }
+                clearTimedAlert(1);
+                dispatch(refreshTileLayer());
+            }
         };
 
         socket.onerror = (error) => {
@@ -68,20 +77,26 @@ const TimedAlert = () => {
         }
     };
 
-
     return (
         <>
-        {alerts.map(alert => (
-            <div key={alert.id} className={`timed-alert ${alert.variant}`}>
-                    <Alert variant={alert.variant} style={{width: "100%"}}>
+            {alerts.map((alert) => (
+                <div key={alert.id} className={`timed-alert ${alert.variant}`}>
+                    <Alert variant={alert.variant} style={{ width: '100%' }}>
                         {alert.text}
-                        {alert.progress && <ProgressBar key={percentage} animated now={percentage} label={`${percentage}%`} />}
-                        {alert.progress && estimate!==0 && <p>Estimated time left: {estimate}</p>}
+                        {alert.progress && (
+                            <ProgressBar
+                                key={percentage}
+                                animated
+                                now={percentage}
+                                label={`${percentage}%`}
+                            />
+                        )}
+                        {alert.progress && estimate !== 0 && <p>Estimated time left: {estimate}</p>}
                     </Alert>
-            </div>
-        ))}
-    </>
-);
-}
+                </div>
+            ))}
+        </>
+    );
+};
 
 export default TimedAlert;

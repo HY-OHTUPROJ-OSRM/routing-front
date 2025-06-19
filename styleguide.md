@@ -5,6 +5,7 @@
 Ei käytetä JS:n function-avainsanaa, vaan lambdafunktio-tyylisesti.
 
 Eli tehdään tälläin
+
 ```
 const funktio = (attribuutit) => {
     1 + 1;
@@ -13,6 +14,7 @@ const funktio = (attribuutit) => {
 ```
 
 Niitä **EI** tehdä tälläin
+
 ```
 function funktio() = {
     1 + 1;
@@ -22,27 +24,28 @@ function funktio() = {
 
 Tätä näkee aika harvoin mut silti grrr
 
-
 ## style vs className
 
 Vältetään JS-koodin sisällä kirjoittamassa css-tyylejä, vaan mielummin tehdään ne omissa scss-tiedostoissa. Tämä ei kuitenkaan ole hard-sääntö, jos joku toimii paremmin stylellä niin tehdään sillain.
 
 Eli tehdään tälläin:
+
 ```
 <input className="searchBar" />
 ```
 
 Niitä **EI** tehdä tälläin
+
 ```
 <input id="searchBar" style={{ fontSize: "14px", lineHeight: 1.5, color: "#333" }} />
 ```
-
 
 ## tab pituus
 
 Tabin pituus on neljä (4) välilyöntiä. Vaikka oma kone tekee vain 2 tai Copilot kirjoittaa 2, niin käytetään 4.
 
 Eli tehdään tälläin:
+
 ```
 if (editMode) {
     addMarker()
@@ -55,6 +58,7 @@ if (editMode) {
 ```
 
 Niitä **EI** tehdä tälläin
+
 ```
 if (editMode) {
   addMarker()
@@ -66,12 +70,12 @@ if (editMode) {
 }
 ```
 
-
 ## tabit järkevästi
 
 Asiat tabitetään ja ne tabitetaan siten, että aukeava sulku/div on samalla etäisyydellä kuin sulkeutuva sulku/div. Aina ei ole yhtä oikeaa tapaa tabittää asiat järjevästi, mutta hyvä pitää mielessä että täbien idea on selkeyttää, mitkä osat ovat minkä sulkeiden/divien alaisia.
 
 Eli tehdään tälläin:
+
 ```
 {popupPosition && (
     <div>
@@ -92,6 +96,7 @@ Eli tehdään tälläin:
 ```
 
 Niitä **EI** tehdä tälläin
+
 ```
 {popupPosition && (
     <div>
@@ -113,8 +118,6 @@ Niitä **EI** tehdä tälläin
 
 Joissain paikoissa nää on lähteny vähä menee miten sattuu, joten ne ois kiva korjaa.
 
-
-
 # Arkkitehtuuriohje
 
 ## React Context + dispatch
@@ -124,10 +127,11 @@ Reactin sisäistä useContext ja useReducer/dispatch() on hyvä käyttää asioi
 Koko ohjelman contexti on näkyvissä kaikkialla (App.js korkein taso).
 
 Eli tehdään tälläin:
+
 ```
 { state, dispatch } = useContext(AppContext)
 
-<button 
+<button
     onClick={() => {
         dispatch({
             type: 'SET_MODAL_VISIBILITY',
@@ -135,13 +139,14 @@ Eli tehdään tälläin:
         })
     }}
 >
-    x 
+    x
 </button>
 ```
 
 Niitä **EI** tehdä tälläin
+
 ```
-<button 
+<button
     onClick={() => {
         dispatch({
             type: 'DISCONNECTED_ROADS_LIST',
@@ -149,10 +154,9 @@ Niitä **EI** tehdä tälläin
         })
     }}
 >
-    x 
+    x
 </button>
 ```
-
 
 ## Redux Store + useDispatch()
 

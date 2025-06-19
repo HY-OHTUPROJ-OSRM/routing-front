@@ -3,42 +3,34 @@ import './App.css';
 import { AppContextProvider } from './components/AppContext';
 import Header from './components/Header/Header';
 import SideBar from './components/SideBar/ListSideBar';
-import Map_displayer from './components/Map/Map_Displayer';
-import Routing_form from "./components/Map/RouteField";
-import TimedAlert from "./components/TimedAlert";
-import { MapContextProvider } from './components/Map/MapContext';
-import { ProfileContext } from './components/Map/ProfileContext';
-import { AppProviers } from './components/Map/CoordinatesContext';
+import MapDisplayer from './components/Map/MapDisplayer';
+import RoutingForm from './components/Map/RouteField';
+import TimedAlert from './components/TimedAlert';
+import Modals from './components/Modals/Modals';
 
 const App = () => {
-  return (
-    <AppContextProvider>
-      <AppProviers>
-        <ProfileContext>
-          <MapContextProvider>
+    return (
+        <AppContextProvider>
             <body className="app-layout">
-              <header className="app-header">
-                <Header />
-              </header>
-            
-              <TimedAlert />
+                <header className="app-header">
+                    <Header />
+                </header>
 
-              <main className="main">
-                <Map_displayer />
-                <Routing_form />
-              </main>
+                <TimedAlert />
 
-              <aside>
-                <SideBar />
-              </aside>
+                <main className="main">
+                    <MapDisplayer />
+                    <RoutingForm />
+                </main>
 
-              <Modals />
+                <aside>
+                    <SideBar />
+                </aside>
+
+                <Modals />
             </body>
-          </MapContextProvider>
-        </ProfileContext>
-      </AppProviers>
-    </AppContextProvider>
-  );
-}
+        </AppContextProvider>
+    );
+};
 
 export default App;

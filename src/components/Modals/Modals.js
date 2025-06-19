@@ -1,22 +1,23 @@
-import React, { useContext } from 'react';
-import { AppContext } from '../AppContext';
+import React from 'react';
+import { getModalType, setModalType } from '../AppContext';
 import DisconnectionsModal from './DisconnectionsModal';
 import SelectProfile from './SelectProfile';
 
 const Modals = () => {
-  const { state, dispatch } = useContext(AppContext);
+    const modalType = getModalType();
+    const handleClose = () => {
+        setModalType(null);
+    };
 
-  const handleClose = () => {
-    dispatch({ type: 'SET_MODAL_TYPE', payload: null });
-  };
+    return (
+        <div className={`modal-overlay ${modalType ? 'active' : ''}`}>
+            <button className="close-button" onClick={handleClose}>
+                X
+            </button>
+            {modalType === 'disconnection' && <DisconnectionsModal onClose={handleClose} />}
+            {modalType === 'profile' && <SelectProfile onClose={handleClose} />}
+        </div>
+    );
+};
 
-  return (
-    <div className={`modal-overlay ${state.modalType ? 'active' : ''}`}>
-        <button className="close-button" onClick={handleClose}>X</button>
-        {state.modalType === 'disconnection' && <DisconnectionsModal onClose={handleClose} />}
-        {state.modalType === 'profile' && <SelectProfile onClose={handleClose} />}
-    </div>
-  );
-}
-
-export default SideBar;
+export default Modals;

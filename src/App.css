@@ -1,53 +1,54 @@
 @import '~leaflet/dist/leaflet.css';
 
-html, body, #root {
-  margin: 0;
-  padding: 0;
+html,
+body,
+#root {
+    margin: 0;
+    padding: 0;
 }
 
 :root {
-  --primary-blue: #166FE5;
+    --primary-blue: #166fe5;
 }
 
 .app-layout {
-  display: grid;
-  grid-template-areas: 
-    "header header"
-    "main sidebar";
-  grid-template-columns: 1fr 300px;
-  grid-template-rows: 60px 1fr;
-  height: 100vh;
-  gap: 1px;
+    display: grid;
+    grid-template-areas:
+        'header header'
+        'main sidebar';
+    grid-template-columns: 1fr 300px;
+    grid-template-rows: 60px 1fr;
+    height: 100vh;
+    gap: 1px;
 }
 
 .header {
-  grid-area: header;
-  border: none;
-  padding: 1rem;
-  display: flex;
-  background-color: var(--primary-blue);
-  justify-content: space-between;
-  position: relative;
-  align-items: center;
-  color: white;
+    grid-area: header;
+    border: none;
+    padding: 1rem;
+    display: flex;
+    background-color: var(--primary-blue);
+    justify-content: space-between;
+    position: relative;
+    align-items: center;
+    color: white;
 }
 
 .main {
-  grid-area: main;
-  border: 2px solid var(--primary-blue);
-  padding: 1rem;
-  overflow: hidden;
-  position: relative;
+    grid-area: main;
+    border: 2px solid var(--primary-blue);
+    padding: 1rem;
+    overflow: hidden;
+    position: relative;
 }
 
 .sidebar {
-  grid-area: sidebar;
-  border: 2px solid var(--primary-blue);
-  padding: 1rem;
-  overflow: auto;
+    grid-area: sidebar;
+    border: 2px solid var(--primary-blue);
+    padding: 1rem;
+    overflow: auto;
 }
 
 .inner {
-  overflow: auto;
+    overflow: auto;
 }
-

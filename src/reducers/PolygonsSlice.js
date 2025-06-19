@@ -1,37 +1,35 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 export const modifiedPolygonsSlice = createSlice({
-    name: "modifiedPolygons",
+    name: 'modifiedPolygons',
     initialState: {
         polygons: {},
         sendIds: {}, // using boolean maps instead of sets because createSlice doesn't work with them
         deleteIds: {},
-        cancelSendIds: {"-1": true},
+        cancelSendIds: { '-1': true },
         faults: {},
-        faultval: 0
+        faultval: 0,
     },
     reducers: {
-        setModifiedPolygons: (state, action) => {
-            state.polygons = {}
-            state.sendIds = {}
-            state.deleteIds = {}
-            action.payload.forEach(polygon => {
-                
-                state.polygons[polygon.properties.id] = polygon
-                
-            })
+        setPolygons: (state, action) => {
+            state.polygons = {};
+            state.sendIds = {};
+            state.deleteIds = {};
+            action.payload.forEach((polygon) => {
+                state.polygons[polygon.properties.id] = polygon;
+            });
         },
         addPolygon: (state, action) => {
-            const polygon = action.payload
-            console.log("nowaddingpolygon",polygon)
-            state.polygons[polygon.properties.id] = polygon
-            state.sendIds[polygon.properties.id] = true
+            const polygon = action.payload;
+            console.log('nowaddingpolygon', polygon);
+            state.polygons[polygon.properties.id] = polygon;
+            state.sendIds[polygon.properties.id] = true;
         },
         modifyPolygon: (state, action) => {
             const polygon = action.payload;
             const id = polygon.properties.id;
             const existingPolygon = state.polygons[id];
-        
+
             if (existingPolygon) {
                 // Only change geometry if different
                 if (JSON.stringify(existingPolygon.geometry) !== JSON.stringify(polygon.geometry)) {
@@ -43,7 +41,7 @@ export const modifiedPolygonsSlice = createSlice({
                 // Replace all values if polygon doesn't exist
                 state.polygons[id] = polygon;
             }
-        
+
             state.sendIds[id] = true;
             state.deleteIds[id] = true;
         },
@@ -67,20 +65,20 @@ export const modifiedPolygonsSlice = createSlice({
         },
         setCanceledits: (state, action) => {
             //Used to make sure that the polygon is not sent to the server if it is set to be deleted
-            const {id, add} = action.payload
-            if (add){
-                state.cancelSendIds[id]=true
-                state.deleteIds[id]=true    
-            } else{
-                delete state.cancelSendIds[id]
-                delete state.deleteIds[id]  
+            const { id, add } = action.payload;
+            if (add) {
+                state.cancelSendIds[id] = true;
+                state.deleteIds[id] = true;
+            } else {
+                delete state.cancelSendIds[id];
+                delete state.deleteIds[id];
             }
-            console.log(Object.keys(state.cancelSendIds).length)
+            console.log(Object.keys(state.cancelSendIds).length);
+        },
+    },
+});
 
-        }
-    }
-})
+export const { setModifiedPolygons, addPolygon, modifyPolygon, setFaults, setCanceledits } =
+    modifiedPolygonsSlice.actions;
 
-export const { setModifiedPolygons, addPolygon, modifyPolygon, setFaults, setCanceledits } = modifiedPolygonsSlice.actions
-
-export default modifiedPolygonsSlice.reducer
+export default modifiedPolygonsSlice.reducer;

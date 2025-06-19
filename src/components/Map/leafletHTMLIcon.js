@@ -1,4 +1,3 @@
-
 import Leaflet from 'leaflet';
 
 //Custom icons for leaflet markers used as start and destination position. Can be modifed as needed
@@ -61,31 +60,31 @@ const whiteCircleStyles = `
 `;
 
 export const startti_icon = Leaflet.divIcon({
-  className: "my-custom-pin",
-  iconAnchor: [0, 3],
-  labelAnchor: [-6, 0],
-  popupAnchor: [-7, -20],
-  html: `<span style="${markerHtmlStyles}">
+    className: 'my-custom-pin',
+    iconAnchor: [0, 3],
+    labelAnchor: [-6, 0],
+    popupAnchor: [-7, -20],
+    html: `<span style="${markerHtmlStyles}">
            <span style="${whiteCircleStyles}"></span>
-         </span>`
+         </span>`,
 });
 
 export const desti_icon = Leaflet.divIcon({
-    className: "my-custom-pin",
+    className: 'my-custom-pin',
     iconAnchor: [0, 3],
     labelAnchor: [-6, 0],
     popupAnchor: [-7, -20],
     html: `<span style="${markerHtmlStylese}">
              <span style="${whiteCircleStyles}"></span>
-           </span>`
-  });
+           </span>`,
+});
 
 export const dis_icon = Leaflet.divIcon({
-    className: "my-custom-pin",
+    className: 'my-custom-pin',
     iconAnchor: [0, 3],
     labelAnchor: [-6, 0],
     popupAnchor: [-7, -20],
     html: `<span style="${markerHtmlDis}">
              <span style="${whiteCircleStyles}"></span>
-           </span>`
-  });
+           </span>`,
+});

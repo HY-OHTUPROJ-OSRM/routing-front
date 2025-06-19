@@ -7,21 +7,23 @@ import TempRoadSideBar from './TempRoadSideBar';
 import './Sidebar.scss';
 
 const SideBar = () => {
-  const { state, dispatch } = useContext(AppContext);
+    const { state, dispatch } = useContext(AppContext);
 
-  const handleClose = () => {
-    dispatch({ type: 'SET_SIDEBAR_TYPE', payload: null });
-  };
+    const handleClose = () => {
+        dispatch({ type: 'SET_SIDEBAR_TYPE', payload: null });
+    };
 
-  return (
-    <div className={`sidebar ${state.sidebarType} : 'open' ? ''`}>
-        <button className="close-button" onClick={handleClose}>X</button>
-        {state.sidebarType === 'list' && <ListSideBar />}
-        {state.sidebarType === 'add' && <AddSideBar />}
-        {state.sidebarType === 'guide' && <GuideSideBar />}
-        {state.sidebarType === 'temproad' && <TempRoadSideBar />}
-    </div>
-  );
-}
+    return (
+        <div className={`sidebar ${state.sidebarType} : 'open' ? ''`}>
+            <button className="close-button" onClick={handleClose}>
+                X
+            </button>
+            {state.sidebarType === 'list' && <ListSideBar />}
+            {state.sidebarType === 'add' && <AddSideBar />}
+            {state.sidebarType === 'guide' && <GuideSideBar />}
+            {state.sidebarType === 'temproad' && <TempRoadSideBar />}
+        </div>
+    );
+};
 
 export default SideBar;

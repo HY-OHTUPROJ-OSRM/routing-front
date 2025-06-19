@@ -1,131 +1,134 @@
-import React, { useState, useContext, useEffect } from 'react';
-import './RouteField.css';
-import { validateCoordinate } from '../../services/FormValidationService';
-import { RouteContext } from './CoordinatesContext';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchRouteLine } from '../../features/routes/routeSlice';
+import './RouteField.css';
+import { validateCoordinate } from '../../features/view/FormValidatior';
+import { fetchRouteLine } from '../../features/routes/routeLoader';
+import { setRoute } from '../../reducers/routeSlice';
 import RouteList from '../SideBar/RouteInfo';
 
-function RoutingForm() {
-  const dispatch = useDispatch();
-  const [formData, setFormData] = useState({
-    coordinates: [
-      { lat: '', long: '', name: 'Starting Position' },
-      { lat: '', long: '', name: 'Destination' }
-    ]
-  });
+const RoutingForm = () => {
+    const dispatch = useDispatch();
+    const startpos = useSelector((state) => state.routeLine.startPosition);
+    const destpos = useSelector((state) => state.routeLine.endPosition);
 
-  const [errors, setErrors] = useState({});
-  const { setRoute } = useContext(RouteContext);
-  const startpos = useSelector(state => state.routeLine.startPosition);
-  const destpos = useSelector(state => state.routeLine.endPosition);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    if (startpos && destpos) {
-      setFormData({
+    const [formData, setFormData] = useState({
         coordinates: [
-          { lat: startpos.lat, long: startpos.long, name: 'Starting Position' },
-          { lat: destpos.lat, long: destpos.long, name: 'Destination' }
-        ]
-      });
-    }
-  }, [startpos, destpos]);
+            { lat: '', long: '', name: 'Starting Position' },
+            { lat: '', long: '', name: 'Destination' },
+        ],
+    });
+    const [errors, setErrors] = useState({});
+    const [isVisible, setIsVisible] = useState(false);
 
-  const handleChange = (index, e) => {
-    const { name, value } = e.target;
-    const newCoordinates = [...formData.coordinates];
-    newCoordinates[index][name] = value;
-    setFormData({ coordinates: newCoordinates });
-    validateField(name, value, index);
-    setRoute(newCoordinates.map(coord => ({ lat: coord.lat, long: coord.long })));
-  };
+    useEffect(() => {
+        if (startpos && destpos) {
+            setFormData({
+                coordinates: [
+                    { lat: startpos.lat, long: startpos.long, name: 'Starting Position' },
+                    { lat: destpos.lat, long: destpos.long, name: 'Destination' },
+                ],
+            });
+        }
+    }, [startpos, destpos]);
 
-  const validateField = (name, value, index) => {
-    let errorMsg = '';
-    if ((name === 'lat' || name === 'long') && !validateCoordinate(value)) {
-      errorMsg = 'Invalid coordinate';
-    }
-    const coordinateErrors = errors.coordinates || [];
-    coordinateErrors[index] = { ...coordinateErrors[index], [name]: errorMsg };
-    setErrors({ coordinates: coordinateErrors });
-  };
+    const handleChange = (index, e) => {
+        const { name, value } = e.target;
+        const newCoordinates = [...formData.coordinates];
+        newCoordinates[index][name] = value;
+        setFormData({ coordinates: newCoordinates });
+        validateField(name, value, index);
+        setRoute(newCoordinates.map((coord) => ({ lat: coord.lat, long: coord.long })));
+    };
 
-  const validateForm = () => {
-    return formData.coordinates.every(
-      coord => validateCoordinate(coord.lat) && validateCoordinate(coord.long)
-    );
-  };
+    const validateField = (name, value, index) => {
+        let errorMsg = '';
+        if ((name === 'lat' || name === 'long') && !validateCoordinate(value)) {
+            errorMsg = 'Invalid coordinate';
+        }
+        const coordinateErrors = errors.coordinates || [];
+        coordinateErrors[index] = { ...coordinateErrors[index], [name]: errorMsg };
+        setErrors({ coordinates: coordinateErrors });
+    };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (validateForm()) {
-      dispatch(fetchRouteLine(formData.coordinates));
-      setFormData({
-        coordinates: [
-          { lat: '', long: '', name: 'Starting Position' },
-          { lat: '', long: '', name: 'Destination' }
-        ]
-      });
-      setErrors({});
-      setRoute([]);
-    }
-  };
+    const validateForm = () => {
+        return formData.coordinates.every(
+            (coord) => validateCoordinate(coord.lat) && validateCoordinate(coord.long)
+        );
+    };
 
-  const toggleForm = () => {
-    setIsVisible(!isVisible);
-  };
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (validateForm()) {
+            dispatch(fetchRouteLine(formData.coordinates));
+            setFormData({
+                coordinates: [
+                    { lat: '', long: '', name: 'Starting Position' },
+                    { lat: '', long: '', name: 'Destination' },
+                ],
+            });
+            setErrors({});
+            setRoute([]);
+        }
+    };
 
-  return (
-    <div className={`new-component ${isVisible ? 'visible' : ''}`}>
-      <button className="toggle-button" onClick={toggleForm}>
-        {isVisible ? '↓' : '↑'}
-      </button>
-        <>
-          <form className="form-horizontal" onSubmit={handleSubmit}>
-            <div className="coordinate-group">
-              <label>Starting Position</label>
-              <input
-                name="lat"
-                value={formData.coordinates[0].lat}
-                onChange={(e) => handleChange(0, e)}
-                placeholder="Latitude"
-              />
-              <input
-                name="long"
-                value={formData.coordinates[0].long}
-                onChange={(e) => handleChange(0, e)}
-                placeholder="Longitude"
-              />
-            </div>
+    const toggleForm = () => {
+        setIsVisible(!isVisible);
+    };
 
-            <div className="coordinate-group">
-              <label>Destination</label>
-              <input
-                name="lat"
-                value={formData.coordinates[1].lat}
-                onChange={(e) => handleChange(1, e)}
-                placeholder="Latitude"
-              />
-              <input
-                name="long"
-                value={formData.coordinates[1].long}
-                onChange={(e) => handleChange(1, e)}
-                placeholder="Longitude"
-              />
-            </div>
-
-            <button type="submit" disabled={!validateForm()} className={!validateForm() ? 'btn-disabled' : ''}>
-              Route
+    return (
+        <div className={`new-component ${isVisible ? 'visible' : ''}`}>
+            <button className="toggle-button" onClick={toggleForm}>
+                {isVisible ? '↓' : '↑'}
             </button>
-          </form>
+            <>
+                <form className="form-horizontal" onSubmit={handleSubmit}>
+                    <div className="coordinate-group">
+                        <label>Starting Position</label>
+                        <input
+                            name="lat"
+                            value={formData.coordinates[0].lat}
+                            onChange={(e) => handleChange(0, e)}
+                            placeholder="Latitude"
+                        />
+                        <input
+                            name="long"
+                            value={formData.coordinates[0].long}
+                            onChange={(e) => handleChange(0, e)}
+                            placeholder="Longitude"
+                        />
+                    </div>
 
-          <div className="route-list-container">
-            <RouteList />
-          </div>
-        </>
-    </div>
-  );
-}
+                    <div className="coordinate-group">
+                        <label>Destination</label>
+                        <input
+                            name="lat"
+                            value={formData.coordinates[1].lat}
+                            onChange={(e) => handleChange(1, e)}
+                            placeholder="Latitude"
+                        />
+                        <input
+                            name="long"
+                            value={formData.coordinates[1].long}
+                            onChange={(e) => handleChange(1, e)}
+                            placeholder="Longitude"
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={!validateForm()}
+                        className={!validateForm() ? 'btn-disabled' : ''}
+                    >
+                        Route
+                    </button>
+                </form>
+
+                <div className="route-list-container">
+                    <RouteList />
+                </div>
+            </>
+        </div>
+    );
+};
 
 export default RoutingForm;
