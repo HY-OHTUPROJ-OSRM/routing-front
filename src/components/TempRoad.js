@@ -7,10 +7,17 @@ import {
 import { changeMapView } from '../features/view/ViewSlice';
 import TempRoadForm from './TempRoadForm';
 import TempRoadItem from './TempRoadItem';
-import { calculateDistanceBetweenNodes } from '../services/TempRoadService';
 import './Polygon.css';
 
-function TempRoads(props) {
+// Remove local nodeSelectionMode and handler, accept as props
+function TempRoads({
+  onVisibleRoadsChange,
+  onNodeSelectionModeChange,
+  onNodeSelectionHandler,
+  nodeSelectionMode,
+  setNodeSelectionMode,
+  handleNodeSelection
+}) {
   const dispatch = useDispatch();
   const tempRoads = useSelector(state => state.tempRoads.list);
   const status = useSelector(state => state.tempRoads.status);
@@ -44,11 +51,12 @@ function TempRoads(props) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingRoadId, setEditingRoadId] = useState(null);
 
-  const [nodeSelectionMode, setNodeSelectionMode] = useState({
-    active: false,
-    selecting: null,
-    isEditMode: false
-  });
+  // Register the handler with parent on mount
+  useEffect(() => {
+    if (onNodeSelectionHandler) {
+      onNodeSelectionHandler(handleNodeSelection);
+    }
+  }, [onNodeSelectionHandler, handleNodeSelection]);
 
   useEffect(() => {
     if (status === 'idle') {
@@ -57,16 +65,16 @@ function TempRoads(props) {
   }, [status, dispatch]);
 
   useEffect(() => {
-    if (props.onVisibleRoadsChange) {
-      props.onVisibleRoadsChange(visibleRoads);
+    if (onVisibleRoadsChange) {
+      onVisibleRoadsChange(visibleRoads);
     }
-  }, [visibleRoads, props.onVisibleRoadsChange]);
+  }, [visibleRoads, onVisibleRoadsChange]);
 
   useEffect(() => {
-    if (props.onNodeSelectionModeChange) {
-      props.onNodeSelectionModeChange(nodeSelectionMode);
+    if (onNodeSelectionModeChange) {
+      onNodeSelectionModeChange(nodeSelectionMode);
     }
-  }, [nodeSelectionMode, props.onNodeSelectionModeChange]);
+  }, [nodeSelectionMode, onNodeSelectionModeChange]);
 
   // Add states for form data management
   const [addFormData, setAddFormData] = useState({
@@ -74,8 +82,8 @@ function TempRoads(props) {
     type: 'iceroad',
     speed: '',
     length: '',
-    start_node: '',
-    end_node: '',
+    start_coordinates: { lat: '', lng: '' },
+    end_coordinates: { lat: '', lng: '' },
     description: ''
   });
 
@@ -84,65 +92,52 @@ function TempRoads(props) {
     type: 'iceroad',
     speed: '',
     length: '',
-    start_node: '',
-    end_node: '',
+    start_coordinates: { lat: '', lng: '' },
+    end_coordinates: { lat: '', lng: '' },
     description: ''
   });
 
-  const handleNodeSelection = async (nodeId, coordinates) => {
-    console.log('Node selection - nodeId:', nodeId, 'mode:', nodeSelectionMode.selecting, 'isEditMode:', nodeSelectionMode.isEditMode);
-    
-    if (!nodeSelectionMode.active) return;
-    
+  console.log('[TempRoads] nodeSelectionMode:', nodeSelectionMode);
+
+  const handleNodeSelectionInternal = async (_unusedNodeId, coordinates) => {
+    console.log('[TempRoads] handleNodeSelection called with:', _unusedNodeId, coordinates, nodeSelectionMode);
+    if (!nodeSelectionMode.active) {
+      console.log('[TempRoads] nodeSelectionMode not active, returning');
+      return;
+    }
     if (nodeSelectionMode.isEditMode) {
-      // Handle node selection for edit mode
       if (nodeSelectionMode.selecting === 'start') {
-        setEditFormData(prev => ({ ...prev, start_node: nodeId.toString() }));
-        if (editFormData.end_node) {
-          await calculateAndSetLength(nodeId, editFormData.end_node, setEditFormData);
-        }
+        console.log('[TempRoads] Setting editFormData.start_coordinates:', coordinates);
+        setEditFormData(prev => ({
+          ...prev,
+          start_coordinates: { lat: coordinates[0], lng: coordinates[1] }
+        }));
       } else if (nodeSelectionMode.selecting === 'end') {
-        setEditFormData(prev => ({ ...prev, end_node: nodeId.toString() }));
-        if (editFormData.start_node) {
-          await calculateAndSetLength(editFormData.start_node, nodeId, setEditFormData);
-        }
+        console.log('[TempRoads] Setting editFormData.end_coordinates:', coordinates);
+        setEditFormData(prev => ({
+          ...prev,
+          end_coordinates: { lat: coordinates[0], lng: coordinates[1] }
+        }));
       }
     } else {
-      // Handle node selection for add mode
       if (nodeSelectionMode.selecting === 'start') {
-        setAddFormData(prev => ({ ...prev, start_node: nodeId.toString() }));
-        if (addFormData.end_node) {
-          await calculateAndSetLength(nodeId, addFormData.end_node, setAddFormData);
-        }
+        console.log('[TempRoads] Setting addFormData.start_coordinates:', coordinates);
+        setAddFormData(prev => ({
+          ...prev,
+          start_coordinates: { lat: coordinates[0], lng: coordinates[1] }
+        }));
       } else if (nodeSelectionMode.selecting === 'end') {
-        setAddFormData(prev => ({ ...prev, end_node: nodeId.toString() }));
-        if (addFormData.start_node) {
-          await calculateAndSetLength(addFormData.start_node, nodeId, setAddFormData);
-        }
+        console.log('[TempRoads] Setting addFormData.end_coordinates:', coordinates);
+        setAddFormData(prev => ({
+          ...prev,
+          end_coordinates: { lat: coordinates[0], lng: coordinates[1] }
+        }));
       }
     }
-    
     setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
+    console.log('[TempRoads] nodeSelectionMode reset');
   };
   
-  // Function to calculate distance between two nodes and set the length in the form data
-  const calculateAndSetLength = async (startNodeId, endNodeId, setFormData) => {
-    try {
-      const distance = await calculateDistanceBetweenNodes(startNodeId, endNodeId);
-
-      setFormData(prev => ({ ...prev, length: distance.toString() }));
-      console.log(`Calculated distance between nodes ${startNodeId} and ${endNodeId}: ${distance} km`);
-    } catch (error) {
-      console.error(`Failed to calculate distance between nodes ${startNodeId} and ${endNodeId}:`, error);
-    }
-  };
-
-  useEffect(() => {
-    if (props.onNodeSelectionHandler) {
-      props.onNodeSelectionHandler(handleNodeSelection);
-    }
-  }, [nodeSelectionMode]);
-
   const handleSelectRoad = (id) => {
     dispatch(selectRoad(id));
   };
@@ -175,8 +170,8 @@ function TempRoads(props) {
       type: 'iceroad',
       speed: '',
       length: '',
-      start_node: '',
-      end_node: '',
+      start_coordinates: { lat: '', lng: '' },
+      end_coordinates: { lat: '', lng: '' },
       description: ''
     });
     setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
@@ -188,8 +183,8 @@ function TempRoads(props) {
       type: 'iceroad',
       speed: '',
       length: '',
-      start_node: '',
-      end_node: '',
+      start_coordinates: { lat: '', lng: '' },
+      end_coordinates: { lat: '', lng: '' },
       description: ''
     });
     setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
@@ -341,8 +336,8 @@ function TempRoads(props) {
                         type: road.type || 'iceroad',
                         speed: road.speed?.toString() || '',
                         length: road.length?.toString() || '',
-                        start_node: road.start_node?.toString() || '',
-                        end_node: road.end_node?.toString() || '',
+                        start_coordinates: road.start_coordinates || { lat: '', lng: '' },
+                        end_coordinates: road.end_coordinates || { lat: '', lng: '' },
                         description: road.description || ''
                       });
                     }

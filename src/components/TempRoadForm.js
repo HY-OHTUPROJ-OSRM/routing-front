@@ -4,7 +4,6 @@ import {
   addTempRoad, 
   updateTempRoadAsync 
 } from '../features/temproads/TempRoadsSlice';
-import { calculateDistanceBetweenNodes } from '../services/TempRoadService';
 
 function TempRoadForm({ 
   mode = 'add', 
@@ -17,51 +16,72 @@ function TempRoadForm({
 }) {
   const dispatch = useDispatch();
 
-  const handleChange = async (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+  console.log('[TempRoadForm] nodeSelectionMode:', nodeSelectionMode);
+  console.log('[TempRoadForm] formData:', formData);
 
-    if (name === 'start_node' || name === 'end_node') {
-      const startNode = name === 'start_node' ? value : formData.start_node;
-      const endNode = name === 'end_node' ? value : formData.end_node;
-
-      if (startNode && endNode && startNode !== endNode) {
-        try {
-          const distance = await calculateDistanceBetweenNodes(startNode, endNode);
-          setFormData(prev => ({
-            ...prev,
-            length: distance.toString()
-          }));
-          console.log(`Automatically calculate length: ${distance} km (from ${startNode} to ${endNode})`);
-        } catch (error) {
-          console.error('Error calculating road length :', error);
-        }
+  // Helper to update coordinate fields
+  const handleCoordChange = (type, field, value) => {
+    console.log(`[TempRoadForm] handleCoordChange: type=${type}, field=${field}, value=${value}`);
+    setFormData(prev => ({
+      ...prev,
+      [type]: {
+        ...prev[type],
+        [field]: value
       }
+    }));
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    console.log(`[TempRoadForm] handleChange: name=${name}, value=${value}`);
+    if (name.startsWith('start_lat') || name.startsWith('start_lng')) {
+      handleCoordChange('start_coordinates', name.endsWith('lat') ? 'lat' : 'lng', value);
+    } else if (name.startsWith('end_lat') || name.startsWith('end_lng')) {
+      handleCoordChange('end_coordinates', name.endsWith('lat') ? 'lat' : 'lng', value);
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value
+      });
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+    console.log('[TempRoadForm] handleSubmit called');
+    // Compose GeoJSON LineString for geom
+    const geom = {
+      type: 'LineString',
+      coordinates: [
+        [parseFloat(formData.start_coordinates?.lng), parseFloat(formData.start_coordinates?.lat)],
+        [parseFloat(formData.end_coordinates?.lng), parseFloat(formData.end_coordinates?.lat)]
+      ]
+    };
     const dataToSubmit = {
       ...formData,
       length: parseFloat(formData.length) || 0,
       speed: parseFloat(formData.speed) || 0,
-      start_node: parseInt(formData.start_node) || null,
-      end_node: parseInt(formData.end_node) || null
+      start_coordinates: {
+        lat: parseFloat(formData.start_coordinates?.lat),
+        lng: parseFloat(formData.start_coordinates?.lng)
+      },
+      end_coordinates: {
+        lat: parseFloat(formData.end_coordinates?.lat),
+        lng: parseFloat(formData.end_coordinates?.lng)
+      },
+      geom
     };
-
+    console.log('[TempRoadForm] dataToSubmit:', dataToSubmit);
     if (mode === 'add') {
       const newRoadData = {
         ...dataToSubmit,
         status: true,
         tags: []
       };
+      console.log('[TempRoadForm] Dispatching addTempRoad:', newRoadData);
       dispatch(addTempRoad(newRoadData));
     } else {
+      console.log('[TempRoadForm] Dispatching updateTempRoadAsync:', { id: road.id, updates: { ...dataToSubmit, updated_at: road.updated_at } });
       dispatch(updateTempRoadAsync({ 
         id: road.id, 
         updates: { 
@@ -70,7 +90,6 @@ function TempRoadForm({
         } 
       }));
     }
-    
     onFormClose();
   };
 
@@ -80,8 +99,8 @@ function TempRoadForm({
       type: 'iceroad',
       speed: '',
       length: '',
-      start_node: '',
-      end_node: '',
+      start_coordinates: { lat: '', lng: '' },
+      end_coordinates: { lat: '', lng: '' },
       description: ''
     };
     setFormData(initialFormData);
@@ -122,7 +141,6 @@ function TempRoadForm({
           ✏️ {formTitle}
         </div>
       )}
-      
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         <div>
           <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
@@ -143,7 +161,6 @@ function TempRoadForm({
             }}
           />
         </div>
-        
         <div>
           <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
             Type:
@@ -165,26 +182,29 @@ function TempRoadForm({
             <option value="temporary">Temporary</option>
           </select>
         </div>
-
-        {/* Start Node Section */}
+        {/* Start Coordinates Section */}
         <div>
           <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
-            Start Node:
+            Start Coordinates:
           </label>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'stretch' }}>
             <input
-              type="text"
-              name="start_node"
-              value={formData.start_node}
-              onChange={handleChange}
-              placeholder="Enter node ID or click map"
-              style={{
-                flex: 1,
-                padding: '8px 12px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '14px'
-              }}
+              type="number"
+              name="start_lat"
+              value={formData.start_coordinates?.lat || ''}
+              onChange={e => handleCoordChange('start_coordinates', 'lat', e.target.value)}
+              placeholder="Latitude"
+              step="any"
+              style={{ width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }}
+            />
+            <input
+              type="number"
+              name="start_lng"
+              value={formData.start_coordinates?.lng || ''}
+              onChange={e => handleCoordChange('start_coordinates', 'lng', e.target.value)}
+              placeholder="Longitude"
+              step="any"
+              style={{ width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }}
             />
             <button
               type="button"
@@ -210,26 +230,29 @@ function TempRoadForm({
             </button>
           </div>
         </div>
-
-        {/* End Node Section */}
+        {/* End Coordinates Section */}
         <div>
           <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
-            End Node:
+            End Coordinates:
           </label>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'stretch' }}>
             <input
-              type="text"
-              name="end_node"
-              value={formData.end_node}
-              onChange={handleChange}
-              placeholder="Enter node ID or click map"
-              style={{
-                flex: 1,
-                padding: '8px 12px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '14px'
-              }}
+              type="number"
+              name="end_lat"
+              value={formData.end_coordinates?.lat || ''}
+              onChange={e => handleCoordChange('end_coordinates', 'lat', e.target.value)}
+              placeholder="Latitude"
+              step="any"
+              style={{ width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }}
+            />
+            <input
+              type="number"
+              name="end_lng"
+              value={formData.end_coordinates?.lng || ''}
+              onChange={e => handleCoordChange('end_coordinates', 'lng', e.target.value)}
+              placeholder="Longitude"
+              step="any"
+              style={{ width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px' }}
             />
             <button
               type="button"
@@ -255,7 +278,6 @@ function TempRoadForm({
             </button>
           </div>
         </div>
-
         {/* Speed and Length Section */}
         <div style={{ display: 'flex', gap: '15px', alignItems: 'flex-end' }}>
           <div style={{ flex: 0.8 }}>
@@ -276,7 +298,6 @@ function TempRoadForm({
               }}
             />
           </div>
-          
           <div style={{ flex: 1.2 }}>
             <label style={{ fontSize: '14px', fontWeight: '500', marginBottom: '5px', display: 'block', color: '#555' }}>
               Length (km):
@@ -297,7 +318,6 @@ function TempRoadForm({
             />
           </div>
         </div>
-
         <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
           <button
             type="submit"

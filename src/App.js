@@ -179,6 +179,9 @@ export default function App() {
                     onVisibleRoadsChange={handleVisibleRoadsChange}
                     onNodeSelectionModeChange={handleNodeSelectionModeChange}
                     onNodeSelectionHandler={handleNodeSelectionHandlerRegistration}
+                    nodeSelectionMode={nodeSelectionMode}
+                    setNodeSelectionMode={setNodeSelectionMode}
+                    handleNodeSelection={handleNodeSelectionFromMap}
                   />
                 )}
               />

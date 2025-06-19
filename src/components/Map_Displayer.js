@@ -25,8 +25,6 @@ import roadStyle from '../roadStyle';
 import { refreshTileLayer } from '../features/map/tileLayerSlice';
 import TempRoadDisplay from './TempRoadDisplay';
 import { getNodeList } from '../services/nodelist_service';
-import { findNearestNode } from '../services/TempRoadService';
-import { destination } from '@turf/turf';
 
 /* 
 Massive component handling all map functionalities. 
@@ -698,20 +696,11 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
             
             // Handle node selection for temporary roads
             if (nodeSelectionMode && nodeSelectionMode.active) {
-                try {
-                    // Find nearest node to clicked coordinates
-                    const nearestNodeId = await findNearestNode(lat, lng);
-                    
-                    if (onNodeSelection) {
-                        onNodeSelection(nearestNodeId, [lat, lng]);
-                    }
-                    
-                    return;
-                } catch (error) {
-                    console.error('Error handling node selection:', error);
-                    alert('Failed to find nearest node. Please try again.');
-                    return;
+                if (onNodeSelection) {
+                    // Pass coordinates directly
+                    onNodeSelection([lat, lng]);
                 }
+                return;
             }
             
             // Check if polygon was clicked
@@ -876,6 +865,30 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
             }
         };
     }, [nodeSelectionMode]);
+
+    // Add this effect to handle map clicks for node selection, with debug logs
+    useEffect(() => {
+        const map = mapRef.current;
+        if (!map) return;
+        const handleMapClick = (e) => {
+            console.log('[Map_Displayer] Map clicked:', e.latlng);
+            if (nodeSelectionMode && nodeSelectionMode.active) {
+                console.log('[Map_Displayer] nodeSelectionMode is active:', nodeSelectionMode);
+                if (typeof onNodeSelection === 'function') {
+                    console.log('[Map_Displayer] Calling onNodeSelection with:', [e.latlng.lat, e.latlng.lng]);
+                    onNodeSelection(null, [e.latlng.lat, e.latlng.lng]);
+                } else {
+                    console.log('[Map_Displayer] onNodeSelection is not a function:', onNodeSelection);
+                }
+            } else {
+                console.log('[Map_Displayer] nodeSelectionMode is not active:', nodeSelectionMode);
+            }
+        };
+        map.on('click', handleMapClick);
+        return () => {
+            map.off('click', handleMapClick);
+        };
+    }, [nodeSelectionMode, onNodeSelection]);
 
     return (
         <ReactLeafletEditable
