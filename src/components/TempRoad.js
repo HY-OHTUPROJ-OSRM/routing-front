@@ -8,6 +8,7 @@ import { changeMapView } from '../features/view/ViewSlice';
 import TempRoadForm from './TempRoadForm';
 import TempRoadItem from './TempRoadItem';
 import './Polygon.css';
+import { getNearestNodeCoordinates } from '../services/TempRoadService';
 
 // Remove local nodeSelectionMode and handler, accept as props
 function TempRoads({
@@ -55,32 +56,42 @@ function TempRoads({
     if (!nodeSelectionMode.active) {
       return;
     }
-    if (nodeSelectionMode.isEditMode) {
-      if (nodeSelectionMode.selecting === 'start') {
-        setEditFormData(prev => ({
-          ...prev,
-          start_coordinates: { lat: coordinates[0], lng: coordinates[1] }
-        }));
-      } else if (nodeSelectionMode.selecting === 'end') {
-        setEditFormData(prev => ({
-          ...prev,
-          end_coordinates: { lat: coordinates[0], lng: coordinates[1] }
-        }));
+    try {
+      // coordinates: [lat, lng] from map click
+      const nearestCoords = await getNearestNodeCoordinates(coordinates[0], coordinates[1]);
+      if (nodeSelectionMode.isEditMode) {
+        if (nodeSelectionMode.selecting === 'start') {
+          setEditFormData(prev => ({
+            ...prev,
+            start_coordinates: { lat: nearestCoords[0], lng: nearestCoords[1] }
+          }));
+        } else if (nodeSelectionMode.selecting === 'end') {
+          setEditFormData(prev => ({
+            ...prev,
+            end_coordinates: { lat: nearestCoords[0], lng: nearestCoords[1] }
+          }));
+        }
+      } else {
+        if (nodeSelectionMode.selecting === 'start') {
+          setAddFormData(prev => ({
+            ...prev,
+            start_coordinates: { lat: nearestCoords[0], lng: nearestCoords[1] }
+          }));
+        } else if (nodeSelectionMode.selecting === 'end') {
+          setAddFormData(prev => ({
+            ...prev,
+            end_coordinates: { lat: nearestCoords[0], lng: nearestCoords[1] }
+          }));
+        }
       }
-    } else {
-      if (nodeSelectionMode.selecting === 'start') {
-        setAddFormData(prev => ({
-          ...prev,
-          start_coordinates: { lat: coordinates[0], lng: coordinates[1] }
-        }));
-      } else if (nodeSelectionMode.selecting === 'end') {
-        setAddFormData(prev => ({
-          ...prev,
-          end_coordinates: { lat: coordinates[0], lng: coordinates[1] }
-        }));
-      }
+      setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
+    } catch (error) {
+      // Show error message if nearest node lookup fails
+      window.alert(
+        'Failed to get nearest node coordinates: ' + (error?.message || error || 'Unknown error')
+      );
+      setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
     }
-    setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
   };
   
   // Register the handler with parent on mount
