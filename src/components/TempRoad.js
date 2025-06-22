@@ -8,7 +8,7 @@ import { changeMapView } from '../features/view/ViewSlice';
 import TempRoadForm from './TempRoadForm';
 import TempRoadItem from './TempRoadItem';
 import './Polygon.css';
-import { getNearestNodeCoordinates } from '../services/TempRoadService';
+import { getNearestNodeCoordinates, calculateDistanceBetweenCoords } from '../services/TempRoadService';
 
 // Remove local nodeSelectionMode and handler, accept as props
 function TempRoads({
@@ -59,31 +59,41 @@ function TempRoads({
     try {
       // coordinates: [lat, lng] from map click
       const nearestCoords = await getNearestNodeCoordinates(coordinates[0], coordinates[1]);
+      let updateFormFn, coordKey;
       if (nodeSelectionMode.isEditMode) {
-        if (nodeSelectionMode.selecting === 'start') {
-          setEditFormData(prev => ({
-            ...prev,
-            start_coordinates: { lat: nearestCoords[0], lng: nearestCoords[1] }
-          }));
-        } else if (nodeSelectionMode.selecting === 'end') {
-          setEditFormData(prev => ({
-            ...prev,
-            end_coordinates: { lat: nearestCoords[0], lng: nearestCoords[1] }
-          }));
-        }
+        updateFormFn = setEditFormData;
       } else {
-        if (nodeSelectionMode.selecting === 'start') {
-          setAddFormData(prev => ({
-            ...prev,
-            start_coordinates: { lat: nearestCoords[0], lng: nearestCoords[1] }
-          }));
-        } else if (nodeSelectionMode.selecting === 'end') {
-          setAddFormData(prev => ({
-            ...prev,
-            end_coordinates: { lat: nearestCoords[0], lng: nearestCoords[1] }
-          }));
-        }
+        updateFormFn = setAddFormData;
       }
+      if (nodeSelectionMode.selecting === 'start') {
+        coordKey = 'start_coordinates';
+      } else if (nodeSelectionMode.selecting === 'end') {
+        coordKey = 'end_coordinates';
+      }
+      // Update the selected coordinate
+      updateFormFn(prev => {
+        const updated = {
+          ...prev,
+          [coordKey]: { lat: nearestCoords[0], lng: nearestCoords[1] }
+        };
+        // If both start and end are set, calculate distance
+        if (
+          updated.start_coordinates?.lat && updated.start_coordinates?.lng &&
+          updated.end_coordinates?.lat && updated.end_coordinates?.lng
+        ) {
+          try {
+            const dist = calculateDistanceBetweenCoords(
+              [parseFloat(updated.start_coordinates.lat), parseFloat(updated.start_coordinates.lng)],
+              [parseFloat(updated.end_coordinates.lat), parseFloat(updated.end_coordinates.lng)]
+            );
+            updated.length = dist;
+          } catch (e) {
+            // Optionally show error, but don't block
+            window.alert('Failed to calculate distance: ' + (e?.message || e || 'Unknown error'));
+          }
+        }
+        return updated;
+      });
       setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
     } catch (error) {
       // Show error message if nearest node lookup fails
