@@ -13,14 +13,12 @@ function TempRoadItem({
   editingRoadId,
   visibleRoads,
   showCoordinatesForRoad,
-  nodeCoordinates,
   nodeSelectionMode,
   onSelectRoad,
   onStartEdit,
   onCancelEdit,
   onVisibleRoadsChange,
   onShowCoordinates,
-  onNodeCoordinatesChange,
   onNodeSelectionModeChange,
   editFormData,
   setEditFormData
@@ -32,52 +30,6 @@ function TempRoadItem({
     setIsEditing(editingRoadId === road.id);
   }, [editingRoadId, road.id]);
 
-  // Get node coordinates from API
-  const fetchNodeCoordinates = async (nodeId) => {
-    try {
-      // Return cached coordinates if available
-      if (nodeCoordinates[nodeId]) {
-        return nodeCoordinates[nodeId];
-      }
-      
-      const response = await fetch(`http://localhost:3000/nodes/${nodeId}`);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error(`Expected JSON but got ${contentType}`);
-      }
-      
-      const nodeData = await response.json();
-      
-      const coordinates = {
-        lat: nodeData.lat,
-        lng: nodeData.lng
-      };
-      
-      // Cache coordinates
-      onNodeCoordinatesChange(prev => ({
-        ...prev,
-        [nodeId]: coordinates
-      }));
-      
-      return coordinates;
-    } catch (error) {
-      console.error('Error fetching node coordinates:', error);
-      
-      // Cache error to avoid repeated attempts
-      onNodeCoordinatesChange(prev => ({
-        ...prev,
-        [nodeId]: { error: error.message }
-      }));
-      
-      return null;
-    }
-  };
-  
   // Calculate center and zoom level based on start and end coordinates
   const calculateCenter = (startCoords, endCoords) => {
     const centerLat = (startCoords.lat + endCoords.lat) / 2;
@@ -97,43 +49,38 @@ function TempRoadItem({
     return 16;
   };
 
-  const flyToRoad = async (road) => {
-    try {
-      const startCoords = await fetchNodeCoordinates(road.start_node);
-      const endCoords = await fetchNodeCoordinates(road.end_node);
-      
-      if (startCoords && endCoords && !startCoords.error && !endCoords.error) {
-        const center = calculateCenter(startCoords, endCoords);
-        const zoom = calculateZoomLevel(startCoords, endCoords);
-        
-        dispatch(changeMapView({ 
-          center: center, 
-          zoom: zoom 
-        }));
-      } else {
-        console.error('Could not get coordinates for road nodes');
-        alert('Unable to locate road on map. Please check if the nodes are valid.');
-      }
-    } catch (error) {
-      console.error('Error flying to road:', error);
-      alert('Error locating road on map.');
-    }
+  const getStartEndCoords = () => {
+    if (!road.geom || !Array.isArray(road.geom.coordinates) || road.geom.coordinates.length < 2) return null;
+    // GeoJSON: [ [lng, lat], [lng, lat] ]
+    const [startLng, startLat] = road.geom.coordinates[0];
+    const [endLng, endLat] = road.geom.coordinates[1];
+    return {
+      start: { lat: startLat, lng: startLng },
+      end: { lat: endLat, lng: endLng }
+    };
   };
 
-  const showCoordinates = async (road) => {
+  const flyToRoad = () => {
+    const coords = getStartEndCoords();
+    if (!coords) {
+      alert('Unable to locate road on map. Invalid coordinates.');
+      return;
+    }
+    const center = calculateCenter(coords.start, coords.end);
+    const zoom = calculateZoomLevel(coords.start, coords.end);
+    dispatch(changeMapView({ 
+      center: center, 
+      zoom: zoom 
+    }));
+  };
+
+  const showCoordinates = () => {
     if (showCoordinatesForRoad === road.id) {
       onShowCoordinates(null);
       return;
     }
 
     onShowCoordinates(road.id);
-    
-    if (road.start_node && !nodeCoordinates[road.start_node]) {
-      await fetchNodeCoordinates(road.start_node);
-    }
-    if (road.end_node && !nodeCoordinates[road.end_node]) {
-      await fetchNodeCoordinates(road.end_node);
-    }
   };
 
   const handleDelete = (roadId) => {
@@ -168,7 +115,7 @@ function TempRoadItem({
     onCancelEdit();
   };
 
-  const handleShowOnMap = async (road) => {
+  const handleShowOnMap = () => {
     if (selectedRoadId !== road.id) {
       onSelectRoad(road.id);
     }
@@ -179,7 +126,7 @@ function TempRoadItem({
       return newSet;
     });
     
-    await flyToRoad(road);
+    flyToRoad();
   };
 
   const getTypeDisplay = (type) => {
@@ -360,7 +307,7 @@ function TempRoadItem({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                showCoordinates(road);
+                showCoordinates();
               }}
               disabled={editingRoadId !== null}
               style={{
@@ -386,7 +333,7 @@ function TempRoadItem({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                handleShowOnMap(road);
+                handleShowOnMap();
               }}
               disabled={editingRoadId !== null}
               style={{
@@ -408,64 +355,42 @@ function TempRoadItem({
           </div>
 
           {/* Coordinates Display */}
-          {showCoordinatesForRoad === road.id && (
-            <div style={{
-              marginTop: '12px',
-              padding: '12px',
-              backgroundColor: '#f8f9fa',
-              borderRadius: '4px',
-              border: '1px solid #dee2e6'
-            }}>
+          {showCoordinatesForRoad === road.id && (() => {
+            const coords = getStartEndCoords();
+            if (!coords) return null;
+            return (
               <div style={{
-                fontSize: '14px',
-                fontWeight: '600',
-                color: '#333',
-                marginBottom: '8px'
+                marginTop: '12px',
+                padding: '12px',
+                backgroundColor: '#f8f9fa',
+                borderRadius: '4px',
+                border: '1px solid #dee2e6'
               }}>
-                Node Coordinates:
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <div style={{ fontSize: '13px', color: '#555' }}>
-                  <strong>Start Node ({road.start_node}):</strong>
-                  {nodeCoordinates[road.start_node] ? (
-                    nodeCoordinates[road.start_node].error ? (
-                      <span style={{ marginLeft: '8px', color: '#dc3545', fontStyle: 'italic' }}>
-                        Error: {nodeCoordinates[road.start_node].error}
-                      </span>
-                    ) : (
-                      <span style={{ marginLeft: '8px', color: '#333' }}>
-                        Lat: {nodeCoordinates[road.start_node].lat.toFixed(6)}, 
-                        Lng: {nodeCoordinates[road.start_node].lng.toFixed(6)}
-                      </span>
-                    )
-                  ) : (
-                    <span style={{ marginLeft: '8px', color: '#999', fontStyle: 'italic' }}>
-                      Loading...
-                    </span>
-                  )}
+                <div style={{
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#333',
+                  marginBottom: '8px'
+                }}>
+                  Coordinates:
                 </div>
-                <div style={{ fontSize: '13px', color: '#555' }}>
-                  <strong>End Node ({road.end_node}):</strong>
-                  {nodeCoordinates[road.end_node] ? (
-                    nodeCoordinates[road.end_node].error ? (
-                      <span style={{ marginLeft: '8px', color: '#dc3545', fontStyle: 'italic' }}>
-                        Error: {nodeCoordinates[road.end_node].error}
-                      </span>
-                    ) : (
-                      <span style={{ marginLeft: '8px', color: '#333' }}>
-                        Lat: {nodeCoordinates[road.end_node].lat.toFixed(6)}, 
-                        Lng: {nodeCoordinates[road.end_node].lng.toFixed(6)}
-                      </span>
-                      )
-                    ) : (
-                    <span style={{ marginLeft: '8px', color: '#999', fontStyle: 'italic' }}>
-                      Loading...
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ fontSize: '13px', color: '#555' }}>
+                    <strong>Start:</strong>
+                    <span style={{ marginLeft: '8px', color: '#333' }}>
+                      Lat: {coords.start.lat.toFixed(6)}, Lng: {coords.start.lng.toFixed(6)}
                     </span>
-                  )}
+                  </div>
+                  <div style={{ fontSize: '13px', color: '#555' }}>
+                    <strong>End:</strong>
+                    <span style={{ marginLeft: '8px', color: '#333' }}>
+                      Lat: {coords.end.lat.toFixed(6)}, Lng: {coords.end.lng.toFixed(6)}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </>
       )}
     </div>
