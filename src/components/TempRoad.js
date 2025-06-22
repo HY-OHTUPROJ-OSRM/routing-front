@@ -10,14 +10,12 @@ import TempRoadItem from './TempRoadItem';
 import './Polygon.css';
 import { getNearestNodeCoordinates, calculateDistanceBetweenCoords } from '../services/TempRoadService';
 
-// Remove local nodeSelectionMode and handler, accept as props
 function TempRoads({
   onVisibleRoadsChange,
   onNodeSelectionModeChange,
   onNodeSelectionHandler,
   nodeSelectionMode,
-  setNodeSelectionMode,
-  handleNodeSelection
+  setNodeSelectionMode
 }) {
   const dispatch = useDispatch();
   const tempRoads = useSelector(state => state.tempRoads.list);
