@@ -1,4 +1,4 @@
-import { MapContainer, FeatureGroup, Polygon, Tooltip, Polyline, GeoJSON, useMapEvent } from 'react-leaflet';
+import { MapContainer, FeatureGroup, Polygon, Tooltip, Polyline, GeoJSON, useMapEvent, Marker } from 'react-leaflet';
 import React, { useRef, useEffect, useState, useContext } from 'react';
 import { EditControl } from 'react-leaflet-draw';
 import { CoordinatesContext, RouteContext, ProfileContext } from './CoordinatesContext';
@@ -109,6 +109,9 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     // Reference to the selected polygon when user clicks on a polygon
     const [selectedPolygon, setSelectedPolygon] = useState(null);
     const [showEditButton, setShowEditButton] = useState(false);
+
+    // Reference to the limits from redux store
+    const { limits, visibleLimitIds } = useSelector(state => state.limits);
     
     let mountingHelper = 0
     let maphelp = null
@@ -150,6 +153,130 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         popupAnchor: [0, -30],
         className: 'node-selection-marker'
     });
+
+    const createLimitIcon = (limit) => {
+        const iconHtml = `
+            <div style="
+                background: ${limit.maxheight ? '#ff6b6b' : '#4ecdc4'};
+                color: white;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                font-size: 12px;
+                border: 2px solid white;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            ">
+                ${limit.maxheight ? 'H' : 'W'}
+            </div>
+        `;
+
+        return L.divIcon({
+            html: iconHtml,
+            className: 'limit-marker',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15],
+            popupAnchor: [0, -15]
+        });
+    };
+
+    const renderLimits = () => {
+        const visibleLimits = limits.filter(limit => visibleLimitIds.includes(limit.id));
+        
+        return visibleLimits.map(limit => {
+            if (!limit.coordinates || limit.coordinates.length === 0) {
+                return null;
+            }
+
+            if (limit.coordinates.length === 1) {
+                const [lng, lat] = limit.coordinates[0];
+                return (
+                    <Marker
+                        key={`limit-marker-${limit.id}`}
+                        position={[lat, lng]}
+                        icon={createLimitIcon(limit)}
+                        eventHandlers={{
+                            click: () => {
+                                console.log('Clicked limit:', limit);
+                            }
+                        }}
+                    >
+                        <Tooltip>
+                            <div>
+                                <strong>Road ID: {limit.id}</strong><br/>
+                                {limit.maxheight && <span>Max Height: {limit.maxheight}<br/></span>}
+                                {limit.maxweight && <span>Max Weight: {limit.maxweight}</span>}
+                            </div>
+                        </Tooltip>
+                    </Marker>
+                );
+            }
+
+            const positions = limit.coordinates.map(coord => [coord[1], coord[0]]);
+            const limitColor = limit.maxheight ? '#ff6b6b' : '#4ecdc4';
+
+            const isClosedPolygon = positions.length > 2 && 
+                positions[0][0] === positions[positions.length - 1][0] && 
+                positions[0][1] === positions[positions.length - 1][1];
+
+            if (isClosedPolygon) {
+                return (
+                    <Polygon
+                        key={`limit-polygon-${limit.id}`}
+                        positions={positions}
+                        pathOptions={{
+                            color: limitColor,
+                            fillColor: limitColor,
+                            fillOpacity: 0.3,
+                            weight: 3,
+                            opacity: 0.8
+                        }}
+                        eventHandlers={{
+                            click: () => {
+                                console.log('Clicked limit polygon:', limit);
+                            }
+                        }}
+                    >
+                        <Tooltip>
+                            <div>
+                                <strong>Road ID: {limit.id}</strong><br/>
+                                {limit.maxheight && <span>Max Height: {limit.maxheight}<br/></span>}
+                                {limit.maxweight && <span>Max Weight: {limit.maxweight}</span>}
+                            </div>
+                        </Tooltip>
+                    </Polygon>
+                );
+            } else {
+                return (
+                    <Polyline
+                        key={`limit-line-${limit.id}`}
+                        positions={positions}
+                        pathOptions={{
+                            color: limitColor,
+                            weight: 4,
+                            opacity: 0.8
+                        }}
+                        eventHandlers={{
+                            click: () => {
+                                console.log('Clicked limit line:', limit);
+                            }
+                        }}
+                    >
+                        <Tooltip>
+                            <div>
+                                <strong>Road ID: {limit.id}</strong><br/>
+                                {limit.maxheight && <span>Max Height: {limit.maxheight}<br/></span>}
+                                {limit.maxweight && <span>Max Weight: {limit.maxweight}</span>}
+                            </div>
+                        </Tooltip>
+                    </Polyline>
+                );
+            }
+        });
+    };
 
     // A single coordinate class to handle all coordinates
     const Coordinates = class {
@@ -963,6 +1090,8 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                 />
 
                 <TempRoadDisplay visibleRoads={visibleTempRoads} />
+
+                {renderLimits()}
 
                 {routedata.slice().reverse().map((route, index) => (
                     <Polyline 

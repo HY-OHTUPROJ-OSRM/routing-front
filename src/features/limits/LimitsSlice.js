@@ -30,7 +30,8 @@ const limitsSlice = createSlice({
     vehicleConfig: { classes: [] },
     loading: false,
     error: null,
-    isVisible: false
+    isVisible: false,
+    visibleLimitIds: []
   },
   reducers: {
     clearLimits: (state) => {
@@ -39,11 +40,24 @@ const limitsSlice = createSlice({
     },
     setLimitsVisible: (state, action) => {
       state.isVisible = action.payload;
+    },
+    
+    addLimitToMap: (state, action) => {
+      const limitId = action.payload;
+      if (!state.visibleLimitIds.includes(limitId)) {
+        state.visibleLimitIds.push(limitId);
+      }
+    },
+    removeLimitFromMap: (state, action) => {
+      const limitId = action.payload;
+      state.visibleLimitIds = state.visibleLimitIds.filter(id => id !== limitId);
+    },
+    clearMapLimits: (state) => {
+      state.visibleLimitIds = [];
     }
   },
   extraReducers: (builder) => {
     builder
-      // fetchLimits cases
       .addCase(fetchLimits.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -57,7 +71,6 @@ const limitsSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // fetchVehicleConfig cases
       .addCase(fetchVehicleConfig.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -74,5 +87,12 @@ const limitsSlice = createSlice({
   }
 });
 
-export const { clearLimits, setLimitsVisible } = limitsSlice.actions;
+export const { 
+  clearLimits, 
+  setLimitsVisible, 
+  addLimitToMap,
+  removeLimitFromMap,
+  clearMapLimits
+} = limitsSlice.actions;
+
 export default limitsSlice.reducer;

@@ -1,30 +1,44 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchLimits, fetchVehicleConfig, clearLimits } from "../features/limits/LimitsSlice";
+import { 
+  fetchLimits, 
+  fetchVehicleConfig, 
+  clearLimits, 
+  addLimitToMap,
+  clearMapLimits
+} from "../features/limits/LimitsSlice";
+import { changeListView } from '../features/view/ViewSlice';
 import LimitItem from "./Limits";
 import "./comp_styles.scss";
 
 const LimitsDisplay = ({ isOpen }) => {
   const dispatch = useDispatch();
-  const { limits, vehicleConfig, loading, error } = useSelector(state => state.limits);
+  const { limits, vehicleConfig, loading, error, visibleLimitIds } = useSelector(state => state.limits);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState("all"); // all, height, weight
+  const [filterType, setFilterType] = useState("all");
 
   useEffect(() => {
     if (isOpen) {
       dispatch(fetchLimits());
       dispatch(fetchVehicleConfig());
     }
-    
-    return () => {
-      // dispatch(clearLimits());
-    };
   }, [dispatch, isOpen]);
 
   const handleShowOnMap = (limit) => {
     console.log('Show on map:', limit);
-    // TODO
-    alert(`Show Road ${limit.id} on map (TODO)`);
+    
+
+    dispatch(addLimitToMap(limit.id));
+    
+    if (limit.coordinates && limit.coordinates.length > 0) {
+      const centerLat = limit.coordinates.reduce((sum, coord) => sum + coord[1], 0) / limit.coordinates.length;
+      const centerLng = limit.coordinates.reduce((sum, coord) => sum + coord[0], 0) / limit.coordinates.length;
+      
+      dispatch(changeListView({
+        center: [centerLat, centerLng],
+        zoom: 16
+      }));
+    }
   };
 
   const filteredLimits = limits.filter(limit => {
@@ -86,6 +100,11 @@ const LimitsDisplay = ({ isOpen }) => {
               {" "}(filtered by {filterType})
             </span>
           )}
+          {visibleLimitIds.length > 0 && (
+            <span style={{ color: '#28a745', fontWeight: 'bold' }}>
+              {" "}({visibleLimitIds.length} shown on map)
+            </span>
+          )}
         </p>
       </div>
 
@@ -132,6 +151,24 @@ const LimitsDisplay = ({ isOpen }) => {
           <option value="height">Height Only</option>
           <option value="weight">Weight Only</option>
         </select>
+
+        {visibleLimitIds.length > 0 && (
+          <button
+            onClick={() => dispatch(clearMapLimits())}
+            className="clear-map-button"
+            style={{
+              backgroundColor: '#dc3545',
+              color: 'white',
+              border: 'none',
+              padding: '8px 12px',
+              borderRadius: '4px',
+              marginLeft: '8px',
+              cursor: 'pointer'
+            }}
+          >
+            Clear Map ({visibleLimitIds.length})
+          </button>
+        )}
       </div>
 
       <div className="limits-list">
@@ -147,6 +184,7 @@ const LimitsDisplay = ({ isOpen }) => {
               key={limit.id} 
               limit={limit} 
               onShowOnMap={handleShowOnMap}
+              isOnMap={visibleLimitIds.includes(limit.id)}
             />
           ))
         )}

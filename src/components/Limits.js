@@ -1,7 +1,13 @@
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { removeLimitFromMap } from "../features/limits/LimitsSlice";
 import "./comp_styles.scss";
 
 const LimitItem = ({ limit, onShowOnMap }) => {
+  const dispatch = useDispatch();
+  const { visibleLimitIds } = useSelector(state => state.limits);
+  const isOnMap = visibleLimitIds.includes(limit.id);
+
   const formatValue = (value) => {
     if (!value) return 'N/A';
     return value;
@@ -12,9 +18,21 @@ const LimitItem = ({ limit, onShowOnMap }) => {
   if (!hasLimits) return null;
 
   return (
-    <div className="limit-item">
+    <div className={`limit-item ${isOnMap ? 'on-map' : ''}`}>
       <div className="limit-item-header">
         <h4>Road ID: {limit.id}</h4>
+        {isOnMap && (
+          <span className="on-map-indicator" style={{
+            background: '#28a745',
+            color: 'white',
+            padding: '2px 6px',
+            borderRadius: '10px',
+            fontSize: '10px',
+            fontWeight: 'bold'
+          }}>
+            ON MAP
+          </span>
+        )}
       </div>
       
       <div className="limit-details">
@@ -51,12 +69,25 @@ const LimitItem = ({ limit, onShowOnMap }) => {
           Show Coordinates
         </button>
         
-        <button 
-          className="action-button show-on-map-btn"
-          onClick={() => onShowOnMap && onShowOnMap(limit)}
-        >
-          Show on Map
-        </button>
+        {!isOnMap ? (
+          <button 
+            className="action-button show-on-map-btn"
+            onClick={() => onShowOnMap && onShowOnMap(limit)}
+          >
+            Show on Map
+          </button>
+        ) : (
+          <button 
+            className="action-button remove-from-map-btn"
+            onClick={() => dispatch(removeLimitFromMap(limit.id))}
+            style={{
+              backgroundColor: '#dc3545',
+              color: 'white'
+            }}
+          >
+            Remove from Map
+          </button>
+        )}
       </div>
     </div>
   );
