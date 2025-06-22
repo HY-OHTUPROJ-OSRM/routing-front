@@ -51,12 +51,44 @@ function TempRoads({
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingRoadId, setEditingRoadId] = useState(null);
 
+  const handleNodeSelectionInternal = async (_unusedNodeId, coordinates) => {
+    if (!nodeSelectionMode.active) {
+      return;
+    }
+    if (nodeSelectionMode.isEditMode) {
+      if (nodeSelectionMode.selecting === 'start') {
+        setEditFormData(prev => ({
+          ...prev,
+          start_coordinates: { lat: coordinates[0], lng: coordinates[1] }
+        }));
+      } else if (nodeSelectionMode.selecting === 'end') {
+        setEditFormData(prev => ({
+          ...prev,
+          end_coordinates: { lat: coordinates[0], lng: coordinates[1] }
+        }));
+      }
+    } else {
+      if (nodeSelectionMode.selecting === 'start') {
+        setAddFormData(prev => ({
+          ...prev,
+          start_coordinates: { lat: coordinates[0], lng: coordinates[1] }
+        }));
+      } else if (nodeSelectionMode.selecting === 'end') {
+        setAddFormData(prev => ({
+          ...prev,
+          end_coordinates: { lat: coordinates[0], lng: coordinates[1] }
+        }));
+      }
+    }
+    setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
+  };
+  
   // Register the handler with parent on mount
   useEffect(() => {
     if (onNodeSelectionHandler) {
-      onNodeSelectionHandler(handleNodeSelection);
+      onNodeSelectionHandler(handleNodeSelectionInternal);
     }
-  }, [onNodeSelectionHandler, handleNodeSelection]);
+  }, [onNodeSelectionHandler, handleNodeSelectionInternal]);
 
   useEffect(() => {
     if (status === 'idle') {
@@ -97,47 +129,6 @@ function TempRoads({
     description: ''
   });
 
-  console.log('[TempRoads] nodeSelectionMode:', nodeSelectionMode);
-
-  const handleNodeSelectionInternal = async (_unusedNodeId, coordinates) => {
-    console.log('[TempRoads] handleNodeSelection called with:', _unusedNodeId, coordinates, nodeSelectionMode);
-    if (!nodeSelectionMode.active) {
-      console.log('[TempRoads] nodeSelectionMode not active, returning');
-      return;
-    }
-    if (nodeSelectionMode.isEditMode) {
-      if (nodeSelectionMode.selecting === 'start') {
-        console.log('[TempRoads] Setting editFormData.start_coordinates:', coordinates);
-        setEditFormData(prev => ({
-          ...prev,
-          start_coordinates: { lat: coordinates[0], lng: coordinates[1] }
-        }));
-      } else if (nodeSelectionMode.selecting === 'end') {
-        console.log('[TempRoads] Setting editFormData.end_coordinates:', coordinates);
-        setEditFormData(prev => ({
-          ...prev,
-          end_coordinates: { lat: coordinates[0], lng: coordinates[1] }
-        }));
-      }
-    } else {
-      if (nodeSelectionMode.selecting === 'start') {
-        console.log('[TempRoads] Setting addFormData.start_coordinates:', coordinates);
-        setAddFormData(prev => ({
-          ...prev,
-          start_coordinates: { lat: coordinates[0], lng: coordinates[1] }
-        }));
-      } else if (nodeSelectionMode.selecting === 'end') {
-        console.log('[TempRoads] Setting addFormData.end_coordinates:', coordinates);
-        setAddFormData(prev => ({
-          ...prev,
-          end_coordinates: { lat: coordinates[0], lng: coordinates[1] }
-        }));
-      }
-    }
-    setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
-    console.log('[TempRoads] nodeSelectionMode reset');
-  };
-  
   const handleSelectRoad = (id) => {
     dispatch(selectRoad(id));
   };
@@ -194,6 +185,7 @@ function TempRoads({
     return <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>;
   }
 
+  // Roads List
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Header with title and add button */}
@@ -280,7 +272,7 @@ function TempRoads({
 
       {/* Roads List */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '0' }}>
-        {tempRoads.length === 0 ? (
+        {Array.isArray(tempRoads) && tempRoads.length === 0 ? (
           <div style={{ 
             padding: '40px 20px', 
             textAlign: 'center', 
@@ -315,43 +307,54 @@ function TempRoads({
               </select>
             </div>
             <div>
-              {filteredTempRoads.map(road => (
-                <TempRoadItem
-                  key={road.id}
-                  road={road}
-                  selectedRoadId={selectedRoadId}
-                  editingRoadId={editingRoadId}
-                  visibleRoads={visibleRoads}
-                  showCoordinatesForRoad={showCoordinatesForRoad}
-                  nodeCoordinates={nodeCoordinates}
-                  nodeSelectionMode={nodeSelectionMode}
-                  onSelectRoad={handleSelectRoad}
-                  onStartEdit={(roadId) => {
-                    setEditingRoadId(roadId);
-                    // Initialize edit form with road data
-                    const road = tempRoads.find(r => r.id === roadId);
-                    if (road) {
-                      setEditFormData({
-                        name: road.name || '',
-                        type: road.type || 'iceroad',
-                        speed: road.speed?.toString() || '',
-                        length: road.length?.toString() || '',
-                        start_coordinates: road.start_coordinates || { lat: '', lng: '' },
-                        end_coordinates: road.end_coordinates || { lat: '', lng: '' },
-                        description: road.description || ''
-                      });
-                    }
-                    setShowCoordinatesForRoad(null);
-                  }}
-                  editFormData={editFormData}
-                  setEditFormData={setEditFormData}
-                  onCancelEdit={cancelEdit}
-                  onVisibleRoadsChange={setVisibleRoads}
-                  onShowCoordinates={setShowCoordinatesForRoad}
-                  onNodeCoordinatesChange={setNodeCoordinates}
-                  onNodeSelectionModeChange={setNodeSelectionMode}
-                />
-              ))}
+              {Array.isArray(filteredTempRoads) && filteredTempRoads.length > 0 ? (
+                filteredTempRoads.map(road => {
+                  if (!road) {
+                    return null;
+                  }
+                  return (
+                    <TempRoadItem
+                      key={road.id}
+                      road={road}
+                      selectedRoadId={selectedRoadId}
+                      editingRoadId={editingRoadId}
+                      visibleRoads={visibleRoads}
+                      showCoordinatesForRoad={showCoordinatesForRoad}
+                      nodeCoordinates={nodeCoordinates}
+                      nodeSelectionMode={nodeSelectionMode}
+                      onSelectRoad={handleSelectRoad}
+                      onStartEdit={(roadId) => {
+                        setEditingRoadId(roadId);
+                        // Initialize edit form with road data
+                        const road = tempRoads.find(r => r.id === roadId);
+                        if (!road) {
+                          console.error('[TempRoads] Could not find road with id', roadId, 'in tempRoads:', tempRoads);
+                          return;
+                        }
+                        setEditFormData({
+                          name: road.name || '',
+                          type: road.type || 'iceroad',
+                          speed: road.speed?.toString() || '',
+                          length: road.length?.toString() || '',
+                          start_coordinates: road.start_coordinates || { lat: '', lng: '' },
+                          end_coordinates: road.end_coordinates || { lat: '', lng: '' },
+                          description: road.description || ''
+                        });
+                        setShowCoordinatesForRoad(null);
+                      }}
+                      editFormData={editFormData}
+                      setEditFormData={setEditFormData}
+                      onCancelEdit={cancelEdit}
+                      onVisibleRoadsChange={setVisibleRoads}
+                      onShowCoordinates={setShowCoordinatesForRoad}
+                      onNodeCoordinatesChange={setNodeCoordinates}
+                      onNodeSelectionModeChange={setNodeSelectionMode}
+                    />
+                  );
+                })
+              ) : (
+                <div style={{ padding: '20px', color: '#999' }}>No roads to display</div>
+              )}
             </div>
           </>
         )}

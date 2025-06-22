@@ -693,19 +693,17 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         useMapEvent('click', async (event) => {
             let {lat, lng} = event.latlng;
             const map = mapRef.current;
-            
             // Handle node selection for temporary roads
             if (nodeSelectionMode && nodeSelectionMode.active) {
                 if (onNodeSelection) {
-                    // Pass coordinates directly
-                    onNodeSelection([lat, lng]);
+                    onNodeSelection(null, [lat, lng]);
+                } else {
+                    console.error('[Map_Displayer] onNodeSelection is not defined when nodeSelectionMode is active.');
                 }
                 return;
             }
-            
             // Check if polygon was clicked
             const clickedPolygon = event.originalEvent.target.closest('.leaflet-interactive');
-            
             if (clickedPolygon) {
                 // Polygon was clicked, skip other logic
                 return;
@@ -871,17 +869,12 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         const map = mapRef.current;
         if (!map) return;
         const handleMapClick = (e) => {
-            console.log('[Map_Displayer] Map clicked:', e.latlng);
             if (nodeSelectionMode && nodeSelectionMode.active) {
-                console.log('[Map_Displayer] nodeSelectionMode is active:', nodeSelectionMode);
                 if (typeof onNodeSelection === 'function') {
-                    console.log('[Map_Displayer] Calling onNodeSelection with:', [e.latlng.lat, e.latlng.lng]);
                     onNodeSelection(null, [e.latlng.lat, e.latlng.lng]);
                 } else {
-                    console.log('[Map_Displayer] onNodeSelection is not a function:', onNodeSelection);
+                    console.error('[Map_Displayer] onNodeSelection is not a function when nodeSelectionMode is active:', onNodeSelection);
                 }
-            } else {
-                console.log('[Map_Displayer] nodeSelectionMode is not active:', nodeSelectionMode);
             }
         };
         map.on('click', handleMapClick);

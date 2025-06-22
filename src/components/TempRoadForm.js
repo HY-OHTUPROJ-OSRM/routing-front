@@ -16,12 +16,8 @@ function TempRoadForm({
 }) {
   const dispatch = useDispatch();
 
-  console.log('[TempRoadForm] nodeSelectionMode:', nodeSelectionMode);
-  console.log('[TempRoadForm] formData:', formData);
-
   // Helper to update coordinate fields
   const handleCoordChange = (type, field, value) => {
-    console.log(`[TempRoadForm] handleCoordChange: type=${type}, field=${field}, value=${value}`);
     setFormData(prev => ({
       ...prev,
       [type]: {
@@ -33,7 +29,6 @@ function TempRoadForm({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log(`[TempRoadForm] handleChange: name=${name}, value=${value}`);
     if (name.startsWith('start_lat') || name.startsWith('start_lng')) {
       handleCoordChange('start_coordinates', name.endsWith('lat') ? 'lat' : 'lng', value);
     } else if (name.startsWith('end_lat') || name.startsWith('end_lng')) {
@@ -48,7 +43,6 @@ function TempRoadForm({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('[TempRoadForm] handleSubmit called');
     // Compose GeoJSON LineString for geom
     const geom = {
       type: 'LineString',
@@ -71,17 +65,18 @@ function TempRoadForm({
       },
       geom
     };
-    console.log('[TempRoadForm] dataToSubmit:', dataToSubmit);
+    if (isNaN(dataToSubmit.start_coordinates.lat) || isNaN(dataToSubmit.start_coordinates.lng) ||
+        isNaN(dataToSubmit.end_coordinates.lat) || isNaN(dataToSubmit.end_coordinates.lng)) {
+      console.error('[TempRoadForm] Invalid coordinates in dataToSubmit:', dataToSubmit);
+    }
     if (mode === 'add') {
       const newRoadData = {
         ...dataToSubmit,
         status: true,
         tags: []
       };
-      console.log('[TempRoadForm] Dispatching addTempRoad:', newRoadData);
       dispatch(addTempRoad(newRoadData));
     } else {
-      console.log('[TempRoadForm] Dispatching updateTempRoadAsync:', { id: road.id, updates: { ...dataToSubmit, updated_at: road.updated_at } });
       dispatch(updateTempRoadAsync({ 
         id: road.id, 
         updates: { 
