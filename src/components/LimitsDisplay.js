@@ -16,6 +16,7 @@ const LimitsDisplay = ({ isOpen }) => {
   const { limits, vehicleConfig, loading, error, visibleLimitIds } = useSelector(state => state.limits);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
+  const [selectedVehicleClass, setSelectedVehicleClass] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -27,7 +28,6 @@ const LimitsDisplay = ({ isOpen }) => {
   const handleShowOnMap = (limit) => {
     console.log('Show on map:', limit);
     
-
     dispatch(addLimitToMap(limit.id));
     
     if (limit.coordinates && limit.coordinates.length > 0) {
@@ -41,6 +41,41 @@ const LimitsDisplay = ({ isOpen }) => {
     }
   };
 
+  const handleVehicleClassSelect = (vehicleClass) => {
+    if (selectedVehicleClass && selectedVehicleClass.id === vehicleClass.id) {
+      // If clicking the same class, deselect it
+      setSelectedVehicleClass(null);
+    } else {
+      // Select the new class
+      setSelectedVehicleClass(vehicleClass);
+    }
+  };
+
+  const checkLimitRestrictsVehicle = (limit, vehicleClass) => {
+    if (!vehicleClass) return false;
+    
+    // Check if the limit would restrict this vehicle class
+    let isRestricted = false;
+    
+    if (limit.maxheight && vehicleClass.height_cutoff) {
+      const limitHeight = parseFloat(limit.maxheight);
+      const vehicleHeight = parseFloat(vehicleClass.height_cutoff);
+      if (vehicleHeight > limitHeight) {
+        isRestricted = true;
+      }
+    }
+    
+    if (limit.maxweight && vehicleClass.weight_cutoff) {
+      const limitWeight = parseFloat(limit.maxweight);
+      const vehicleWeight = parseFloat(vehicleClass.weight_cutoff);
+      if (vehicleWeight > limitWeight) {
+        isRestricted = true;
+      }
+    }
+    
+    return isRestricted;
+  };
+
   const filteredLimits = limits.filter(limit => {
     const matchesSearch = searchTerm === "" || 
       String(limit.id).toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -51,7 +86,10 @@ const LimitsDisplay = ({ isOpen }) => {
       (filterType === "height" && limit.maxheight) ||
       (filterType === "weight" && limit.maxweight);
 
-    return matchesSearch && matchesFilter;
+    const matchesVehicleClass = !selectedVehicleClass || 
+      checkLimitRestrictsVehicle(limit, selectedVehicleClass);
+
+    return matchesSearch && matchesFilter && matchesVehicleClass;
   });
 
   if (loading) {
@@ -100,6 +138,11 @@ const LimitsDisplay = ({ isOpen }) => {
               {" "}(filtered by {filterType})
             </span>
           )}
+          {selectedVehicleClass && (
+            <span style={{ color: '#ff6b35', fontWeight: 'bold' }}>
+              {" "}(restricted for {selectedVehicleClass.name})
+            </span>
+          )}
           {visibleLimitIds.length > 0 && (
             <span style={{ color: '#28a745', fontWeight: 'bold' }}>
               {" "}({visibleLimitIds.length} shown on map)
@@ -113,7 +156,21 @@ const LimitsDisplay = ({ isOpen }) => {
           <h4>Vehicle Classes:</h4>
           <div className="vehicle-classes">
             {vehicleConfig.classes.map(vehicle => (
-              <div key={vehicle.id} className="vehicle-class-item">
+              <div 
+                key={vehicle.id} 
+                className={`vehicle-class-item ${selectedVehicleClass && selectedVehicleClass.id === vehicle.id ? 'selected' : ''}`}
+                onClick={() => handleVehicleClassSelect(vehicle)}
+                style={{
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  backgroundColor: selectedVehicleClass && selectedVehicleClass.id === vehicle.id ? '#ff6b35' : 'transparent',
+                  color: selectedVehicleClass && selectedVehicleClass.id === vehicle.id ? 'white' : 'inherit',
+                  border: '2px solid transparent',
+                  borderRadius: '4px',
+                  padding: '4px 8px',
+                  borderColor: selectedVehicleClass && selectedVehicleClass.id === vehicle.id ? '#ff6b35' : '#ddd'
+                }}
+              >
                 <span className="vehicle-name">{vehicle.name}</span>
                 <span className="vehicle-limits">
                   H:{vehicle.height_cutoff} W:{vehicle.weight_cutoff}
@@ -121,6 +178,34 @@ const LimitsDisplay = ({ isOpen }) => {
               </div>
             ))}
           </div>
+          {selectedVehicleClass && (
+            <div className="selected-vehicle-info">
+              <p style={{ 
+                fontSize: '12px', 
+                color: '#666', 
+                fontStyle: 'italic',
+                marginTop: '8px' 
+              }}>
+                Showing roads that would restrict {selectedVehicleClass.name} 
+                (H:{selectedVehicleClass.height_cutoff}, W:{selectedVehicleClass.weight_cutoff})
+              </p>
+              <button
+                onClick={() => setSelectedVehicleClass(null)}
+                style={{
+                  fontSize: '11px',
+                  padding: '2px 6px',
+                  backgroundColor: '#6c757d',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '3px',
+                  cursor: 'pointer',
+                  marginTop: '4px'
+                }}
+              >
+                Clear Selection
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -177,6 +262,7 @@ const LimitsDisplay = ({ isOpen }) => {
             <p>No limits found matching your criteria.</p>
             {searchTerm && <p>Try clearing the search term: "{searchTerm}"</p>}
             {filterType !== "all" && <p>Try changing the filter from "{filterType}"</p>}
+            {selectedVehicleClass && <p>Try clearing the vehicle class selection</p>}
           </div>
         ) : (
           filteredLimits.map(limit => (
@@ -185,6 +271,7 @@ const LimitsDisplay = ({ isOpen }) => {
               limit={limit} 
               onShowOnMap={handleShowOnMap}
               isOnMap={visibleLimitIds.includes(limit.id)}
+              selectedVehicleClass={selectedVehicleClass}
             />
           ))
         )}
