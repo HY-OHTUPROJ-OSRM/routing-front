@@ -27,7 +27,13 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
     };
 
     const payload = {
-      geom: `LINESTRING(${disconnection.startNode.lon} ${disconnection.startNode.lat}, ${disconnection.endNode.lon} ${disconnection.endNode.lat})`,
+      geom: {
+        type: 'LineString',
+        coordinates: [
+          [disconnection.startNode.lon, disconnection.startNode.lat],
+          [disconnection.endNode.lon, disconnection.endNode.lat]
+        ]
+      },
       name: getReadableName(disconnection.startNode.way_name, disconnection.endNode.way_name),
       type: "temporary",
       status: true,
