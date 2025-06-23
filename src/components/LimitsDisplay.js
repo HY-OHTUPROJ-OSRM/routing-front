@@ -133,11 +133,6 @@ const LimitsDisplay = ({ isOpen }) => {
         <h3>Weight & Height Limits</h3>
         <p className="limits-count">
           Found {filteredLimits.length} roads with limits
-          {filterType !== "all" && (
-            <span style={{ color: '#007bff', fontWeight: 'bold' }}>
-              {" "}(filtered by {filterType})
-            </span>
-          )}
           {selectedVehicleClass && (
             <span style={{ color: '#ff6b35', fontWeight: 'bold' }}>
               {" "}(restricted for {selectedVehicleClass.name})

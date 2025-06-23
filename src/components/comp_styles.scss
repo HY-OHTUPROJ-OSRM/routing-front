@@ -42,7 +42,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: auto; // Tämä takaa keskityksen riippumatta sisällön määrästä
+  width: auto;
   margin-bottom: 10px;
 
   strong {
@@ -82,7 +82,7 @@
   display: flex;
   gap: 15px;
   align-items: center;
-  z-index: 1001; // Ensure icons are above other elements
+  z-index: 1001;
 }
 
 .header-title {
@@ -98,7 +98,7 @@
   font-weight: bold;
   font-size: 16px;
   color: white;
-  pointer-events: none; // estää klikkauksen keskiosaan
+  pointer-events: none;
 }
 
 .header-select-wrapper {
@@ -123,7 +123,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.4); // tumma läpinäkyvä tausta
+  background-color: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -139,12 +139,12 @@
   border: none;
   font-size: 28px;
   font-weight: bold;
-  color: #666; // harmaa väri
+  color: #666;
   cursor: pointer;
   line-height: 1;
 
   &:hover {
-    color: #333; // tummempi hover-efekti
+    color: #333;
   }
 }
 
@@ -203,8 +203,8 @@
   transition: background-color 0.2s;
 
   &:hover {
-  background-color: #125bcc;
-}
+    background-color: #125bcc;
+  }
 }
 
 .temp-road-icon {
@@ -229,18 +229,18 @@
   &:active {
     transform: scale(0.95);
   }
-
 }
-  .disconnection-button {
-    background-color: var(--primary-blue);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 6px 12px;
-    font-size: 13px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background-color 0.2s;
+
+.disconnection-button {
+  background-color: var(--primary-blue);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
 
   &:hover {
     background-color: #3367d6;
@@ -295,7 +295,7 @@
 }
 
 .search-container {
-  margin-top: 0.3rem; // Ensure spacing above the search bar
+  margin-top: 0.3rem;
 }
 
 // Limits Display Styles
@@ -391,9 +391,11 @@
       padding: 8px 12px;
       border: 1px solid #ddd;
       border-radius: 4px;
-      font-size: 14px;
+      font-size: 12px;
       background: white;
       cursor: pointer;
+      color: #333 !important;
+      text-align: left;
 
       &:focus {
         outline: none;
@@ -407,7 +409,32 @@
       background-image: url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%23666' d='M0 0l5 5 5-5z'/></svg>");
       background-repeat: no-repeat;
       background-position: right 8px center;
+      background-size: 10px 6px;
       padding-right: 30px;
+
+      option {
+        color: #333 !important;
+        background-color: white !important;
+        padding: 8px;
+        
+        &:checked {
+          background-color: #007bff !important;
+          color: white !important;
+        }
+        
+        &:hover {
+          background-color: #f8f9fa !important;
+        }
+      }
+
+      &::-ms-expand {
+        display: none; 
+      }
+      
+      &:-moz-focusring {
+        color: transparent;
+        text-shadow: 0 0 0 #333;
+      }
     }
 
     @media (max-width: 600px) {
@@ -493,12 +520,20 @@
 
   .limit-item-header {
     margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
     h4 {
       margin: 0;
       font-size: 16px;
       color: #333;
       font-weight: 600;
+    }
+
+    .header-indicators {
+      display: flex;
+      gap: 4px;
     }
   }
 
@@ -567,6 +602,28 @@
           box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5);
         }
       }
+
+      &.remove-from-map-btn {
+        &:hover {
+          background-color: #c82333;
+          transform: translateY(-1px);
+        }
+
+        &:focus {
+          outline: none;
+          box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.5);
+        }
+      }
     }
+  }
+
+  &.on-map {
+    border-color: #28a745;
+    box-shadow: 0 0 0 1px rgba(40, 167, 69, 0.2);
+  }
+
+  &.restricted {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 1px rgba(220, 53, 69, 0.2);
   }
 }
