@@ -225,12 +225,6 @@ const LimitsDisplay = ({ isOpen }) => {
             setFilterType(e.target.value);
           }}
           className="filter-select"
-          style={{ 
-            minWidth: '120px',
-            height: '36px',
-            backgroundColor: 'white',
-            border: '2px solid #007bff'
-          }}
         >
           <option value="all">All Limits</option>
           <option value="height">Height Only</option>

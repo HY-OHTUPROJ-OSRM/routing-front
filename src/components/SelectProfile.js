@@ -73,12 +73,12 @@ const SelectProfile = ({ isOpen, onClose, onSelect }) => {
         <button className="modal-close" onClick={onClose}>
           ×
         </button>
-        <h3>Select profile</h3>
+        <h3 className="modal-title">Select profile</h3>
 
         <div className="profile-options">
           <label>
             Vehicle class:
-            <select
+            <select className="filter-select"
               value={selectedVehicleId}
               onChange={(e) => setSelectedVehicleId(e.target.value)}
             >

@@ -8,6 +8,7 @@ import { changeMapView } from '../features/view/ViewSlice';
 import TempRoadForm from './TempRoadForm';
 import TempRoadItem from './TempRoadItem';
 import './Polygon.css';
+import './comp_styles.scss';
 import { getNearestNodeCoordinates, calculateDistanceBetweenCoords } from '../services/TempRoadService';
 
 function TempRoads({
@@ -22,7 +23,6 @@ function TempRoads({
   const status = useSelector(state => state.tempRoads.status);
   const selectedRoadId = useSelector(state => state.tempRoads.selectedRoadId);
   const [visibleRoads, setVisibleRoads] = useState(new Set());
-  
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
 
@@ -46,47 +46,24 @@ function TempRoads({
 
   const [showCoordinatesForRoad, setShowCoordinatesForRoad] = useState(null);
   const [nodeCoordinates, setNodeCoordinates] = useState({});
-  
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingRoadId, setEditingRoadId] = useState(null);
 
   const handleNodeSelectionInternal = async (_unusedNodeId, coordinates) => {
-    if (!nodeSelectionMode.active) {
-      return;
-    }
+    if (!nodeSelectionMode.active) return;
     try {
-      // coordinates: [lat, lng] from map click
       const nearestCoords = await getNearestNodeCoordinates(coordinates[0], coordinates[1]);
-      let updateFormFn, coordKey;
-      if (nodeSelectionMode.isEditMode) {
-        updateFormFn = setEditFormData;
-      } else {
-        updateFormFn = setAddFormData;
-      }
-      if (nodeSelectionMode.selecting === 'start') {
-        coordKey = 'start_coordinates';
-      } else if (nodeSelectionMode.selecting === 'end') {
-        coordKey = 'end_coordinates';
-      }
-      // Update the selected coordinate
+      let updateFormFn = nodeSelectionMode.isEditMode ? setEditFormData : setAddFormData;
+      const coordKey = nodeSelectionMode.selecting === 'start' ? 'start_coordinates' : 'end_coordinates';
       updateFormFn(prev => {
-        const updated = {
-          ...prev,
-          [coordKey]: { lat: nearestCoords[0], lng: nearestCoords[1] }
-        };
-        // If both start and end are set, calculate distance
-        if (
-          updated.start_coordinates?.lat && updated.start_coordinates?.lng &&
-          updated.end_coordinates?.lat && updated.end_coordinates?.lng
-        ) {
+        const updated = { ...prev, [coordKey]: { lat: nearestCoords[0], lng: nearestCoords[1] } };
+        if (updated.start_coordinates?.lat && updated.end_coordinates?.lat) {
           try {
-            const dist = calculateDistanceBetweenCoords(
+            updated.length = calculateDistanceBetweenCoords(
               [parseFloat(updated.start_coordinates.lat), parseFloat(updated.start_coordinates.lng)],
               [parseFloat(updated.end_coordinates.lat), parseFloat(updated.end_coordinates.lng)]
             );
-            updated.length = dist;
           } catch (e) {
-            // Optionally show error, but don't block
             window.alert('Failed to calculate distance: ' + (e?.message || e || 'Unknown error'));
           }
         }
@@ -94,187 +71,80 @@ function TempRoads({
       });
       setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
     } catch (error) {
-      // Show error message if nearest node lookup fails
-      window.alert(
-        'Failed to get nearest node coordinates: ' + (error?.message || error || 'Unknown error')
-      );
+      window.alert('Failed to get nearest node coordinates: ' + (error?.message || error || 'Unknown error'));
       setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
     }
   };
-  
-  // Register the handler with parent on mount
+
   useEffect(() => {
-    if (onNodeSelectionHandler) {
-      onNodeSelectionHandler(handleNodeSelectionInternal);
-    }
+    if (onNodeSelectionHandler) onNodeSelectionHandler(handleNodeSelectionInternal);
   }, [onNodeSelectionHandler, handleNodeSelectionInternal]);
 
   useEffect(() => {
-    if (status === 'idle') {
-      dispatch(fetchTempRoads());
-    }
+    if (status === 'idle') dispatch(fetchTempRoads());
   }, [status, dispatch]);
 
   useEffect(() => {
-    if (onVisibleRoadsChange) {
-      onVisibleRoadsChange(visibleRoads);
-    }
+    if (onVisibleRoadsChange) onVisibleRoadsChange(visibleRoads);
   }, [visibleRoads, onVisibleRoadsChange]);
 
   useEffect(() => {
-    if (onNodeSelectionModeChange) {
-      onNodeSelectionModeChange(nodeSelectionMode);
-    }
+    if (onNodeSelectionModeChange) onNodeSelectionModeChange(nodeSelectionMode);
   }, [nodeSelectionMode, onNodeSelectionModeChange]);
 
-  // Add states for form data management
-  const [addFormData, setAddFormData] = useState({
-    name: '',
-    type: 'iceroad',
-    speed: '',
-    length: '',
-    start_coordinates: { lat: '', lng: '' },
-    end_coordinates: { lat: '', lng: '' },
-    description: ''
-  });
+  const [addFormData, setAddFormData] = useState({ name: '', type: 'iceroad', speed: '', length: '', start_coordinates: { lat: '', lng: '' }, end_coordinates: { lat: '', lng: '' }, description: '' });
+  const [editFormData, setEditFormData] = useState({ name: '', type: 'iceroad', speed: '', length: '', start_coordinates: { lat: '', lng: '' }, end_coordinates: { lat: '', lng: '' }, description: '' });
 
-  const [editFormData, setEditFormData] = useState({
-    name: '',
-    type: 'iceroad',
-    speed: '',
-    length: '',
-    start_coordinates: { lat: '', lng: '' },
-    end_coordinates: { lat: '', lng: '' },
-    description: ''
-  });
-
-  const handleSelectRoad = (id) => {
-    dispatch(selectRoad(id));
-  };
+  const handleSelectRoad = (id) => dispatch(selectRoad(id));
 
   const showOnMap = (road) => {
     setVisibleRoads(prev => {
       const newSet = new Set(prev);
-      const roadId = road.id;
-      
-      if (newSet.has(roadId)) {
-        newSet.delete(roadId);
-      } else {
-        newSet.add(roadId);
-      }
-      
+      newSet.has(road.id) ? newSet.delete(road.id) : newSet.add(road.id);
       return newSet;
     });
-    
     dispatch(selectRoad(road.id));
   };
 
-  const cancelNodeSelection = () => {
-    setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
-  };
-
+  const cancelNodeSelection = () => setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
   const cancelEdit = () => {
     setEditingRoadId(null);
-    setEditFormData({
-      name: '',
-      type: 'iceroad',
-      speed: '',
-      length: '',
-      start_coordinates: { lat: '', lng: '' },
-      end_coordinates: { lat: '', lng: '' },
-      description: ''
-    });
+    setEditFormData({ name: '', type: 'iceroad', speed: '', length: '', start_coordinates: { lat: '', lng: '' }, end_coordinates: { lat: '', lng: '' }, description: '' });
     setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
   };
-
   const resetAddForm = () => {
-    setAddFormData({
-      name: '',
-      type: 'iceroad',
-      speed: '',
-      length: '',
-      start_coordinates: { lat: '', lng: '' },
-      end_coordinates: { lat: '', lng: '' },
-      description: ''
-    });
+    setAddFormData({ name: '', type: 'iceroad', speed: '', length: '', start_coordinates: { lat: '', lng: '' }, end_coordinates: { lat: '', lng: '' }, description: '' });
     setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
   };
 
-  if (status === 'loading') {
-    return <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>;
-  }
+  if (status === 'loading') return <div className="loading">Loading...</div>;
 
-  // Roads List
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Header with title and add button */}
-      <div style={{ 
-        padding: '15px 20px', 
-        borderBottom: '1px solid #e5e5e5',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        backgroundColor: '#f8f9fa'
-      }}>
-        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: '#333' }}>
-          Temporary Roads
-        </h3>
+    <div className="temp-roads-container">
+      <div className="temp-roads-header">
+        <h3>Temporary Roads</h3>
         <button
           onClick={() => {
             setShowAddForm(!showAddForm);
-            if (!showAddForm) {
-              cancelEdit();
-            }
+            if (!showAddForm) cancelEdit();
           }}
           disabled={editingRoadId !== null}
-          style={{
-            background: editingRoadId !== null ? '#6c757d' : '#4285f4',
-            color: 'white',
-            border: 'none',
-            padding: '8px 16px',
-            borderRadius: '4px',
-            fontSize: '14px',
-            cursor: editingRoadId !== null ? 'not-allowed' : 'pointer',
-            fontWeight: '500',
-            opacity: editingRoadId !== null ? 0.5 : 1
-          }}
+          className="add-button"
         >
           {showAddForm ? '×' : 'add new'}
         </button>
       </div>
 
-      {/* Node Selection Mode Indicator */}
       {nodeSelectionMode.active && (
-        <div style={{ 
-          padding: '10px 20px',
-          backgroundColor: '#fff3cd',
-          borderBottom: '1px solid #ffeaa7',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <span style={{ fontSize: '14px', color: '#856404' }}>
+        <div className="node-selection-indicator">
+          <span>
             📍 Click on the map to select {nodeSelectionMode.selecting} node
             {nodeSelectionMode.isEditMode && ' (editing mode)'}
           </span>
-          <button
-            onClick={cancelNodeSelection}
-            style={{
-              background: '#6c757d',
-              color: 'white',
-              border: 'none',
-              padding: '4px 8px',
-              borderRadius: '4px',
-              fontSize: '12px',
-              cursor: 'pointer'
-            }}
-          >
-            Cancel
-          </button>
+          <button onClick={cancelNodeSelection}>Cancel</button>
         </div>
       )}
 
-      {/* Add Form */}
       {showAddForm && (
         <TempRoadForm 
           mode="add"
@@ -289,35 +159,22 @@ function TempRoads({
         />
       )}
 
-      {/* Roads List */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0' }}>
+      <div className="temp-roads-list">
         {Array.isArray(tempRoads) && tempRoads.length === 0 ? (
-          <div style={{ 
-            padding: '40px 20px', 
-            textAlign: 'center', 
-            color: '#999',
-            fontStyle: 'italic',
-            fontSize: '14px'
-          }}>
-            No temporary roads yet
-          </div>
+          <div className="no-roads">No temporary roads yet</div>
         ) : (
           <>
-            <div>
-               <input
+            <div className="temp-roads-filter">
+              <input
                 type="text"
                 placeholder="Filter by name or tag..."
                 className="search-temproads"
-                onChange={(e) => {
-                  setSearchTerm(e.target.value.toLowerCase());
-                }}
+                onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
               />
               <select
                 className="filter-temproads"
                 value={filterType}
-                onChange={(e) => {
-                  setFilterType(e.target.value);
-                }}
+                onChange={(e) => setFilterType(e.target.value)}
               >
                 <option value="all">Show All Types</option>
                 <option value="iceroad">Show Ice Roads</option>
@@ -327,11 +184,8 @@ function TempRoads({
             </div>
             <div>
               {Array.isArray(filteredTempRoads) && filteredTempRoads.length > 0 ? (
-                filteredTempRoads.map(road => {
-                  if (!road) {
-                    return null;
-                  }
-                  return (
+                filteredTempRoads.map(road => (
+                  road && (
                     <TempRoadItem
                       key={road.id}
                       road={road}
@@ -344,12 +198,8 @@ function TempRoads({
                       onSelectRoad={handleSelectRoad}
                       onStartEdit={(roadId) => {
                         setEditingRoadId(roadId);
-                        // Initialize edit form with road data
                         const road = tempRoads.find(r => r.id === roadId);
-                        if (!road) {
-                          console.error('[TempRoads] Could not find road with id', roadId, 'in tempRoads:', tempRoads);
-                          return;
-                        }
+                        if (!road) return;
                         setEditFormData({
                           name: road.name || '',
                           type: road.type || 'iceroad',
@@ -369,10 +219,10 @@ function TempRoads({
                       onNodeCoordinatesChange={setNodeCoordinates}
                       onNodeSelectionModeChange={setNodeSelectionMode}
                     />
-                  );
-                })
+                  )
+                ))
               ) : (
-                <div style={{ padding: '20px', color: '#999' }}>No roads to display</div>
+                <div className="no-roads">No roads to display</div>
               )}
             </div>
           </>

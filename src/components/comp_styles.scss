@@ -2,6 +2,116 @@
   --primary-blue: #166FE5;
 }
 
+.button-base {
+  background-color: var(--primary-blue);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s, transform 0.1s;
+
+  &:hover {
+    background-color: #125bcc;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+// Yhtenäistetyt napit
+.temp-roads-header .add-button,
+.node-selection-indicator button,
+.limit-actions .action-button,
+.profile-button,
+.disconnection-button,
+.retry-button,
+.modal-close {
+  @extend .button-base;
+}
+
+// TempRoads-komponentin tyylit
+.temp-roads-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.2;
+  }
+}
+
+.node-selection-indicator button {
+  font-size: 12px;
+  padding: 4px 8px;
+  background-color: #6c757d;
+
+  &:hover {
+    background-color: #5a6268;
+  }
+}
+
+.limit-actions .action-button {
+  font-size: 12px;
+  padding: 6px 12px;
+}
+
+.profile-button {
+  display: block;
+  margin: 20px auto 0 auto;
+}
+
+.disconnection-button {
+  font-size: 13px;
+  border-radius: 8px;
+  align-self: flex-end;
+
+  &:hover {
+    background-color: #3367d6;
+  }
+}
+
+.retry-button {
+  display: block;
+  margin: 10px auto 0 auto;
+  padding: 8px 16px;
+}
+
+.modal-close {
+  background: none;
+  font-size: 28px;
+  font-weight: bold;
+  color: #666;
+  line-height: 1;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 0;
+  border-radius: 0;
+
+  &:hover {
+    color: #333;
+    background: none;
+  }
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+// Peruslayout
 #body {
   min-height: 250px;
   height: 100vh;
@@ -30,7 +140,7 @@
 .route-list-container {
   display: flex;
   flex-direction: row;
-  gap: 40px; 
+  gap: 40px;
   align-items: center;
   justify-content: center;
   width: 100%;
@@ -42,7 +152,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: auto; // Tämä takaa keskityksen riippumatta sisällön määrästä
+  width: auto;
   margin-bottom: 10px;
 
   strong {
@@ -82,7 +192,7 @@
   display: flex;
   gap: 15px;
   align-items: center;
-  z-index: 1001; // Ensure icons are above other elements
+  z-index: 1001;
 }
 
 .header-title {
@@ -98,7 +208,7 @@
   font-weight: bold;
   font-size: 16px;
   color: white;
-  pointer-events: none; // estää klikkauksen keskiosaan
+  pointer-events: none;
 }
 
 .header-select-wrapper {
@@ -117,35 +227,18 @@
   }
 }
 
+// DisconnectionModal-komponentin tyylit
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.4); // tumma läpinäkyvä tausta
+  background-color: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-}
-
-.modal-close {
-  all: unset;
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: none;
-  border: none;
-  font-size: 28px;
-  font-weight: bold;
-  color: #666; // harmaa väri
-  cursor: pointer;
-  line-height: 1;
-
-  &:hover {
-    color: #333; // tummempi hover-efekti
-  }
 }
 
 .custom-modal-content {
@@ -154,148 +247,122 @@
   border-radius: 12px;
   padding: 24px 32px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  max-height: 80vh;
+  overflow-y: auto;
   text-align: center;
-  min-width: 320px;
-  background: white;
-  width: 400px;
-  max-height: 500px;
-  overflow-y: auto;
 }
 
-.scrollable-list {
-  max-height: 300px;
-  overflow-y: auto;
-  border: 1px solid #ccc;
-  padding: 0.5rem;
-  margin-top: 1rem;
-}
-
-.custom-modal-content h3 {
-  color: var(--primary-blue);
-  margin-bottom: 20px;
-}
-
-.profile-options label {
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-  font-weight: bold;
-  color: #333;
-}
-
-.profile-options select {
-  margin-top: 4px;
-  margin-bottom: 12px;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-}
-
-.profile-button {
-  padding: 12px 20px;
-  font-size: 16px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  background-color: var(--primary-blue);
-  color: white;
-  transition: background-color 0.2s;
-
-  &:hover {
-  background-color: #125bcc;
-}
-}
-
-.temp-road-icon {
-  width: 40px;
-  height: 40px;
-  display: flex;
+.custom-modal-content .search-container {
+  display: flex !important;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
   align-items: center;
+}
+
+.modal-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+.modal-description {
+  margin: 0 0 1rem 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.modal-filters {
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  background: #007bff;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 18px;
-  transition: background-color 0.2s, transform 0.1s;
-  user-select: none;
-  
-  &:hover {
-    background: #0056b3;
-    transform: scale(1.05);
-  }
-  
-  &:active {
-    transform: scale(0.95);
-  }
+  gap: 1rem;
+  margin-bottom: 1rem;
 
-}
-  .disconnection-button {
-    background-color: var(--primary-blue);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 6px 12px;
-    font-size: 13px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background-color 0.2s;
+  label {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #333;
 
-  &:hover {
-    background-color: #3367d6;
-  }
-}
+    .modal-input.small {
+      margin-left: 0.5rem;
+      width: 80px;
+      padding: 6px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
 
-.search-disconnections {
-  font-family: inherit;
-  font-size: 14px;
-  line-height: 1.5;
-  color: #333;
-  background-color: #f9f9f9;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 8px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: border-color 0.2s;
-  max-width: 400px;
-  width: 100%;
-
-  &:focus {
-    outline: none;
-    border-color: var(--primary-blue);
-  }
-}
-
-.filter-dropdown {
-  font-family: inherit;
-  font-size: 14px;
-  line-height: 1.5;
-  color: #333;
-  background-color: #f9f9f9;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 8px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: border-color 0.2s;
-  max-width: 200px;
-  width: 100%;
-
-  &:focus {
-    outline: none;
-    border-color: var(--primary-blue);
+    .modal-checkbox {
+      margin-left: 0.5rem;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
   }
 }
 
 .button-container {
-  margin-bottom: 0.3rem;
   display: flex;
-  justify-content: center;
-  gap: 8px;
+  gap: 10px;
+  margin-bottom: 1rem;
 }
 
-.search-container {
-  margin-top: 0.3rem; // Ensure spacing above the search bar
+.disconnection-button {
+  @extend .button-base;
+  font-size: 14px;
+  border-radius: 6px;
+
+  &.disabled {
+    background-color: #ddd;
+    color: #666;
+  }
+
+  &.delete-temp {
+    background-color: #d9534f;
+
+    &:hover {
+      background-color: darken(#d9534f, 10%);
+    }
+  }
+}
+
+.filter-temproads,
+.filter-dropdown,
+.filter-select {
+  background-color: #f9f9f9;
+  color: #333;   
+  border: 2px solid var(--primary-blue);
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 14px;
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+  }
+}
+
+.disconnection-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+
+  th, td {
+    text-align: center;
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+  }
+
+  th {
+    background: #f1f1f1;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  tr:hover {
+    background: #fafafa;
+  }
 }
 
 // Limits Display Styles
@@ -377,73 +444,40 @@
       &:focus {
         outline: none;
         border-color: #007bff;
-        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
       }
 
       &::placeholder {
         color: #999;
       }
-    }
-
-    .filter-select {
-      flex: 1;
-      min-width: 120px; 
-      padding: 8px 12px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 14px;
-      background: white;
-      cursor: pointer;
-
-      &:focus {
-        outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-      }
-
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-      background-image: url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%23666' d='M0 0l5 5 5-5z'/></svg>");
-      background-repeat: no-repeat;
-      background-position: right 8px center;
-      padding-right: 30px;
-    }
-
-    @media (max-width: 600px) {
-      flex-direction: column;
-      
-      .search-input,
-      .filter-select {
-        flex: none;
-        width: 100%;
-      }
-    }
+    }  
   }
 
   .limits-list {
     flex: 1;
     overflow-y: auto;
-    
+
     &::-webkit-scrollbar {
       width: 6px;
     }
-    
+
     &::-webkit-scrollbar-track {
       background: #f1f1f1;
     }
-    
+
     &::-webkit-scrollbar-thumb {
-      background: #c1c1c1;
+      background: #c1f1c1;
       border-radius: 3px;
     }
-    
+
     &::-webkit-scrollbar-thumb:hover {
       background: #a8a8a8;
     }
   }
 
-  .loading-state, .error-state, .empty-state {
+  .loading-state,
+  .error-state,
+  .empty-state {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -451,29 +485,9 @@
     padding: 40px 20px;
     text-align: center;
     color: #666;
-    
+
     p {
       margin: 0 0 10px 0;
-    }
-  }
-
-  .retry-button {
-    margin-top: 10px;
-    padding: 8px 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-
-    &:hover {
-      background-color: #0056b3;
-    }
-
-    &:focus {
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5);
     }
   }
 }
@@ -528,45 +542,5 @@
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
-
-    .action-button {
-      padding: 6px 12px;
-      border: none;
-      border-radius: 4px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-weight: 500;
-
-      &.show-coordinates-btn {
-        background-color: #28a745;
-        color: white;
-
-        &:hover {
-          background-color: #218838;
-          transform: translateY(-1px);
-        }
-
-        &:focus {
-          outline: none;
-          box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.5);
-        }
-      }
-
-      &.show-on-map-btn {
-        background-color: #007bff;
-        color: white;
-
-        &:hover {
-          background-color: #0056b3;
-          transform: translateY(-1px);
-        }
-
-        &:focus {
-          outline: none;
-          box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5);
-        }
-      }
-    }
   }
 }
