@@ -67,8 +67,8 @@ const LimitsDisplay = ({ isOpen }) => {
     
     if (limit.maxweight && vehicleClass.weight_cutoff) {
       const limitWeight = parseFloat(limit.maxweight);
-      const vehicleWeight = parseFloat(vehicleClass.weight_cutoff);
-      if (vehicleWeight > limitWeight) {
+      const vehicleWeightInTons = parseFloat(vehicleClass.weight_cutoff) / 1000; // Convert vehicle weight from kg to tons
+      if (vehicleWeightInTons > limitWeight) {
         isRestricted = true;
       }
     }
@@ -168,7 +168,7 @@ const LimitsDisplay = ({ isOpen }) => {
               >
                 <span className="vehicle-name">{vehicle.name}</span>
                 <span className="vehicle-limits">
-                  H:{vehicle.height_cutoff} W:{vehicle.weight_cutoff}
+                  H:{vehicle.height_cutoff} W:{(vehicle.weight_cutoff / 1000).toFixed(1)}
                 </span>
               </div>
             ))}
@@ -182,7 +182,7 @@ const LimitsDisplay = ({ isOpen }) => {
                 marginTop: '8px' 
               }}>
                 Showing roads that would restrict {selectedVehicleClass.name} 
-                (H:{selectedVehicleClass.height_cutoff}, W:{selectedVehicleClass.weight_cutoff})
+                (H:{selectedVehicleClass.height_cutoff}, W:{(selectedVehicleClass.weight_cutoff / 1000).toFixed(1)})
               </p>
               <button
                 onClick={() => setSelectedVehicleClass(null)}

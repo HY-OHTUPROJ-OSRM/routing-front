@@ -8,8 +8,15 @@ const LimitItem = ({ limit, onShowOnMap, selectedVehicleClass }) => {
   const { visibleLimitIds } = useSelector(state => state.limits);
   const isOnMap = visibleLimitIds.includes(limit.id);
 
-  const formatValue = (value) => {
+  const formatValue = (value, type) => {
     if (!value) return 'N/A';
+    
+    // Add units for display
+    if (type === 'height') {
+      return `${value} m`;
+    } else if (type === 'weight') {
+      return `${value} t`;
+    }
     return value;
   };
 
@@ -33,13 +40,13 @@ const LimitItem = ({ limit, onShowOnMap, selectedVehicleClass }) => {
     
     if (limit.maxweight && selectedVehicleClass.weight_cutoff) {
       const limitWeight = parseFloat(limit.maxweight);
-      const vehicleWeight = parseFloat(selectedVehicleClass.weight_cutoff);
-      if (vehicleWeight > limitWeight) {
+      const vehicleWeightInTons = parseFloat(selectedVehicleClass.weight_cutoff) / 1000; // Convert vehicle weight from kg to tons
+      if (vehicleWeightInTons > limitWeight) {
         restrictions.push({
           type: 'weight',
-          vehicleValue: vehicleWeight,
+          vehicleValue: vehicleWeightInTons,
           limitValue: limitWeight,
-          difference: (vehicleWeight - limitWeight).toFixed(0)
+          difference: (vehicleWeightInTons - limitWeight).toFixed(1)
         });
       }
     }
@@ -89,7 +96,7 @@ const LimitItem = ({ limit, onShowOnMap, selectedVehicleClass }) => {
         {limit.maxheight && (
           <div className="limit-detail">
             <span className="limit-label">Max Height:</span>
-            <span className="limit-value">{formatValue(limit.maxheight)}</span>
+            <span className="limit-value">{formatValue(limit.maxheight, 'height')}</span>
             {restrictions && restrictions.find(r => r.type === 'height') && (
               <span className="restriction-detail" style={{
                 color: '#dc3545',
@@ -97,8 +104,8 @@ const LimitItem = ({ limit, onShowOnMap, selectedVehicleClass }) => {
                 marginLeft: '8px',
                 fontWeight: 'bold'
               }}>
-                (Vehicle: {restrictions.find(r => r.type === 'height').vehicleValue}, 
-                Exceeds by: {restrictions.find(r => r.type === 'height').difference})
+                (Vehicle: {restrictions.find(r => r.type === 'height').vehicleValue} m, 
+                Exceeds by: {restrictions.find(r => r.type === 'height').difference} m)
               </span>
             )}
           </div>
@@ -107,7 +114,7 @@ const LimitItem = ({ limit, onShowOnMap, selectedVehicleClass }) => {
         {limit.maxweight && (
           <div className="limit-detail">
             <span className="limit-label">Max Weight:</span>
-            <span className="limit-value">{formatValue(limit.maxweight)}</span>
+            <span className="limit-value">{formatValue(limit.maxweight, 'weight')}</span>
             {restrictions && restrictions.find(r => r.type === 'weight') && (
               <span className="restriction-detail" style={{
                 color: '#dc3545',
@@ -115,8 +122,8 @@ const LimitItem = ({ limit, onShowOnMap, selectedVehicleClass }) => {
                 marginLeft: '8px',
                 fontWeight: 'bold'
               }}>
-                (Vehicle: {restrictions.find(r => r.type === 'weight').vehicleValue}, 
-                Exceeds by: {restrictions.find(r => r.type === 'weight').difference})
+                (Vehicle: {restrictions.find(r => r.type === 'weight').vehicleValue} t, 
+                Exceeds by: {restrictions.find(r => r.type === 'weight').difference} t)
               </span>
             )}
           </div>
@@ -146,7 +153,7 @@ const LimitItem = ({ limit, onShowOnMap, selectedVehicleClass }) => {
             {restrictions.map((restriction, index) => (
               <li key={index}>
                 {restriction.type === 'height' ? 'Height' : 'Weight'} limit exceeded by {restriction.difference}
-                {restriction.type === 'height' ? ' units' : ' units'}
+                {restriction.type === 'height' ? ' m' : ' t'}
               </li>
             ))}
           </ul>
