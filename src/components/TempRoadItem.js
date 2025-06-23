@@ -200,15 +200,6 @@ function TempRoadItem({
               </span>
             </div>
             <div style={{ display: 'flex', gap: '5px' }}>
-              {visibleRoads.has(road.id) && (
-                <span style={{ 
-                  color: '#28a745', 
-                  fontSize: '16px',
-                  title: 'Visible on map'
-                }}>
-                  👁️
-                </span>
-              )}
               {/* Edit Button */}
               <button
                 onClick={(e) => {
