@@ -40,7 +40,8 @@ const LimitItem = ({ limit, onShowOnMap, selectedVehicleClass }) => {
     
     if (limit.maxweight && selectedVehicleClass.weight_cutoff) {
       const limitWeight = parseFloat(limit.maxweight);
-      const vehicleWeightInTons = parseFloat(selectedVehicleClass.weight_cutoff) / 1000; // Convert vehicle weight from kg to tons
+      // Convert vehicle weight from kg to tons for comparison
+      const vehicleWeightInTons = parseFloat(selectedVehicleClass.weight_cutoff) / 1000;
       if (vehicleWeightInTons > limitWeight) {
         restrictions.push({
           type: 'weight',
@@ -97,17 +98,6 @@ const LimitItem = ({ limit, onShowOnMap, selectedVehicleClass }) => {
           <div className="limit-detail">
             <span className="limit-label">Max Height:</span>
             <span className="limit-value">{formatValue(limit.maxheight, 'height')}</span>
-            {restrictions && restrictions.find(r => r.type === 'height') && (
-              <span className="restriction-detail" style={{
-                color: '#dc3545',
-                fontSize: '11px',
-                marginLeft: '8px',
-                fontWeight: 'bold'
-              }}>
-                (Vehicle: {restrictions.find(r => r.type === 'height').vehicleValue} m, 
-                Exceeds by: {restrictions.find(r => r.type === 'height').difference} m)
-              </span>
-            )}
           </div>
         )}
         
@@ -115,17 +105,6 @@ const LimitItem = ({ limit, onShowOnMap, selectedVehicleClass }) => {
           <div className="limit-detail">
             <span className="limit-label">Max Weight:</span>
             <span className="limit-value">{formatValue(limit.maxweight, 'weight')}</span>
-            {restrictions && restrictions.find(r => r.type === 'weight') && (
-              <span className="restriction-detail" style={{
-                color: '#dc3545',
-                fontSize: '11px',
-                marginLeft: '8px',
-                fontWeight: 'bold'
-              }}>
-                (Vehicle: {restrictions.find(r => r.type === 'weight').vehicleValue} t, 
-                Exceeds by: {restrictions.find(r => r.type === 'weight').difference} t)
-              </span>
-            )}
           </div>
         )}
         
@@ -146,17 +125,17 @@ const LimitItem = ({ limit, onShowOnMap, selectedVehicleClass }) => {
           marginTop: '8px',
           fontSize: '12px'
         }}>
-          <strong style={{ color: '#856404' }}>
-            ⚠️ This road restricts {selectedVehicleClass.name}:
-          </strong>
-          <ul style={{ margin: '4px 0', paddingLeft: '16px', color: '#856404' }}>
-            {restrictions.map((restriction, index) => (
-              <li key={index}>
-                {restriction.type === 'height' ? 'Height' : 'Weight'} limit exceeded by {restriction.difference}
+          {restrictions.map((restriction, index) => (
+            <div key={index}>
+              <strong style={{ color: '#856404', whiteSpace: 'nowrap' }}>
+                ⚠️ {selectedVehicleClass.name}: {restriction.vehicleValue}{restriction.type === 'height' ? ' m' : ' t'}
+              </strong>
+              <div style={{ marginTop: '4px', color: '#856404', whiteSpace: 'nowrap' }}>
+                {restriction.type === 'height' ? 'Height' : 'Weight'} limit exceeded by: {restriction.difference}
                 {restriction.type === 'height' ? ' m' : ' t'}
-              </li>
-            ))}
-          </ul>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

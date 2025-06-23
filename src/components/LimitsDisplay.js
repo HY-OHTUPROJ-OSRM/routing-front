@@ -67,7 +67,8 @@ const LimitsDisplay = ({ isOpen }) => {
     
     if (limit.maxweight && vehicleClass.weight_cutoff) {
       const limitWeight = parseFloat(limit.maxweight);
-      const vehicleWeightInTons = parseFloat(vehicleClass.weight_cutoff) / 1000; // Convert vehicle weight from kg to tons
+      // Convert vehicle weight from kg to tons for comparison
+      const vehicleWeightInTons = parseFloat(vehicleClass.weight_cutoff) / 1000;
       if (vehicleWeightInTons > limitWeight) {
         isRestricted = true;
       }
@@ -133,11 +134,6 @@ const LimitsDisplay = ({ isOpen }) => {
         <h3>Weight & Height Limits</h3>
         <p className="limits-count">
           Found {filteredLimits.length} roads with limits
-          {selectedVehicleClass && (
-            <span style={{ color: '#ff6b35', fontWeight: 'bold' }}>
-              {" "}(restricted for {selectedVehicleClass.name})
-            </span>
-          )}
           {visibleLimitIds.length > 0 && (
             <span style={{ color: '#28a745', fontWeight: 'bold' }}>
               {" "}({visibleLimitIds.length} shown on map)
@@ -175,30 +171,6 @@ const LimitsDisplay = ({ isOpen }) => {
           </div>
           {selectedVehicleClass && (
             <div className="selected-vehicle-info">
-              <p style={{ 
-                fontSize: '12px', 
-                color: '#666', 
-                fontStyle: 'italic',
-                marginTop: '8px' 
-              }}>
-                Showing roads that would restrict {selectedVehicleClass.name} 
-                (H:{selectedVehicleClass.height_cutoff}, W:{(selectedVehicleClass.weight_cutoff / 1000).toFixed(1)})
-              </p>
-              <button
-                onClick={() => setSelectedVehicleClass(null)}
-                style={{
-                  fontSize: '11px',
-                  padding: '2px 6px',
-                  backgroundColor: '#6c757d',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '3px',
-                  cursor: 'pointer',
-                  marginTop: '4px'
-                }}
-              >
-                Clear Selection
-              </button>
             </div>
           )}
         </div>
