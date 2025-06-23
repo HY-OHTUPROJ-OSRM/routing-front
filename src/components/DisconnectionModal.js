@@ -48,13 +48,17 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
       if (addTempRoad.fulfilled.match(resultAction)) {
         console.log("✅ AddTempRoad called via disconnection list", resultAction.payload);
         const newTempId = resultAction.payload.id; // 🆔 temp-road ID
-          try {
-            await attachTempRoadToDisconnection(disconnection.id, newTempId);
-            await handleGetDisconnections();
-            console.log("📝 Disconnection", disconnection.id, "updated with temp_road_id", newTempId);
-          } catch (linkErr) {
+        try {
+          await attachTempRoadToDisconnection(disconnection.id, newTempId, disconnection.updated_at);
+          await handleGetDisconnections();
+          console.log("📝 Disconnection", disconnection.id, "updated with temp_road_id", newTempId);
+        } catch (linkErr) {
+          if (linkErr?.response?.status === 409) {
+            alert("Conflict: This disconnection was modified by another user. Please refresh the list and try again.");
+          } else {
             console.error("Failed to attach temp road to disconnection", linkErr);
           }
+        }
       } else {
         console.error("❌ Failed to call addTempRoad via disconnection list", resultAction);
       }
@@ -63,14 +67,17 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
     }
   };
 
+  const tempRoads = useSelector(state => state.tempRoads.list);
+
   const handleDeleteTempRoad = async (disconnection) => {
-    console.log("Deleting temp road for disconnection:", disconnection);
-    if (!disconnection.temp_road_id) return;
-
+    const tempRoad = tempRoads.find(r => r.id === disconnection.temp_road_id);
+    if (!tempRoad) {
+      alert("Temporary road not found in state.");
+      return;
+    }
     const resultAction = await dispatch(
-      deleteTempRoadAsync(disconnection.temp_road_id)
+      deleteTempRoadAsync({ id: tempRoad.id, updated_at: tempRoad.updated_at })
     );
-
     if (deleteTempRoadAsync.fulfilled.match(resultAction)) {
       console.log("🗑️ Temp road deleted successfully", resultAction.payload);
       await handleGetDisconnections();
@@ -147,11 +154,15 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
 
   const handleToggleHideStatus = async (disc) => {
     try {
-      await toggleHideStatus(disc.id);
+      await toggleHideStatus(disc.id, disc.updated_at);
       console.log("📝 Disconnection", disc.id, "updated hide status");
       await handleGetDisconnections();
     } catch (err) {
-      console.error("toggleHideStatus failed:", err);
+      if (err?.response?.status === 409) {
+        alert("Conflict: This disconnection was modified by another user. Please refresh the list and try again.");
+      } else {
+        console.error("toggleHideStatus failed:", err);
+      }
     }
   };
 
@@ -334,7 +345,7 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
                   {/* Ei lajittelua näissä kahdessa */}
                   <th style={{ textAlign: "center", borderBottom: "1px solid #ccc", padding: "8px" }}>Show</th>
                   <th style={{ textAlign: "center", borderBottom: "1px solid #ccc", padding: "8px" }}>Add</th>
-                  <th style={{ textAlign:"center", borderBottom:"1px solid #ccc" }}>Hide</th>
+                  <th style={{ textAlign: "center", borderBottom: "1px solid #ccc" }}>Hide</th>
                 </tr>
               </thead>
 

@@ -28,12 +28,15 @@ export const getDisconnections = async (minDistance, maxDistance, isSameName) =>
   }
 };
 
-export const attachTempRoadToDisconnection = (discId, tempRoadId) => {
+export const attachTempRoadToDisconnection = (discId, tempRoadId, updatedAt) => {
   return ins.patch(`disconnected_links/${discId}`, {
     temp_road_id: tempRoadId,
+    updated_at: updatedAt,
   });
 };
 
-export const toggleHideStatus = (discId) => {
-  return ins.patch(`disconnected_links/${discId}/hide`);
+export const toggleHideStatus = (discId, updatedAt) => {
+  return ins.patch(`disconnected_links/${discId}/hide`, {
+    updated_at: updatedAt,
+  });
 };
