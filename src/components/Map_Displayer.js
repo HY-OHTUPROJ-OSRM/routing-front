@@ -157,18 +157,19 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     const createLimitIcon = (limit) => {
         const iconHtml = `
             <div style="
-                background: ${limit.maxheight ? '#ff6b6b' : '#4ecdc4'};
+                background: ${limit.maxheight ? '#ff4757' : '#2ed573'};
                 color: white;
                 border-radius: 50%;
-                width: 30px;
-                height: 30px;
+                width: 40px;
+                height: 40px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 font-weight: bold;
-                font-size: 12px;
-                border: 2px solid white;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                font-size: 16px;
+                border: 3px solid white;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+                animation: pulse 2s infinite;
             ">
                 ${limit.maxheight ? 'H' : 'W'}
             </div>
@@ -177,9 +178,9 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         return L.divIcon({
             html: iconHtml,
             className: 'limit-marker',
-            iconSize: [30, 30],
-            iconAnchor: [15, 15],
-            popupAnchor: [0, -15]
+            iconSize: [40, 40],
+            iconAnchor: [20, 20],
+            popupAnchor: [0, -20]
         });
     };
 
@@ -239,7 +240,8 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                 return null;
             }
 
-            const limitColor = limit.maxheight ? '#ff6b6b' : '#4ecdc4';
+            const limitColor = limit.maxheight ? '#ff4757' : '#2ed573'; 
+            const shadowColor = limit.maxheight ? '#ff3742' : '#20bf6b'; 
 
             const isClosedPolygon = positions.length > 2 && 
                 positions[0][0] === positions[positions.length - 1][0] && 
@@ -247,22 +249,42 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
 
             if (isClosedPolygon) {
                 return (
-                    <Polygon
-                        key={`limit-polygon-${limit.id}`}
-                        positions={positions}
-                        pathOptions={{
-                            color: limitColor,
-                            fillColor: limitColor,
-                            fillOpacity: 0.3,
-                            weight: 3,
-                            opacity: 0.8
-                        }}
-                        eventHandlers={{
-                            click: () => {
-                                console.log('Clicked limit polygon:', limit);
-                            }
-                        }}
-                    >
+                    <React.Fragment key={`limit-polygon-${limit.id}`}>
+                        <Polygon
+                            positions={positions}
+                            pathOptions={{
+                                color: limitColor,
+                                fillColor: limitColor,
+                                fillOpacity: 0.15,
+                                weight: 8,
+                                opacity: 0.4,
+                                dashArray: null
+                            }}
+                            eventHandlers={{
+                                click: () => {
+                                    console.log('Clicked limit polygon:', limit);
+                                }
+                            }}
+                        />
+
+                        <Polygon
+                            positions={positions}
+                            pathOptions={{
+                                color: limitColor,
+                                fillColor: limitColor,
+                                fillOpacity: 0.4,
+                                weight: 6,
+                                opacity: 1,
+                                dashArray: '10, 5',
+                                lineCap: 'round',
+                                lineJoin: 'round',
+                            }}
+                            eventHandlers={{
+                                click: () => {
+                                    console.log('Clicked limit polygon outline:', limit);
+                                }
+                            }}
+                        >
                         <Tooltip>
                             <div>
                                 <strong>Road ID: {limit.id}</strong><br/>
@@ -271,21 +293,41 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                             </div>
                         </Tooltip>
                     </Polygon>
+                </React.Fragment>
                 );
             } else {
                 return (
+                    <React.Fragment key={`limit-line-${limit.id}`}>
+                        <Polyline
+                            positions={positions}
+                            pathOptions={{
+                                color: limitColor,
+                                weight: 10,
+                                opacity: 0.4,
+                                lineCap: 'round',
+                                lineJoin: 'round',
+                            }}
+                            eventHandlers={{
+                                click: () => {
+                                    console.log('Clicked limit line:', limit);
+                                }
+                            }}
+                        />
                     <Polyline
-                        key={`limit-line-${limit.id}`}
                         positions={positions}
                         pathOptions={{
                             color: limitColor,
-                            weight: 4,
-                            opacity: 0.8
+                            weight: 6,
+                            opacity: 1,
+                            dashArray: '10, 5',
+                            lineCap: 'round',
+                            lineJoin: 'round',
+                            className: 'limit-line-animated'
                         }}
                         eventHandlers={{
                             click: () => {
-                                console.log('Clicked limit line:', limit);
-                            }
+                                console.log('Clicked limit line outline:', limit);
+                            }  
                         }}
                     >
                         <Tooltip>
@@ -296,6 +338,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                             </div>
                         </Tooltip>
                     </Polyline>
+                    </React.Fragment>
                 );
             }
         });
