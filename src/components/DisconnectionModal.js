@@ -8,6 +8,7 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
   const [disconnections, setDisconnections] = useState([]);
   const [filteredDisconnections, setFilteredDisconnections] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: "startId", dir: "asc" });
+  const [hasMapDisconnections, setHasMapDisconnections] = useState(false);
 
   // Inputs
   const [minDist, setMinDist] = useState(0);
@@ -163,8 +164,16 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
 
         <div className="button-container">
           <button onClick={handleGetDisconnections} className="disconnection-button">Get disconnections</button>
-          <button onClick={disconnectedRoadRef.current[1]} className="disconnection-button">Delete disconnections</button>
-          <button onClick={disconnectedRoadRef.current[2]} className="disconnection-button">Set nodelist</button>
+          <button
+            onClick={() => {
+              disconnectedRoadRef.current?.[1]();
+              setHasMapDisconnections(false);
+            }}
+            className={`disconnection-button${!hasMapDisconnections ? ' disabled' : ''}`}
+            disabled={!hasMapDisconnections}
+          >
+            Clear disconnections from map
+          </button>
         </div>
 
         {disconnections.length > 0 && (
@@ -220,12 +229,18 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
                     <td>{Number(item.distance).toFixed(1)} m</td>
                     <td>{item.county_name}</td>
                     <td>
-                      <button className="disconnection-button" onClick={() => disconnectedRoadRef.current[0]({
-                        a_lat: item.startNode.lat,
-                        a_lng: item.startNode.lon,
-                        b_lat: item.endNode.lat,
-                        b_lng: item.endNode.lon
-                      })}>
+                      <button
+                        className="disconnection-button"
+                        onClick={() => {
+                          disconnectedRoadRef.current[0]({
+                            a_lat: item.startNode.lat,
+                            a_lng: item.startNode.lon,
+                            b_lat: item.endNode.lat,
+                            b_lng: item.endNode.lon
+                          });
+                          setHasMapDisconnections(true);
+                        }}
+                      >
                         Show on map
                       </button>
                     </td>
