@@ -239,10 +239,19 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
                     </td>
                     <td>
                       {item.temp_road_id
-                        ? <button className="disconnection-button disabled" disabled>Patched</button>
-                        : <button className="disconnection-button" onClick={() => handleToggleHideStatus(item)}>
+                        ? (
+                          <button className="disconnection-button disabled" disabled>
+                            Patched
+                          </button>
+                        )
+                        : (
+                          <button
+                            className={`disconnection-button ${item.hide_status ? 'delete-temp' : ''}`}
+                            onClick={() => handleToggleHideStatus(item)}
+                          >
                             {item.hide_status ? "Show" : "Hide"}
                           </button>
+                        )
                       }
                     </td>
                   </tr>
