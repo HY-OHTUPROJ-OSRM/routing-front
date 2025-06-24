@@ -32,11 +32,11 @@
 .profile-button,
 .disconnection-button,
 .retry-button,
-.modal-close {
+.modal-close,
+.temp-road-button {
   @extend .button-base;
 }
 
-// TempRoads-komponentin tyylit
 .temp-roads-header {
   display: flex;
   justify-content: space-between;
@@ -49,6 +49,13 @@
     color: #333;
     line-height: 1.2;
   }
+}
+
+.temp-roads-filter {
+  display: flex;
+  flex-direction: column; 
+  row-gap: 10px;
+  margin-top: 20px;
 }
 
 .node-selection-indicator button {
@@ -261,6 +268,7 @@
   flex-wrap: nowrap;
   gap: 0.5rem;
   align-items: center;
+  margin-bottom: 10px;
 }
 
 .modal-title {
@@ -554,5 +562,153 @@
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+  }
+}
+
+// Styles for TempRoadItem component
+
+.temp-road-item {
+  padding: 15px 20px;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &.editing {
+    background-color: #f0f8ff; // Light blue
+    border-left: 4px solid #17a2b8; // Teal border
+  }
+
+  &.selected {
+    background-color: #e3f2fd; // Light primary
+    border-left: 4px solid #4285f4; // Blue border
+  }
+
+  &[data-status="inactive"] {
+    opacity: 0.6;
+  }
+
+  .temp-road-header {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 8px;
+
+    .road-type {
+      font-size: 13px;
+      color: #6c757d;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .road-name {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      line-height: 1.2;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      margin-bottom: 8px;
+    }
+
+    .road-status-buttons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .status-badge {
+        font-size: 12px;
+        padding: 2px 6px;
+        border-radius: 12px;
+        font-weight: 500;
+
+        &.active {
+          background-color: #d4edda;
+          color: #155724;
+        }
+
+        &.inactive {
+          background-color: #f8d7da;
+          color: #721c24;
+        }
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 5px;
+      }
+    }
+  }
+
+  .speed-info,
+  .length-info {
+    font-size: 13px;
+    color: #333;
+    margin-bottom: 8px;
+
+    &.speed-info {
+      font-weight: 500;
+    }
+  }
+
+  .action-buttons-group {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+
+  // Use existing .temp-road-button class for button styles
+  .temp-road-button.show-toggle {
+    background-color: #17a2b8;
+    color: #fff;
+    &:hover:not(:disabled) {
+      background-color: darken(#17a2b8, 10%);
+    }
+  }
+
+  .temp-road-button.map-toggle {
+    background-color: #28a745;
+    color: #fff;
+    &:hover:not(:disabled) {
+      background-color: darken(#28a745, 10%);
+    }
+  }
+
+  .temp-road-button.small-button {
+    background-color: transparent
+  }
+
+  .coordinates-display {
+    margin-top: 12px;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+
+    .coordinates-header {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .coordinates-body {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      div {
+        font-size: 13px;
+        color: #555;
+
+        strong {
+          margin-right: 8px;
+          color: #333;
+        }
+      }
+    }
   }
 }
