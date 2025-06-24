@@ -43,7 +43,7 @@ function TempRoadForm({
     e.preventDefault();
 
     // Round to one decimal for speed, three decimals for length
-    const rawSpeed = parseFloat(formData.speed) || 0;
+    const rawSpeed = parseFloat(formData.speed) || defaultSpeed;
     const rawLength = parseFloat(formData.length) || 0;
     const speed = Math.round(rawSpeed * 10) / 10;
     const length = Math.round(rawLength * 1000) / 1000;
