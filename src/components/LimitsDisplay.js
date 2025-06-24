@@ -7,7 +7,7 @@ import {
   addLimitToMap,
   clearMapLimits
 } from "../features/limits/LimitsSlice";
-import { changeListView } from '../features/view/ViewSlice';
+import { changeMapView } from '../features/view/ViewSlice';
 import LimitItem from "./Limits";
 import "./comp_styles.scss";
 
@@ -26,27 +26,88 @@ const LimitsDisplay = ({ isOpen }) => {
   }, [dispatch, isOpen]);
 
   const handleShowOnMap = (limit) => {
-    console.log('Show on map:', limit);
-    
     dispatch(addLimitToMap(limit.id));
     
     if (limit.coordinates && limit.coordinates.length > 0) {
-      const centerLat = limit.coordinates.reduce((sum, coord) => sum + coord[1], 0) / limit.coordinates.length;
-      const centerLng = limit.coordinates.reduce((sum, coord) => sum + coord[0], 0) / limit.coordinates.length;
-      
-      dispatch(changeListView({
+      let centerLat, centerLng, zoom = 16;
+
+      if (limit.coordinates.length === 1) {
+        const [lngStr, latStr] = limit.coordinates[0];
+        const lng = parseFloat(lngStr);
+        const lat = parseFloat(latStr);
+        
+        if (!isNaN(lng) && !isNaN(lat)) {
+          centerLng = lng;
+          centerLat = lat;
+          zoom = 18; 
+        } else {
+          console.error('Invalid single point coordinates:', limit.coordinates[0]);
+          return;
+        }
+      } else {
+        try {
+          const validCoords = limit.coordinates
+            .map(coord => {
+              if (Array.isArray(coord) && coord.length >= 2) {
+                const lng = parseFloat(coord[0]);
+                const lat = parseFloat(coord[1]);
+                return [lng, lat];
+              }
+              return null;
+            })
+            .filter(coord => 
+              coord !== null && 
+              !isNaN(coord[0]) && 
+              !isNaN(coord[1])
+            );
+
+          if (validCoords.length === 0) {
+            console.error('No valid coordinates found for limit:', limit.id);
+            return;
+          }
+
+          centerLat = validCoords.reduce((sum, coord) => sum + coord[1], 0) / validCoords.length;
+          centerLng = validCoords.reduce((sum, coord) => sum + coord[0], 0) / validCoords.length;
+
+          const latValues = validCoords.map(coord => coord[1]);
+          const lngValues = validCoords.map(coord => coord[0]);
+          const latRange = Math.max(...latValues) - Math.min(...latValues);
+          const lngRange = Math.max(...lngValues) - Math.min(...lngValues);
+          const maxRange = Math.max(latRange, lngRange);
+
+          if (maxRange < 0.001) zoom = 18;
+          else if (maxRange < 0.005) zoom = 16;
+          else if (maxRange < 0.01) zoom = 15;
+          else if (maxRange < 0.05) zoom = 14;
+          else zoom = 13;
+        } catch (error) {
+          console.error('Error calculating center coordinates:', error);
+          return;
+        }
+      }
+
+      if (typeof centerLat !== 'number' || typeof centerLng !== 'number' || 
+          isNaN(centerLat) || isNaN(centerLng)) {
+        console.error('Invalid calculated coordinates for limit:', limit.id);
+        return;
+      }
+
+      dispatch(changeMapView({
         center: [centerLat, centerLng],
-        zoom: 16
+        zoom: zoom,
+        animationOptions: { 
+          duration: 1.5, 
+          easeLinearity: 0.1 
+        },
+        timestamp: Date.now()
       }));
     }
   };
 
   const handleVehicleClassSelect = (vehicleClass) => {
     if (selectedVehicleClass && selectedVehicleClass.id === vehicleClass.id) {
-      // If clicking the same class, deselect it
       setSelectedVehicleClass(null);
     } else {
-      // Select the new class
       setSelectedVehicleClass(vehicleClass);
     }
   };
@@ -54,7 +115,6 @@ const LimitsDisplay = ({ isOpen }) => {
   const checkLimitRestrictsVehicle = (limit, vehicleClass) => {
     if (!vehicleClass) return false;
     
-    // Check if the limit would restrict this vehicle class
     let isRestricted = false;
     
     if (limit.maxheight && vehicleClass.height_cutoff) {
@@ -67,7 +127,6 @@ const LimitsDisplay = ({ isOpen }) => {
     
     if (limit.maxweight && vehicleClass.weight_cutoff) {
       const limitWeight = parseFloat(limit.maxweight);
-      // Convert vehicle weight from kg to tons for comparison
       const vehicleWeightInTons = parseFloat(vehicleClass.weight_cutoff) / 1000;
       if (vehicleWeightInTons > limitWeight) {
         isRestricted = true;
@@ -169,10 +228,6 @@ const LimitsDisplay = ({ isOpen }) => {
               </div>
             ))}
           </div>
-          {selectedVehicleClass && (
-            <div className="selected-vehicle-info">
-            </div>
-          )}
         </div>
       )}
 
@@ -187,10 +242,7 @@ const LimitsDisplay = ({ isOpen }) => {
         
         <select 
           value={filterType}
-          onChange={(e) => {
-            console.log('Filter changed to:', e.target.value);
-            setFilterType(e.target.value);
-          }}
+          onChange={(e) => setFilterType(e.target.value)}
           className="filter-select"
           style={{ 
             minWidth: '120px',

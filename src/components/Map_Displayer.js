@@ -19,7 +19,7 @@ import { showTimedAlert } from '../Utils/dispatchUtility';
 import { intersectSelf } from '../services/Intersect_self';
 import { getColorAndOpacity } from '../services/PolygonVisualService';
 import {startti_icon, desti_icon, dis_icon} from './leafletHTMLIcon';
-import { changeListView } from '../features/view/ViewSlice';
+import { changeMapView, changeListView } from '../features/view/ViewSlice';
 import VectorTileLayer from "react-leaflet-vector-tile-layer";
 import roadStyle from '../roadStyle';
 import { refreshTileLayer } from '../features/map/tileLayerSlice';
@@ -192,7 +192,15 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
             }
 
             if (limit.coordinates.length === 1) {
-                const [lng, lat] = limit.coordinates[0];
+                const [lngStr, latStr] = limit.coordinates[0];
+                const lng = parseFloat(lngStr);
+                const lat = parseFloat(latStr);
+                
+                if (isNaN(lng) || isNaN(lat)) {
+                    console.error('Invalid coordinates for limit', limit.id);
+                    return null;
+                }
+                
                 return (
                     <Marker
                         key={`limit-marker-${limit.id}`}
@@ -215,7 +223,22 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                 );
             }
 
-            const positions = limit.coordinates.map(coord => [coord[1], coord[0]]);
+            const positions = limit.coordinates
+                .map(coord => {
+                    if (Array.isArray(coord) && coord.length >= 2) {
+                        const lng = parseFloat(coord[0]);
+                        const lat = parseFloat(coord[1]);
+                        return [lat, lng];
+                    }
+                    return null;
+                })
+                .filter(coord => coord !== null && !isNaN(coord[0]) && !isNaN(coord[1]));
+
+            if (positions.length === 0) {
+                console.error('No valid positions for limit', limit.id);
+                return null;
+            }
+
             const limitColor = limit.maxheight ? '#ff6b6b' : '#4ecdc4';
 
             const isClosedPolygon = positions.length > 2 && 
@@ -532,7 +555,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     // Used when changing to editmode
     const enableEditMode = () => {
         if (!isOpen) {
-            dispatch(changeListView(null));
+            dispatch(changeMapView(null));
             setSidebar(true)
         }
         setEditing(true);
@@ -592,7 +615,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
     const cancelEdits = () => {
         // Remove all tracked faults as data resets on cancel
         dispatch(setFaults({id: 0, type: 2}));
-        dispatch(changeListView(null));
+        dispatch(changeMapView(null));
         setEditing(false);
         setEditMode(false);
         setLines(0);
@@ -633,7 +656,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
 
     // Used when saving edits. sends all added/deleted polygons to the backend and updates the map with new polygons and new route
     const saveEdits = async () => {
-        dispatch(changeListView(null));
+        dispatch(changeMapView(null));
         const added = Object.values(modifiedPolygons).filter(zone => 
             Object.keys(sendIds).includes(String(zone.properties.id)) &&
             !Object.keys(calcelEditIds).includes(String(zone.properties.id))
@@ -801,19 +824,40 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
         editRef.current.startPolygon()
     }
 
-    // Used to change view to the center of the selected polygon/line
-    function handleOnFlyTo() {
-        const { leafletElement: map } = mapRef;
-        if (mapView.center !== undefined){
-            mapRef.current.flyTo(mapView.center, mapView.zoom, {
-                duration: 1
-            });
+    const handleOnFlyTo = () => {
+        const map = mapRef.current;
+        
+        if (mapView && mapView.center && Array.isArray(mapView.center) && mapView.center.length === 2 && map) {
+            const [lat, lng] = mapView.center;
+            const zoom = mapView.zoom;
+            
+            if (typeof lat === 'number' && typeof lng === 'number' && 
+                !isNaN(lat) && !isNaN(lng) && 
+                typeof zoom === 'number' && !isNaN(zoom)) {
+                
+                const animationOptions = {
+                    durantion: 1,
+                    easeLinearity: 0.25,
+                    ...(mapView.animationOptions || {})
+                };
+
+                try {
+                    map.flyTo([lat, lng], zoom, animationOptions);
+                } catch (error) {
+                    console.error('Error calling flyTo:', error);
+                }
+            }
         }
-    }
-    
+    };
+
     useEffect(() => {
-        handleOnFlyTo();
-    }, [mapView]);
+        if (mapView && mapView.center && Array.isArray(mapView.center) && mapView.center.length === 2) {
+            const [lat, lng] = mapView.center;
+            if (typeof lat === 'number' && typeof lng === 'number' && !isNaN(lat) && !isNaN(lng)) {
+                handleOnFlyTo();
+            }
+        }
+    }, [mapView, mapView?.center, mapView?.zoom, mapView?.timestamp]);
     
     // Used to place start and destination positions on the map when user clicks on the map
     const ClickHandler = () => {
