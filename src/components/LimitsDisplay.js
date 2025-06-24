@@ -17,6 +17,7 @@ const LimitsDisplay = ({ isOpen }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [selectedVehicleClass, setSelectedVehicleClass] = useState(null);
+  const [showCoordinatesForLimit, setShowCoordinatesForLimit] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -110,6 +111,10 @@ const LimitsDisplay = ({ isOpen }) => {
     } else {
       setSelectedVehicleClass(vehicleClass);
     }
+  };
+
+  const handleShowCoordinates = (limitId) => {
+    setShowCoordinatesForLimit(limitId);
   };
 
   const checkLimitRestrictsVehicle = (limit, vehicleClass) => {
@@ -291,6 +296,8 @@ const LimitsDisplay = ({ isOpen }) => {
               onShowOnMap={handleShowOnMap}
               isOnMap={visibleLimitIds.includes(limit.id)}
               selectedVehicleClass={selectedVehicleClass}
+              showCoordinatesForLimit={showCoordinatesForLimit}
+              onShowCoordinates={handleShowCoordinates}
             />
           ))
         )}
