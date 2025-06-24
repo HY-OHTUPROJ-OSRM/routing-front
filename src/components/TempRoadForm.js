@@ -284,6 +284,7 @@ function TempRoadForm({
               name="speed"
               value={formData.speed}
               onChange={handleChange}
+              min={0}
               style={{
                 width: '100%',
                 padding: '8px 12px',
@@ -302,7 +303,8 @@ function TempRoadForm({
               name="length"
               value={formData.length}
               onChange={handleChange}
-              step="0.01"
+              min={0}
+              step="0.1"
               style={{
                 width: '100%',
                 padding: '8px 12px',
