@@ -92,8 +92,27 @@ function TempRoads({
     if (onNodeSelectionModeChange) onNodeSelectionModeChange(nodeSelectionMode);
   }, [nodeSelectionMode, onNodeSelectionModeChange]);
 
-  const [addFormData, setAddFormData] = useState({ name: '', type: 'iceroad', speed: '', length: '', start_coordinates: { lat: '', lng: '' }, end_coordinates: { lat: '', lng: '' }, description: '' });
-  const [editFormData, setEditFormData] = useState({ name: '', type: 'iceroad', speed: '', length: '', start_coordinates: { lat: '', lng: '' }, end_coordinates: { lat: '', lng: '' }, description: '' });
+  const [addFormData, setAddFormData] = useState({ 
+    name: '', 
+    type: 'iceroad', 
+    direction: 2,
+    speed: '', 
+    length: '', 
+    start_coordinates: { lat: '', lng: '' }, 
+    end_coordinates: { lat: '', lng: '' }, 
+    description: '' 
+  });
+  
+  const [editFormData, setEditFormData] = useState({ 
+    name: '', 
+    type: 'iceroad', 
+    direction: 2,
+    speed: '', 
+    length: '', 
+    start_coordinates: { lat: '', lng: '' }, 
+    end_coordinates: { lat: '', lng: '' }, 
+    description: '' 
+  });
 
   const handleSelectRoad = (id) => dispatch(selectRoad(id));
 
@@ -107,13 +126,33 @@ function TempRoads({
   };
 
   const cancelNodeSelection = () => setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
+  
   const cancelEdit = () => {
     setEditingRoadId(null);
-    setEditFormData({ name: '', type: 'iceroad', speed: '', length: '', start_coordinates: { lat: '', lng: '' }, end_coordinates: { lat: '', lng: '' }, description: '' });
+    setEditFormData({ 
+      name: '', 
+      type: 'iceroad', 
+      direction: 2, 
+      speed: '', 
+      length: '', 
+      start_coordinates: { lat: '', lng: '' }, 
+      end_coordinates: { lat: '', lng: '' }, 
+      description: '' 
+    });
     setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
   };
+  
   const resetAddForm = () => {
-    setAddFormData({ name: '', type: 'iceroad', speed: '', length: '', start_coordinates: { lat: '', lng: '' }, end_coordinates: { lat: '', lng: '' }, description: '' });
+    setAddFormData({ 
+      name: '', 
+      type: 'iceroad', 
+      direction: 2, 
+      speed: '', 
+      length: '', 
+      start_coordinates: { lat: '', lng: '' }, 
+      end_coordinates: { lat: '', lng: '' }, 
+      description: '' 
+    });
     setNodeSelectionMode({ active: false, selecting: null, isEditMode: false });
   };
 
@@ -203,6 +242,7 @@ function TempRoads({
                         setEditFormData({
                           name: road.name || '',
                           type: road.type || 'iceroad',
+                          direction: road.direction || 2,
                           speed: road.speed?.toString() || '',
                           length: road.length?.toString() || '',
                           start_coordinates: road.start_coordinates || { lat: '', lng: '' },

@@ -18,6 +18,13 @@ function TempRoadForm({
 }) {
   const dispatch = useDispatch();
 
+
+  const directionOptions = [
+    { value: 2, label: 'Bidirectional', icon: '↔️', description: 'Default' },
+    { value: 4, label: 'Forward', icon: '➡️', description: 'One-way forward' },
+    { value: 3, label: 'Backward', icon: '⬅️', description: 'One-way backward' }
+  ];
+
   const handleCoordChange = (type, field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -34,6 +41,8 @@ function TempRoadForm({
       handleCoordChange('start_coordinates', name.endsWith('lat') ? 'lat' : 'lng', value);
     } else if (name === 'end_lat' || name === 'end_lng') {
       handleCoordChange('end_coordinates', name.endsWith('lat') ? 'lat' : 'lng', value);
+    } else if (name === 'direction') {
+      setFormData({ ...formData, [name]: parseInt(value) });
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -60,6 +69,7 @@ function TempRoadForm({
       ...formData,
       speed,
       length,
+      direction: formData.direction || 2,
       start_coordinates: {
         lat: parseFloat(formData.start_coordinates.lat),
         lng: parseFloat(formData.start_coordinates.lng)
@@ -117,6 +127,26 @@ function TempRoadForm({
           <option value="speed_limit">Speed Limit</option>
           <option value="temporary">Temporary</option>
         </select>
+
+        <label htmlFor="direction-select">Direction</label>
+        <div className="direction-selector">
+          {directionOptions.map(option => (
+            <label key={option.value} className="direction-option">
+              <input
+                type="radio"
+                name="direction"
+                value={option.value}
+                checked={formData.direction === option.value}
+                onChange={handleChange}
+              />
+              <span className="direction-icon">{option.icon}</span>
+              <span className="direction-label">
+                {option.label}
+                {option.value === 2 && <span className="default-badge">({option.description})</span>}
+              </span>
+            </label>
+          ))}
+        </div>
 
         <fieldset className="coord-group">
           <legend>Start Coordinates</legend>

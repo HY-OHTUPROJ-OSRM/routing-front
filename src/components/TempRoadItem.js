@@ -31,6 +31,15 @@ function TempRoadItem({
     setIsEditing(editingRoadId === road.id);
   }, [editingRoadId, road.id]);
 
+  const getDirectionDisplay = (direction) => {
+    switch(direction) {
+      case 2: return { text: 'Bidirection', icon: '↔️' };
+      case 3: return { text: 'Backward', icon:'⬅️' };
+      case 4: return { text: 'Forward', icon: '➡️' };
+      default: return { text: 'Bidirection', icon: '↔️' };
+    }
+  };
+
   const calculateCenter = (startCoords, endCoords) => {
     const centerLat = (startCoords.lat + endCoords.lat) / 2;
     const centerLng = (startCoords.lng + endCoords.lng) / 2;
@@ -112,6 +121,8 @@ function TempRoadItem({
     }
   };
 
+  const directionDisplay = getDirectionDisplay(road.direction);
+
   return (
     <div
       className={`temp-road-item ${isEditing ? 'editing' : ''} ${selectedRoadId === road.id ? 'selected' : ''}`}
@@ -158,8 +169,14 @@ function TempRoadItem({
             </div>
           </div>
 
-          {road.speed > 0 && <div className="speed-info">Speed limit: {road.speed} Km/h</div>}
-          {road.length > 0 && <div className="length-info">Length: {road.length} km</div>}
+          {/* 显示道路信息，包括新增的方向信息 */}
+          <div className="road-info">
+            {road.speed > 0 && <div className="speed-info">Speed limit: {road.speed} Km/h</div>}
+            {road.length > 0 && <div className="length-info">Length: {road.length} km</div>}
+            <div className="direction-info">
+              Direction: <span className="direction-icon">{directionDisplay.icon}</span> {directionDisplay.text}
+            </div>
+          </div>
 
           <div className="action-buttons-group">
             <button
