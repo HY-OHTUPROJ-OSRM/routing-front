@@ -3,13 +3,20 @@ import { useDispatch, useSelector } from "react-redux";
 import { removeLimitFromMap } from "../features/limits/LimitsSlice";
 import "./comp_styles.scss";
 
-const LimitItem = ({ limit, onShowOnMap, selectedVehicleClass }) => {
+const LimitItem = ({ limit, onShowOnMap, selectedVehicleClass, showCoordinatesForLimit, onShowCoordinates }) => {
   const dispatch = useDispatch();
   const { visibleLimitIds } = useSelector(state => state.limits);
   const isOnMap = visibleLimitIds.includes(limit.id);
 
-  const formatValue = (value) => {
+  const formatValue = (value, type) => {
     if (!value) return 'N/A';
+    
+    // Add units for display
+    if (type === 'height') {
+      return `${value} m`;
+    } else if (type === 'weight') {
+      return `${value} t`;
+    }
     return value;
   };
 
@@ -33,13 +40,14 @@ const LimitItem = ({ limit, onShowOnMap, selectedVehicleClass }) => {
     
     if (limit.maxweight && selectedVehicleClass.weight_cutoff) {
       const limitWeight = parseFloat(limit.maxweight);
-      const vehicleWeight = parseFloat(selectedVehicleClass.weight_cutoff);
-      if (vehicleWeight > limitWeight) {
+      // Convert vehicle weight from kg to tons for comparison
+      const vehicleWeightInTons = parseFloat(selectedVehicleClass.weight_cutoff) / 1000;
+      if (vehicleWeightInTons > limitWeight) {
         restrictions.push({
           type: 'weight',
-          vehicleValue: vehicleWeight,
+          vehicleValue: vehicleWeightInTons,
           limitValue: limitWeight,
-          difference: (vehicleWeight - limitWeight).toFixed(0)
+          difference: (vehicleWeightInTons - limitWeight).toFixed(1)
         });
       }
     }
@@ -89,36 +97,14 @@ const LimitItem = ({ limit, onShowOnMap, selectedVehicleClass }) => {
         {limit.maxheight && (
           <div className="limit-detail">
             <span className="limit-label">Max Height:</span>
-            <span className="limit-value">{formatValue(limit.maxheight)}</span>
-            {restrictions && restrictions.find(r => r.type === 'height') && (
-              <span className="restriction-detail" style={{
-                color: '#dc3545',
-                fontSize: '11px',
-                marginLeft: '8px',
-                fontWeight: 'bold'
-              }}>
-                (Vehicle: {restrictions.find(r => r.type === 'height').vehicleValue}, 
-                Exceeds by: {restrictions.find(r => r.type === 'height').difference})
-              </span>
-            )}
+            <span className="limit-value">{formatValue(limit.maxheight, 'height')}</span>
           </div>
         )}
         
         {limit.maxweight && (
           <div className="limit-detail">
             <span className="limit-label">Max Weight:</span>
-            <span className="limit-value">{formatValue(limit.maxweight)}</span>
-            {restrictions && restrictions.find(r => r.type === 'weight') && (
-              <span className="restriction-detail" style={{
-                color: '#dc3545',
-                fontSize: '11px',
-                marginLeft: '8px',
-                fontWeight: 'bold'
-              }}>
-                (Vehicle: {restrictions.find(r => r.type === 'weight').vehicleValue}, 
-                Exceeds by: {restrictions.find(r => r.type === 'weight').difference})
-              </span>
-            )}
+            <span className="limit-value">{formatValue(limit.maxweight, 'weight')}</span>
           </div>
         )}
         
@@ -139,17 +125,17 @@ const LimitItem = ({ limit, onShowOnMap, selectedVehicleClass }) => {
           marginTop: '8px',
           fontSize: '12px'
         }}>
-          <strong style={{ color: '#856404' }}>
-            ⚠️ This road restricts {selectedVehicleClass.name}:
-          </strong>
-          <ul style={{ margin: '4px 0', paddingLeft: '16px', color: '#856404' }}>
-            {restrictions.map((restriction, index) => (
-              <li key={index}>
-                {restriction.type === 'height' ? 'Height' : 'Weight'} limit exceeded by {restriction.difference}
-                {restriction.type === 'height' ? ' units' : ' units'}
-              </li>
-            ))}
-          </ul>
+          {restrictions.map((restriction, index) => (
+            <div key={index}>
+              <strong style={{ color: '#856404', whiteSpace: 'nowrap' }}>
+                ⚠️ {selectedVehicleClass.name}: {restriction.vehicleValue}{restriction.type === 'height' ? ' m' : ' t'}
+              </strong>
+              <div style={{ marginTop: '4px', color: '#856404', whiteSpace: 'nowrap' }}>
+                {restriction.type === 'height' ? 'Height' : 'Weight'} limit exceeded by: {restriction.difference}
+                {restriction.type === 'height' ? ' m' : ' t'}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
@@ -157,11 +143,12 @@ const LimitItem = ({ limit, onShowOnMap, selectedVehicleClass }) => {
         <button 
           className="action-button show-coordinates-btn"
           onClick={() => {
-            console.log('Coordinates:', limit.coordinates);
-            alert(`Coordinates for Road ${limit.id}:\n${JSON.stringify(limit.coordinates, null, 2)}`);
+            if (onShowCoordinates) {
+              onShowCoordinates(showCoordinatesForLimit === limit.id ? null : limit.id);
+            }
           }}
         >
-          Show Coordinates
+          {showCoordinatesForLimit === limit.id ? 'Hide Coordinates' : 'Show Coordinates'}
         </button>
         
         {!isOnMap ? (
@@ -184,6 +171,61 @@ const LimitItem = ({ limit, onShowOnMap, selectedVehicleClass }) => {
           </button>
         )}
       </div>
+
+      {/* Coordinates Display - Similar to TempRoadItem */}
+      {showCoordinatesForLimit === limit.id && limit.coordinates && (
+        <div style={{
+          marginTop: '12px',
+          padding: '12px',
+          backgroundColor: '#f8f9fa',
+          borderRadius: '4px',
+          border: '1px solid #dee2e6'
+        }}>
+          <div style={{
+            fontSize: '14px',
+            fontWeight: '600',
+            color: '#333',
+            marginBottom: '8px'
+          }}>
+            Coordinates ({limit.coordinates.length} points):
+          </div>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '4px',
+            maxHeight: '200px',
+            overflowY: 'auto'
+          }}>
+            {limit.coordinates.map((coord, index) => {
+              // Handle different coordinate formats
+              let lat, lng;
+              if (Array.isArray(coord) && coord.length >= 2) {
+                // Assuming [lng, lat] format (GeoJSON standard)
+                [lng, lat] = coord;
+              } else if (coord.lat !== undefined && coord.lng !== undefined) {
+                // Object format {lat: x, lng: y}
+                lat = coord.lat;
+                lng = coord.lng;
+              } else {
+                return (
+                  <div key={index} style={{ fontSize: '13px', color: '#dc3545' }}>
+                    Point {index + 1}: Invalid coordinate format
+                  </div>
+                );
+              }
+
+              return (
+                <div key={index} style={{ fontSize: '13px', color: '#555' }}>
+                  <strong>Point {index + 1}:</strong>
+                  <span style={{ marginLeft: '8px', color: '#333' }}>
+                    Lat: {parseFloat(lat).toFixed(6)}, Lng: {parseFloat(lng).toFixed(6)}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
