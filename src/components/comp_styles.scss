@@ -800,3 +800,77 @@
     }
   }
 }
+
+// Form styles
+.temp-road-form {
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+
+  .form-title {
+    margin: 0 0 15px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #17a2b8;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .form-body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .temp-road-input {
+    background-color: #fff;  
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px 12px;
+
+    &::placeholder {
+      color: #999;
+    }
+  }
+
+  // Remove spinner arrows on coordinate number inputs only
+  .coord-input::-webkit-outer-spin-button,
+  .coord-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .coord-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    legend {
+      font-size: 14px;
+      font-weight: 500;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    .coord-input {
+      width: 100%;
+    }
+
+    .coord-select-button {
+      @extend .temp-road-button;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+
+    .temp-road-button {
+      @extend .temp-road-button;
+      flex: 1;
+    }
+  }
+}
+

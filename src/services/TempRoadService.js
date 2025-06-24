@@ -78,7 +78,7 @@ const calculateDistanceBetweenCoords = (coord1, coord2) => {
   const from = turfPoint([coord1[1], coord1[0]]);
   const to = turfPoint([coord2[1], coord2[0]]);
   // Returns distance in kilometers by default
-  return Math.round(turfDistance(from, to, { units: 'kilometers' }) * 100) / 100;
+  return Math.round(turfDistance(from, to, { units: 'kilometers' }) * 1000) / 1000;
 };
 
 // Returns the coordinates [lat, lng] of the nearest node to the given coordinates
