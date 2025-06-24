@@ -47,7 +47,7 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
       type: "temporary",
       status: true,
       speed: 50,
-      length: Number(parseFloat(disc.distance).toFixed(1)),
+      length: Number((parseFloat(disc.distance) / 1000).toFixed(3)),
       tags: ["from_disconnection_ui"],
       description: ""
     };
