@@ -3,7 +3,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { removeLimitFromMap } from "../features/limits/LimitsSlice";
 import "./comp_styles.scss";
 
-const LimitItem = ({ limit, onShowOnMap, selectedVehicleClass, showCoordinatesForLimit, onShowCoordinates }) => {
+const LimitItem = ({ 
+  limit, 
+  onShowOnMap, 
+  selectedVehicleClass, 
+  showCoordinatesForLimit, 
+  onShowCoordinates,
+  isHighlighted = false
+}) => {
   const dispatch = useDispatch();
   const { visibleLimitIds } = useSelector(state => state.limits);
   const isOnMap = visibleLimitIds.includes(limit.id);
@@ -60,11 +67,42 @@ const LimitItem = ({ limit, onShowOnMap, selectedVehicleClass, showCoordinatesFo
 
   if (!hasLimits) return null;
 
+  const getHighlightStyle = () => {
+    if (!isHighlighted) return {};
+    
+    return {
+      backgroundColor: '#fff3cd',
+      border: '3px solid #ffc107',
+      borderRadius: '8px',
+      boxShadow: '0 0 15px rgba(255, 193, 7, 0.5)',
+      transform: 'scale(1.02)',
+      transition: 'all 0.3s ease'
+    };
+  };
+
   return (
-    <div className={`limit-item ${isOnMap ? 'on-map' : ''} ${restrictions ? 'restricted' : ''}`}>
+    <div 
+      id={`limit-item-${limit.id}`} 
+      className={`limit-item ${isOnMap ? 'on-map' : ''} ${restrictions ? 'restricted' : ''} ${isHighlighted ? 'highlighted' : ''}`}
+      style={getHighlightStyle()}
+    >
       <div className="limit-item-header">
         <h4>Road ID: {limit.id}</h4>
         <div className="header-indicators">
+          {isHighlighted && (
+            <span className="highlight-indicator" style={{
+              background: '#ffc107',
+              color: '#212529',
+              padding: '2px 6px',
+              borderRadius: '10px',
+              fontSize: '10px',
+              fontWeight: 'bold',
+              marginRight: '4px',
+              animation: 'pulse 1s infinite'
+            }}>
+              ⭐ SELECTED
+            </span>
+          )}
           {restrictions && (
             <span className="restriction-indicator" style={{
               background: '#dc3545',

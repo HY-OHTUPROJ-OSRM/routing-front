@@ -191,6 +191,15 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
             if (!limit.coordinates || limit.coordinates.length === 0) {
                 return null;
             }
+            
+            const handleLimitClick = () => {
+                console.log('Limit clicked:', limit);
+
+                const event = new CustomEvent('limitMapClicked', {
+                    detail: { limitId: limit.id }
+                });
+                window.dispatchEvent(event);
+            };
 
             if (limit.coordinates.length === 1) {
                 const [lngStr, latStr] = limit.coordinates[0];
@@ -208,9 +217,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                         position={[lat, lng]}
                         icon={createLimitIcon(limit)}
                         eventHandlers={{
-                            click: () => {
-                                console.log('Clicked limit:', limit);
-                            }
+                            click: handleLimitClick 
                         }}
                     >
                         <Tooltip>
@@ -261,9 +268,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                                 dashArray: null
                             }}
                             eventHandlers={{
-                                click: () => {
-                                    console.log('Clicked limit polygon:', limit);
-                                }
+                                click: handleLimitClick 
                             }}
                         />
 
@@ -308,9 +313,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                                 lineJoin: 'round',
                             }}
                             eventHandlers={{
-                                click: () => {
-                                    console.log('Clicked limit line:', limit);
-                                }
+                                click: handleLimitClick
                             }}
                         />
                     <Polyline
@@ -325,9 +328,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
                             className: 'limit-line-animated'
                         }}
                         eventHandlers={{
-                            click: () => {
-                                console.log('Clicked limit line outline:', limit);
-                            }  
+                            click: handleLimitClick
                         }}
                     >
                         <Tooltip>
