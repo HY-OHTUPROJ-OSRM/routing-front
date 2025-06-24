@@ -18,6 +18,35 @@ const LimitsDisplay = ({ isOpen }) => {
   const [filterType, setFilterType] = useState("all");
   const [selectedVehicleClass, setSelectedVehicleClass] = useState(null);
   const [showCoordinatesForLimit, setShowCoordinatesForLimit] = useState(null);
+  const [highlightedLimitId, setHighlightedLimitId] = useState(null);
+
+  useEffect(() => {
+    const handleLimitMapClick = (event) => {
+      const { limitId } = event.detail;
+      
+      setHighlightedLimitId(limitId);
+      
+      setTimeout(() => {
+        const limitElement = document.getElementById(`limit-item-${limitId}`);
+        if (limitElement) {
+          limitElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+        }
+      }, 100);
+      
+      setTimeout(() => {
+        setHighlightedLimitId(null);
+      }, 3000);
+    };
+
+    window.addEventListener('limitMapClicked', handleLimitMapClick);
+    
+    return () => {
+      window.removeEventListener('limitMapClicked', handleLimitMapClick);
+    };
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -292,6 +321,7 @@ const LimitsDisplay = ({ isOpen }) => {
               selectedVehicleClass={selectedVehicleClass}
               showCoordinatesForLimit={showCoordinatesForLimit}
               onShowCoordinates={handleShowCoordinates}
+              isHighlighted={highlightedLimitId === limit.id}
             />
           ))
         )}
