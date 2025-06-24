@@ -62,11 +62,11 @@ const updateTempRoad = async (id, updates) => {
   });
 };
 
-const toggleTempRoad = async (id) =>
+const toggleTempRoad = async (id, updated_at) =>
   apiCallWithAlert({
     alertText: 'Toggling road status...',
     successText: 'Status toggled successfully',
-    apiCall: () => ins({ url: `temps/${id}/toggle`, method: 'post', headers: { 'content-type': 'application/json' } }),
+    apiCall: () => ins({ url: `temps/${id}/toggle`, method: 'post', data: { updated_at }, headers: { 'content-type': 'application/json' } }),
     onErrorReturn: null
   });
 

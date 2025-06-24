@@ -102,7 +102,7 @@ function TempRoadItem({
   const handleToggle = (roadId, currentStatus) => {
     const action = currentStatus ? 'deactivate' : 'activate';
     if (window.confirm(`Are you sure you want to ${action} this road segment?`)) {
-      dispatch(toggleTempRoadAsync(roadId));
+      dispatch(toggleTempRoadAsync({ id: road.id, updated_at: road.updated_at }));
     }
   };
 

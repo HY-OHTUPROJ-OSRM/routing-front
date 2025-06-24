@@ -57,9 +57,9 @@ export const deleteTempRoadAsync = createAsyncThunk(
 
 export const toggleTempRoadAsync = createAsyncThunk(
   'tempRoads/toggleTempRoad',
-  async (id, { rejectWithValue }) => {
+  async ({ id, updated_at }, { rejectWithValue }) => {
     try {
-      const response = await toggleTempRoad(id);
+      const response = await toggleTempRoad(id, updated_at);
       return response;
     } catch (error) {
       return rejectWithValue(error.message);
