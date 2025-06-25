@@ -130,6 +130,12 @@
   pointer-events: none;
 }
 
+.profile-options {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
 .header-select-wrapper {
   position: relative;
 
@@ -872,7 +878,7 @@
 
 .profile-button {
   display: block;
-  margin: 20px auto 0 auto;
+  margin: auto;
 }
 
 .disconnection-button {
