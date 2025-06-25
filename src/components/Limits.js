@@ -9,7 +9,8 @@ const LimitItem = ({
   selectedVehicleClass, 
   showCoordinatesForLimit, 
   onShowCoordinates,
-  isHighlighted = false
+  isHighlighted = false,
+  onLimitClick
 }) => {
   const dispatch = useDispatch();
   const { visibleLimitIds } = useSelector(state => state.limits);
@@ -84,11 +85,23 @@ const LimitItem = ({
     <div 
       id={`limit-item-${limit.id}`} 
       className={`limit-item ${isOnMap ? 'on-map' : ''} ${restrictions ? 'restricted' : ''} ${isHighlighted ? 'highlighted' : ''}`}
-      style={getHighlightStyle()}
+      style={{
+        ...getHighlightStyle(),
+        cursor: 'pointer'
+      }}
+      onClick={() => onLimitClick && onLimitClick(limit.id)}
     >
       <div className="limit-item-header">
-        <h4>Road ID: {limit.id}</h4>
-        <div className="header-indicators">
+        {/* First row: Road ID */}
+        <h4 style={{ margin: '0 0 8px 0' }}>Road ID: {limit.id}</h4>
+        
+        {/* Second row: Indicators */}
+        <div className="header-indicators" style={{
+          display: 'flex',
+          gap: '6px',
+          flexWrap: 'wrap',
+          alignItems: 'center'
+        }}>
           {isHighlighted && (
             <span className="highlight-indicator" style={{
               background: '#ffc107',
@@ -97,7 +110,6 @@ const LimitItem = ({
               borderRadius: '10px',
               fontSize: '10px',
               fontWeight: 'bold',
-              marginRight: '4px',
               animation: 'pulse 1s infinite'
             }}>
               ⭐ SELECTED
@@ -110,8 +122,7 @@ const LimitItem = ({
               padding: '2px 6px',
               borderRadius: '10px',
               fontSize: '10px',
-              fontWeight: 'bold',
-              marginRight: '4px'
+              fontWeight: 'bold'
             }}>
               RESTRICTED
             </span>
@@ -180,7 +191,8 @@ const LimitItem = ({
       <div className="limit-actions">
         <button 
           className="action-button show-coordinates-btn"
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation();
             if (onShowCoordinates) {
               onShowCoordinates(showCoordinatesForLimit === limit.id ? null : limit.id);
             }
@@ -192,14 +204,20 @@ const LimitItem = ({
         {!isOnMap ? (
           <button 
             className="action-button show-on-map-btn"
-            onClick={() => onShowOnMap && onShowOnMap(limit)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onShowOnMap && onShowOnMap(limit);
+            }}
           >
             Show on Map
           </button>
         ) : (
           <button 
             className="action-button remove-from-map-btn"
-            onClick={() => dispatch(removeLimitFromMap(limit.id))}
+            onClick={(e) => {
+              e.stopPropagation();
+              dispatch(removeLimitFromMap(limit.id));
+            }}
             style={{
               backgroundColor: '#dc3545',
               color: 'white'
@@ -210,7 +228,7 @@ const LimitItem = ({
         )}
       </div>
 
-      {/* Coordinates Display - Similar to TempRoadItem */}
+      {/* Coordinates Display */}
       {showCoordinatesForLimit === limit.id && limit.coordinates && (
         <div style={{
           marginTop: '12px',
@@ -235,10 +253,8 @@ const LimitItem = ({
             overflowY: 'auto'
           }}>
             {limit.coordinates.map((coord, index) => {
-              // Handle different coordinate formats
               let lat, lng;
               if (Array.isArray(coord) && coord.length >= 2) {
-                // Assuming [lng, lat] format (GeoJSON standard)
                 [lng, lat] = coord;
               } else if (coord.lat !== undefined && coord.lng !== undefined) {
                 // Object format {lat: x, lng: y}
