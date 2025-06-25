@@ -151,6 +151,7 @@ export default function App() {
             nodeSelectionMode={nodeSelectionMode}
             onNodeSelection={handleNodeSelectionFromMap}
             nodeSelectionHandler={nodeSelectionHandler}
+            handleAddClick={handleAddClick}
           />
           <Routing_form />
         </main>

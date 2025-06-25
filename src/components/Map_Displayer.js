@@ -30,7 +30,7 @@ import { getNodeList } from '../services/nodelist_service';
 Massive component handling all map functionalities. 
 */
 
-const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRoads, disconnectedRoadRef, nodeSelectionMode, onNodeSelection}) => {
+const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRoads, disconnectedRoadRef, nodeSelectionMode, onNodeSelection, handleAddClick}) => {
     const dispatch = useDispatch()
     const { selectedProfile } = useContext(ProfileContext)
     const profileRef = useRef(selectedProfile)
@@ -547,6 +547,7 @@ const Map_Displayer = ({editMode, setEditMode, setSidebar, isOpen, visibleTempRo
 
     // Listen for drawing start event
     const onDrawStart = (e) => {
+        handleAddClick();
         setIsDrawingPolygon(true);
     };
 
