@@ -20,8 +20,8 @@ function TempRoadForm({
 
   const directionOptions = [
     { value: 2, label: 'Bidirectional', icon: '↔️'},
-    { value: 4, label: 'Forward', icon: '➡️'},
-    { value: 3, label: 'Backward', icon: '⬅️'}
+    { value: 0, label: 'Forward', icon: '➡️'},
+    { value: 1, label: 'Backward', icon: '⬅️'}
   ];
 
   const handleCoordChange = (type, field, value) => {
@@ -68,7 +68,7 @@ function TempRoadForm({
       ...formData,
       speed,
       length,
-      direction: formData.direction || 2,
+      direction: formData.direction !== undefined ? formData.direction : 2,
       start_coordinates: {
         lat: parseFloat(formData.start_coordinates.lat),
         lng: parseFloat(formData.start_coordinates.lng)

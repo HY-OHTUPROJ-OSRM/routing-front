@@ -33,10 +33,10 @@ function TempRoadItem({
 
   const getDirectionDisplay = (direction) => {
     switch(direction) {
-      case 2: return { text: 'Bidirection', icon: '↔️' };
-      case 3: return { text: 'Backward', icon:'⬅️' };
-      case 4: return { text: 'Forward', icon: '➡️' };
-      default: return { text: 'Bidirection', icon: '↔️' };
+      case 0: return { text: 'Forward', icon: '➡️' };
+      case 1: return { text: 'Backward', icon: '⬅️' };
+      case 2: return { text: 'Bidirectional', icon: '↔️' };
+      default: return { text: 'Bidirectional', icon: '↔️' };
     }
   };
 
@@ -114,7 +114,7 @@ function TempRoadItem({
     setEditFormData({
       name: road.name || '',
       type: road.type || 'iceroad',
-      direction: road.direction || 2,
+      direction: road.direction !== undefined ? road.direction : 2,
       speed: road.speed?.toString() || '',
       length: road.length?.toString() || '',
       ...coordinatesToUse,
