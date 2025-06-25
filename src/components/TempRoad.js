@@ -230,10 +230,10 @@ function TempRoads({
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
               >
-                <option value="all">Show All Types</option>
-                <option value="iceroad">Show Ice Roads</option>
-                <option value="speed_limit">Show Speed Limits</option>
-                <option value="temporary">Show Temporary Roads</option>
+                <option value="all">All Types</option>
+                <option value="iceroad">Ice Roads</option>
+                <option value="speed_limit">Speed Limits</option>
+                <option value="temporary">Temporary Roads</option>
               </select>
             </div>
             <div>
