@@ -1,3 +1,5 @@
+// RoutingForm.jsx
+
 import React, { useState, useContext, useEffect } from 'react';
 import './RouteField.css';
 import { validateCoordinate } from '../services/FormValidationService';
@@ -14,7 +16,6 @@ function RoutingForm() {
       { lat: '', long: '', name: 'Destination' }
     ]
   });
-
   const [errors, setErrors] = useState({});
   const { setRoute } = useContext(RouteContext);
   const startpos = useSelector(state => state.routeLine.startPosition);
@@ -51,13 +52,12 @@ function RoutingForm() {
     setErrors({ coordinates: coordinateErrors });
   };
 
-  const validateForm = () => {
-    return formData.coordinates.every(
+  const validateForm = () =>
+    formData.coordinates.every(
       coord => validateCoordinate(coord.lat) && validateCoordinate(coord.long)
     );
-  };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = e => {
     e.preventDefault();
     if (validateForm()) {
       dispatch(fetchRouteLine(formData.coordinates));
@@ -72,58 +72,61 @@ function RoutingForm() {
     }
   };
 
-  const toggleForm = () => {
-    setIsVisible(!isVisible);
-  };
+  const toggleForm = () => setIsVisible(!isVisible);
 
   return (
     <div className={`new-component ${isVisible ? 'visible' : ''}`}>
       <button className="toggle-button" onClick={toggleForm}>
         {isVisible ? '↓' : '↑'}
       </button>
-        <>
-          <form className="form-horizontal" onSubmit={handleSubmit}>
-            <div className="coordinate-group">
-              <label>Starting Position</label>
-              <input
-                name="lat"
-                value={formData.coordinates[0].lat}
-                onChange={(e) => handleChange(0, e)}
-                placeholder="Latitude"
-              />
-              <input
-                name="long"
-                value={formData.coordinates[0].long}
-                onChange={(e) => handleChange(0, e)}
-                placeholder="Longitude"
-              />
-            </div>
 
-            <div className="coordinate-group">
-              <label>Destination</label>
-              <input
-                name="lat"
-                value={formData.coordinates[1].lat}
-                onChange={(e) => handleChange(1, e)}
-                placeholder="Latitude"
-              />
-              <input
-                name="long"
-                value={formData.coordinates[1].long}
-                onChange={(e) => handleChange(1, e)}
-                placeholder="Longitude"
-              />
-            </div>
-
-            <button type="submit" disabled={!validateForm()} className={!validateForm() ? 'btn-disabled' : ''}>
-              Route
-            </button>
-          </form>
-
-          <div className="route-list-container">
-            <RouteList />
+      <form className="form-horizontal" onSubmit={handleSubmit}>
+        <div className="coordinate-wrapper">
+          <div className="coordinate-group">
+            <label>Starting Position</label>
+            <input
+              name="lat"
+              value={formData.coordinates[0].lat}
+              onChange={e => handleChange(0, e)}
+              placeholder="Latitude"
+            />
+            <input
+              name="long"
+              value={formData.coordinates[0].long}
+              onChange={e => handleChange(0, e)}
+              placeholder="Longitude"
+            />
           </div>
-        </>
+
+          <div className="coordinate-group">
+            <label>Destination</label>
+            <input
+              name="lat"
+              value={formData.coordinates[1].lat}
+              onChange={e => handleChange(1, e)}
+              placeholder="Latitude"
+            />
+            <input
+              name="long"
+              value={formData.coordinates[1].long}
+              onChange={e => handleChange(1, e)}
+              placeholder="Longitude"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={!validateForm()}
+          className={!validateForm() ? 'btn-disabled' : ''}
+        >
+          Route
+        </button>
+      </form>
+
+      <div className="route-list-container">
+        <RouteList />
+      </div>
     </div>
   );
 }

@@ -7,23 +7,18 @@
   bottom: 5%;
   left: 5%;
   right: 5%;
-  height: auto;
-  width: auto;
   padding: 10px;
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
+
   transform: translateY(95%);
   transition: transform 0.4s ease;
 }
-
 .new-component.visible {
   transform: translateY(0);
 }
+
 
 .toggle-button {
   position: absolute;
@@ -35,15 +30,24 @@
   padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
-  color: var(--primary-blue)
+  color: var(--primary-blue);
 }
 
+/* Lomake */
 .form-horizontal {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
   width: 100%;
+  height: 100px;
+  position: relative;
+}
+
+
+.coordinate-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 20px;
 }
 
 .coordinate-group {
@@ -51,30 +55,55 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  margin-bottom: 0;
 }
-
 .coordinate-group label {
-  text-align: center;
   font-weight: bold;
-  margin-bottom: 4px;
+  text-align: center;
+}
+.coordinate-group input {
+  width: 180px;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-align: center;
 }
 
-.new-component button {
-  margin: 0;
+.form-horizontal button[type="submit"] {
+  position: absolute;
+  top: 50%;
+  right: 15%;
+  transform: translateY(-50%);
+  background-color: var(--primary-blue);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s, transform 0.1s;
 }
-
-.btn-disabled {
-  background-color: #ccc;
-  color: #666;
+.form-horizontal button[type="submit"]:hover:not(:disabled) {
+  background-color: #125bcc;
+  transform: translateY(-1px);
+}
+.form-horizontal button[type="submit"]:disabled {
+  background: #6c757d;
   cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .error {
   color: rgb(27, 25, 25);
   font-size: 12px;
 }
-
 .input-error {
   border: 1px solid red;
+}
+
+.route-list-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
 }
