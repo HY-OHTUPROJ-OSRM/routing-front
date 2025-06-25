@@ -24,7 +24,11 @@ const LimitsDisplay = ({ isOpen }) => {
     const handleLimitMapClick = (event) => {
       const { limitId } = event.detail;
       
-      setHighlightedLimitId(limitId);
+      if (highlightedLimitId === limitId) {
+        setHighlightedLimitId(null);
+      } else {
+        setHighlightedLimitId(limitId);
+      }
       
       setTimeout(() => {
         const limitElement = document.getElementById(`limit-item-${limitId}`);
@@ -35,10 +39,6 @@ const LimitsDisplay = ({ isOpen }) => {
           });
         }
       }, 100);
-      
-      setTimeout(() => {
-        setHighlightedLimitId(null);
-      }, 3000);
     };
 
     window.addEventListener('limitMapClicked', handleLimitMapClick);
@@ -46,7 +46,7 @@ const LimitsDisplay = ({ isOpen }) => {
     return () => {
       window.removeEventListener('limitMapClicked', handleLimitMapClick);
     };
-  }, []);
+  }, [highlightedLimitId]);
 
   useEffect(() => {
     if (isOpen) {
@@ -146,6 +146,14 @@ const LimitsDisplay = ({ isOpen }) => {
     setShowCoordinatesForLimit(limitId);
   };
 
+  const handleLimitItemClick = (limitId) => {
+    if (highlightedLimitId === limitId) {
+      setHighlightedLimitId(null);
+    } else {
+      setHighlightedLimitId(limitId);
+    }
+  };
+
   const checkLimitRestrictsVehicle = (limit, vehicleClass) => {
     if (!vehicleClass) return false;
     
@@ -190,7 +198,7 @@ const LimitsDisplay = ({ isOpen }) => {
     return (
       <div className="limits-display">
         <div className="limits-header">
-          <h3>Weight & Height Limits</h3>
+          <h3>Weight &amp; Height Limits</h3>
         </div>
         <div className="loading-state">
           <p>Loading limits data...</p>
@@ -203,7 +211,7 @@ const LimitsDisplay = ({ isOpen }) => {
     return (
       <div className="limits-display">
         <div className="limits-header">
-          <h3>Weight & Height Limits</h3>
+          <h3>Weight &amp; Height Limits</h3>
         </div>
         <div className="error-state">
           <p>Error loading limits: {error}</p>
@@ -224,7 +232,7 @@ const LimitsDisplay = ({ isOpen }) => {
   return (
     <div className="limits-display">
       <div className="limits-header">
-        <h3>Weight & Height Limits</h3>
+        <h3>Weight &amp; Height Limits</h3>
         <p className="limits-count">
           Found {filteredLimits.length} roads with limits
           {visibleLimitIds.length > 0 && (
@@ -322,6 +330,7 @@ const LimitsDisplay = ({ isOpen }) => {
               showCoordinatesForLimit={showCoordinatesForLimit}
               onShowCoordinates={handleShowCoordinates}
               isHighlighted={highlightedLimitId === limit.id}
+              onLimitClick={handleLimitItemClick}
             />
           ))
         )}
