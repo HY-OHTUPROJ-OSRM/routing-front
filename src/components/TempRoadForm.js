@@ -18,7 +18,6 @@ function TempRoadForm({
 }) {
   const dispatch = useDispatch();
 
-
   const directionOptions = [
     { value: 2, label: 'Bidirectional', icon: '↔️', description: 'Default' },
     { value: 4, label: 'Forward', icon: '➡️', description: 'One-way forward' },
@@ -142,7 +141,6 @@ function TempRoadForm({
               <span className="direction-icon">{option.icon}</span>
               <span className="direction-label">
                 {option.label}
-                {option.value === 2 && <span className="default-badge">({option.description})</span>}
               </span>
             </label>
           ))}

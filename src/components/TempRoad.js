@@ -114,6 +114,21 @@ function TempRoads({
     description: '' 
   });
 
+  const getStartEndCoordsFromRoad = (road) => {
+    if (!road.geom || !Array.isArray(road.geom.coordinates) || road.geom.coordinates.length < 2) {
+      return {
+        start_coordinates: road.start_coordinates || { lat: '', lng: '' },
+        end_coordinates: road.end_coordinates || { lat: '', lng: '' }
+      };
+    }
+    const [startLng, startLat] = road.geom.coordinates[0];
+    const [endLng, endLat] = road.geom.coordinates[1];
+    return {
+      start_coordinates: { lat: startLat, lng: startLng },
+      end_coordinates: { lat: endLat, lng: endLng }
+    };
+  };
+
   const handleSelectRoad = (id) => dispatch(selectRoad(id));
 
   const showOnMap = (road) => {
@@ -215,10 +230,10 @@ function TempRoads({
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
               >
-                <option value="all">Show All Types</option>
-                <option value="iceroad">Show Ice Roads</option>
-                <option value="speed_limit">Show Speed Limits</option>
-                <option value="temporary">Show Temporary Roads</option>
+                <option value="all">All Types</option>
+                <option value="iceroad">Ice Roads</option>
+                <option value="speed_limit">Speed Limits</option>
+                <option value="temporary">Temporary Roads</option>
               </select>
             </div>
             <div>
@@ -239,14 +254,17 @@ function TempRoads({
                         setEditingRoadId(roadId);
                         const road = tempRoads.find(r => r.id === roadId);
                         if (!road) return;
+                        
+                        // 修复：正确获取坐标信息
+                        const coordinates = getStartEndCoordsFromRoad(road);
+                        
                         setEditFormData({
                           name: road.name || '',
                           type: road.type || 'iceroad',
                           direction: road.direction || 2,
                           speed: road.speed?.toString() || '',
                           length: road.length?.toString() || '',
-                          start_coordinates: road.start_coordinates || { lat: '', lng: '' },
-                          end_coordinates: road.end_coordinates || { lat: '', lng: '' },
+                          ...coordinates,
                           description: road.description || ''
                         });
                         setShowCoordinatesForRoad(null);

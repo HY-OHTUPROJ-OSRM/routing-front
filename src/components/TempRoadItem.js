@@ -102,6 +102,25 @@ function TempRoadItem({
   };
 
   const startEdit = () => {
+    const coords = getStartEndCoords();
+    const coordinatesToUse = coords ? {
+      start_coordinates: coords.start,
+      end_coordinates: coords.end
+    } : {
+      start_coordinates: road.start_coordinates || { lat: '', lng: '' },
+      end_coordinates: road.end_coordinates || { lat: '', lng: '' }
+    };
+
+    setEditFormData({
+      name: road.name || '',
+      type: road.type || 'iceroad',
+      direction: road.direction || 2,
+      speed: road.speed?.toString() || '',
+      length: road.length?.toString() || '',
+      ...coordinatesToUse,
+      description: road.description || ''
+    });
+
     onStartEdit(road.id);
     onShowCoordinates(null);
   };
@@ -169,7 +188,6 @@ function TempRoadItem({
             </div>
           </div>
 
-          {/* 显示道路信息，包括新增的方向信息 */}
           <div className="road-info">
             {road.speed > 0 && <div className="speed-info">Speed limit: {road.speed} Km/h</div>}
             {road.length > 0 && <div className="length-info">Length: {road.length} km</div>}
