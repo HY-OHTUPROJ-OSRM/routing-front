@@ -1,7 +1,7 @@
 import "./comp_styles.scss";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux';
-import { addTempRoad, deleteTempRoadAsync } from '../features/temproads/TempRoadsSlice';
+import { addTempRoad, deleteTempRoadAsync, fetchTempRoads } from '../features/temproads/TempRoadsSlice';
 import { getDisconnections, attachTempRoadToDisconnection, toggleHideStatus } from "../services/DisconnectionsService";
 
 const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
@@ -21,6 +21,13 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
 
   const dispatch = useDispatch();
   const tempRoads = useSelector(state => state.tempRoads.list);
+  const tempRoadsStatus = useSelector(state => state.tempRoads.status);
+
+  useEffect(() => {
+    if (isOpen && tempRoadsStatus === 'idle') {
+      dispatch(fetchTempRoads());
+    }
+  }, [isOpen, tempRoadsStatus, dispatch]);
 
   // Fetch list
   const handleGetDisconnections = async () => {
