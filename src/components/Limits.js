@@ -172,6 +172,7 @@ const LimitItem = ({
           borderRadius: '4px',
           padding: '8px',
           marginTop: '8px',
+          marginBottom: '12px',
           fontSize: '12px'
         }}>
           {restrictions.map((restriction, index) => (
