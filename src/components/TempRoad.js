@@ -255,7 +255,6 @@ function TempRoads({
                         const road = tempRoads.find(r => r.id === roadId);
                         if (!road) return;
                         
-                        // 修复：正确获取坐标信息
                         const coordinates = getStartEndCoordsFromRoad(road);
                         
                         setEditFormData({

@@ -19,9 +19,9 @@ function TempRoadForm({
   const dispatch = useDispatch();
 
   const directionOptions = [
-    { value: 2, label: 'Bidirectional', icon: '↔️', description: 'Default' },
-    { value: 4, label: 'Forward', icon: '➡️', description: 'One-way forward' },
-    { value: 3, label: 'Backward', icon: '⬅️', description: 'One-way backward' }
+    { value: 2, label: 'Bidirectional', icon: '↔️'},
+    { value: 4, label: 'Forward', icon: '➡️'},
+    { value: 3, label: 'Backward', icon: '⬅️'}
   ];
 
   const handleCoordChange = (type, field, value) => {
