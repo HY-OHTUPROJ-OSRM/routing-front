@@ -40,7 +40,7 @@ function TempRoadForm({
       handleCoordChange('start_coordinates', name.endsWith('lat') ? 'lat' : 'lng', value);
     } else if (name === 'end_lat' || name === 'end_lng') {
       handleCoordChange('end_coordinates', name.endsWith('lat') ? 'lat' : 'lng', value);
-    } else if (name === 'direction') {
+    } else if (name === 'direction') { 
       setFormData({ ...formData, [name]: parseInt(value) });
     } else {
       setFormData({ ...formData, [name]: value });
@@ -212,7 +212,8 @@ function TempRoadForm({
           className="temp-road-input"
           type="number"
           name="speed"
-          value={formData.speed !== '' ? formData.speed : defaultSpeed}
+          value={formData.speed}
+          placeholder={defaultSpeed}
           onChange={handleChange}
           min={0}
           step="any"

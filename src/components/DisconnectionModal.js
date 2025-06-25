@@ -11,8 +11,10 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
   const [hasMapDisconnections, setHasMapDisconnections] = useState(false);
 
   // Inputs
-  const [minDist, setMinDist] = useState(0);
-  const [maxDist, setMaxDist] = useState(6);
+  const defaultMin = 0;
+  const defaultMax = 6;
+  const [minDist, setMinDist] = useState(defaultMin);
+  const [maxDist, setMaxDist] = useState(defaultMax);
   const [isSameName, setIsSameName] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
@@ -96,6 +98,16 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
     }
   };
 
+  // Handlers for non-negative min/max
+  const onMinChange = e => {
+    const val = parseFloat(e.target.value);
+    setMinDist(!isNaN(val) && val >= 0 ? val : defaultMin);
+  };
+  const onMaxChange = e => {
+    const val = parseFloat(e.target.value);
+    setMaxDist(!isNaN(val) && val >= 0 ? val : defaultMax);
+  };
+
   // Filtering & sorting
   const applyFilters = (items, term, type) => {
     return items.filter(item => {
@@ -145,20 +157,46 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="custom-modal-content" onClick={e => e.stopPropagation()} style={{ maxHeight: "80vh", width: disconnections.length > 0 ? "80vw" : "auto" }}>
+      <div
+        className="custom-modal-content"
+        onClick={e => e.stopPropagation()}
+        style={{ maxHeight: "80vh", width: disconnections.length > 0 ? "80vw" : "auto" }}
+      >
         <button className="modal-close" onClick={onClose}>×</button>
         <h3 className="modal-title">Disconnected roads</h3>
         <p className="modal-description">This modal shows disconnected roads.</p>
 
         <div className="modal-filters">
-          <label>Min Distance:
-            <input type="number" value={minDist} onChange={e => setMinDist(+e.target.value)} className="modal-input small" />
+          <label>
+            Min Distance:
+            <input
+              type="number"
+              value={minDist}
+              placeholder={defaultMin}
+              onChange={onMinChange}
+              className="modal-input small"
+              min={0}
+            />
           </label>
-          <label>Max Distance:
-            <input type="number" value={maxDist} onChange={e => setMaxDist(+e.target.value)} className="modal-input small" />
+          <label>
+            Max Distance:
+            <input
+              type="number"
+              value={maxDist}
+              placeholder={defaultMax}
+              onChange={onMaxChange}
+              className="modal-input small"
+              min={0}
+            />
           </label>
-          <label>Same Name:
-            <input type="checkbox" checked={isSameName} onChange={e => setIsSameName(e.target.checked)} className="modal-checkbox" />
+          <label>
+            Same Name:
+            <input
+              type="checkbox"
+              checked={isSameName}
+              onChange={e => setIsSameName(e.target.checked)}
+              className="modal-checkbox"
+            />
           </label>
         </div>
 
