@@ -260,7 +260,7 @@ function TempRoads({
                         setEditFormData({
                           name: road.name || '',
                           type: road.type || 'iceroad',
-                          direction: road.direction || 2,
+                          direction: road.direction !== undefined ? road.direction : 2,
                           speed: road.speed?.toString() || '',
                           length: road.length?.toString() || '',
                           ...coordinates,
