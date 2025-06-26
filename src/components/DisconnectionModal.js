@@ -1,8 +1,10 @@
 import "./comp_styles.scss";
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useContext } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import { addTempRoad, deleteTempRoadAsync, fetchTempRoads } from '../features/temproads/TempRoadsSlice';
 import { getDisconnections, attachTempRoadToDisconnection, toggleHideStatus } from "../services/DisconnectionsService";
+import { ProfileContext } from './CoordinatesContext';
+import { fetchRouteLine } from '../features/routes/routeSlice';
 
 const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
   const [disconnections, setDisconnections] = useState([]);
@@ -22,6 +24,20 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
   const dispatch = useDispatch();
   const tempRoads = useSelector(state => state.tempRoads.list);
   const tempRoadsStatus = useSelector(state => state.tempRoads.status);
+  const { selectedProfile } = useContext(ProfileContext);
+
+  const [hasInitialSearch, setHasInitialSearch] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && searchTerm && !hasInitialSearch) {
+      handleGetDisconnections();
+      setHasInitialSearch(true);
+    }
+    
+    if (!isOpen) {
+      setHasInitialSearch(false);
+    }
+  }, [isOpen, searchTerm, hasInitialSearch]);
 
   useEffect(() => {
     if (isOpen && tempRoadsStatus === 'idle') {
@@ -35,7 +51,7 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
       const response = await getDisconnections(minDist, maxDist, isSameName);
       const data = response.data;
       setDisconnections(Array.isArray(data) ? data : []);
-      setFilteredDisconnections(Array.isArray(data) ? data : []);
+      setFilteredDisconnections(applyFilters(Array.isArray(data) ? data : [], searchTerm, filterType));
     } catch (err) {
       console.error("Failed to get disconnections:", err);
       setDisconnections([]);
@@ -45,6 +61,7 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
 
   // Create temp road
   const handleCreateTempRoad = async (disc) => {
+    console.log(`Creating temp road for disconnection ${disc.id}`);
     const payload = {
       geom: {
         type: 'LineString',
@@ -62,32 +79,58 @@ const DisconnectionModal = ({ isOpen, onClose, disconnectedRoadRef }) => {
       description: ""
     };
 
-    const result = await dispatch(addTempRoad(payload));
-    if (addTempRoad.fulfilled.match(result)) {
-      const newId = result.payload.id;
-      try {
-        await attachTempRoadToDisconnection(disc.id, newId, disc.updated_at);
-        await handleGetDisconnections();
-      } catch (linkErr) {
-        if (linkErr?.response?.status === 409) {
-          alert("Conflict: This disconnection was modified by another user. Please refresh and try again.");
-        } else {
-          console.error("Failed to attach temp road:", linkErr);
+    try {
+      const result = await dispatch(addTempRoad(payload));
+      if (addTempRoad.fulfilled.match(result)) {
+        const newId = result.payload.id;
+        console.log(`Temp road created with ID: ${newId}`);
+        
+        try {
+          await attachTempRoadToDisconnection(disc.id, newId, disc.updated_at);
+          console.log(`Successfully linked temp road ${newId} to disconnection ${disc.id}`);
+          
+          // Recalculate routes after successful creation
+          console.log('Recalculating routes after temp road creation');
+          await dispatch(fetchRouteLine(undefined, selectedProfile));
+          
+          await handleGetDisconnections();
+        } catch (linkErr) {
+          if (linkErr?.response?.status === 409) {
+            console.warn(`Conflict when linking temp road to disconnection ${disc.id}`);
+            alert("Conflict: This disconnection was modified by another user. Please refresh and try again.");
+          } else {
+            console.error("Failed to attach temp road:", linkErr);
+          }
         }
       }
+    } catch (err) {
+      console.error("Failed to create temp road:", err);
     }
   };
 
   // Delete temp road
   const handleDeleteTempRoad = async (disc) => {
+    console.log(`Deleting temp road ${disc.temp_road_id} for disconnection ${disc.id}`);
     const found = tempRoads.find(r => r.id === disc.temp_road_id);
     if (!found) {
+      console.warn("Temporary road not found in state");
       alert("Temporary road not found in state.");
       return;
     }
-    const result = await dispatch(deleteTempRoadAsync({ id: found.id, updated_at: found.updated_at }));
-    if (deleteTempRoadAsync.fulfilled.match(result)) {
-      await handleGetDisconnections();
+    
+    try {
+      const result = await dispatch(deleteTempRoadAsync({ id: found.id, updated_at: found.updated_at }));
+      if (deleteTempRoadAsync.fulfilled.match(result)) {
+        console.log(`Successfully deleted temp road ${found.id}`);
+        
+        // Recalculate routes after successful deletion
+        console.log('Recalculating routes after temp road deletion');
+        await dispatch(fetchRouteLine(undefined, selectedProfile));
+        
+        await handleGetDisconnections();
+      }
+    } catch (err) {
+      console.error("Failed to delete temp road:", err);
     }
   };
 
