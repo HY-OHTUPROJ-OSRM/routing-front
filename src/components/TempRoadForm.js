@@ -148,9 +148,9 @@ function TempRoadForm({
           value={formData.type}
           onChange={handleChange}
         >
-          <option value="iceroad">Ice Road</option>
-          <option value="speed_limit">Speed Limit</option>
           <option value="temporary">Temporary</option>
+          <option value="iceroad">Ice Road</option>
+          <option value="bridge">Temporary Bridge</option>
         </select>
 
         <label htmlFor="direction-select">Direction</label>

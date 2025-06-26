@@ -265,7 +265,7 @@ const LimitsDisplay = ({ isOpen }) => {
               >
                 <span className="vehicle-name">{vehicle.name}</span>
                 <span className="vehicle-limits">
-                  {vehicle.height_cutoff}t {(vehicle.weight_cutoff / 1000).toFixed(1)}m
+                  {vehicle.height_cutoff}m {(vehicle.weight_cutoff / 1000).toFixed(1)}t
                 </span>
               </div>
             ))}
