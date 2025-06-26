@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useDispatch } from 'react-redux';
 import { 
   deleteTempRoadAsync,
   toggleTempRoadAsync
 } from '../features/temproads/TempRoadsSlice';
 import { changeMapView } from '../features/view/ViewSlice';
+import { fetchRouteLine } from '../features/routes/routeSlice';
+import { ProfileContext } from './CoordinatesContext';
 import TempRoadForm from './TempRoadForm';
 import './comp_styles.scss';
 
@@ -26,6 +28,7 @@ function TempRoadItem({
 }) {
   const dispatch = useDispatch();
   const [isEditing, setIsEditing] = useState(false);
+  const { selectedProfile } = useContext(ProfileContext);
 
   useEffect(() => {
     setIsEditing(editingRoadId === road.id);
@@ -33,10 +36,10 @@ function TempRoadItem({
 
   const getDirectionDisplay = (direction) => {
     switch(direction) {
-      case 2: return { text: 'Bidirection', icon: '↔️' };
+      case 2: return { text: 'Bidirectinal', icon: '↔️' };
       case 3: return { text: 'Backward', icon:'⬅️' };
       case 4: return { text: 'Forward', icon: '➡️' };
-      default: return { text: 'Bidirection', icon: '↔️' };
+      default: return { text: 'Bidirectional', icon: '↔️' };
     }
   };
 
@@ -68,40 +71,77 @@ function TempRoadItem({
   };
 
   const flyToRoad = () => {
+    console.log(`[Road ${road.id}] Initiating fly-to action`);
     const coords = getStartEndCoords();
     if (!coords) {
+      console.error(`[Road ${road.id}] Invalid coordinates for fly-to`);
       alert('Unable to locate road on map. Invalid coordinates.');
       return;
     }
     const center = calculateCenter(coords.start, coords.end);
     const zoom = calculateZoomLevel(coords.start, coords.end);
+    console.log(`[Road ${road.id}] Setting view to center: ${center}, zoom: ${zoom}`);
     dispatch(changeMapView({ center, zoom }));
   };
 
   const showCoordinates = () => {
-    onShowCoordinates(showCoordinatesForRoad === road.id ? null : road.id);
+    const newId = showCoordinatesForRoad === road.id ? null : road.id;
+    console.log(`[Road ${road.id}] Toggling coordinates display. New state: ${newId ? 'show' : 'hide'}`);
+    onShowCoordinates(newId);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
+    console.log(`[Road ${id}] Delete operation initiated`);
     if (window.confirm('Are you sure you want to delete this road segment?')) {
-      dispatch(deleteTempRoadAsync({ id: road.id, updated_at: road.updated_at }));
-      onVisibleRoadsChange(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(id);
-        return newSet;
-      });
-      if (editingRoadId === id) onCancelEdit();
+      try {
+        console.log(`[Road ${id}] Dispatching delete request...`);
+        await dispatch(deleteTempRoadAsync({ id: road.id, updated_at: road.updated_at }));
+        
+        console.log(`[Road ${id}] Delete successful. Recalculating routes...`);
+        await dispatch(fetchRouteLine(undefined, selectedProfile));
+        console.log(`[Road ${id}] Route recalculation complete`);
+        
+        onVisibleRoadsChange(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(id);
+          console.log(`[Road ${id}] Removed from visible roads set`);
+          return newSet;
+        });
+        
+        if (editingRoadId === id) {
+          console.log(`[Road ${id}] Canceling edit mode for deleted road`);
+          onCancelEdit();
+        }
+      } catch (error) {
+        console.error(`[Road ${id}] Delete failed:`, error);
+      }
+    } else {
+      console.log(`[Road ${id}] Delete operation canceled by user`);
     }
   };
 
-  const handleToggle = () => {
+  const handleToggle = async () => {
     const action = road.status ? 'deactivate' : 'activate';
+    console.log(`[Road ${road.id}] Toggle operation initiated (${action})`);
+    
     if (window.confirm(`Are you sure you want to ${action} this road segment?`)) {
-      dispatch(toggleTempRoadAsync({ id: road.id, updated_at: road.updated_at }));
+      try {
+        console.log(`[Road ${road.id}] Dispatching toggle request...`);
+        await dispatch(toggleTempRoadAsync({ id: road.id, updated_at: road.updated_at }));
+        
+        console.log(`[Road ${road.id}] Toggle successful. Recalculating routes...`);
+        await dispatch(fetchRouteLine(undefined, selectedProfile));
+        console.log(`[Road ${road.id}] Route recalculation complete`);
+      } catch (error) {
+        console.error(`[Road ${road.id}] Toggle failed:`, error);
+      }
+    } else {
+      console.log(`[Road ${road.id}] Toggle operation canceled by user`);
     }
   };
 
   const startEdit = () => {
+    console.log(`[Road ${road.id}] Starting edit mode`);
     const coords = getStartEndCoords();
     const coordinatesToUse = coords ? {
       start_coordinates: coords.start,
@@ -126,7 +166,12 @@ function TempRoadItem({
   };
 
   const handleShowOnMap = () => {
-    if (selectedRoadId !== road.id) onSelectRoad(road.id);
+    console.log(`[Road ${road.id}] Show on map action`);
+    if (selectedRoadId !== road.id) {
+      console.log(`[Road ${road.id}] Selecting road`);
+      onSelectRoad(road.id);
+    }
+    console.log(`[Road ${road.id}] Adding to visible roads`);
     onVisibleRoadsChange(prev => new Set(prev).add(road.id));
     flyToRoad();
   };
@@ -164,26 +209,34 @@ function TempRoadItem({
             <div className="road-type">{getTypeDisplay(road.type)}</div>
             <h4 className="road-name">{road.name}</h4>
             <div className="road-status-buttons">
-              <span className={`status-badge ${road.status ? 'active' : 'inactive'}`}>{road.status ? 'Active' : 'Inactive'}</span>
+              <span className={`status-badge ${road.status ? 'active' : 'inactive'}`}>
+                {road.status ? 'Active' : 'Inactive'}
+              </span>
               <div className="action-buttons">
                 <button
                   className="temp-road-button small-button"
                   onClick={(e) => { e.stopPropagation(); startEdit(); }}
                   disabled={editingRoadId !== null}
                   title={editingRoadId !== null ? 'Another road is being edited' : 'Edit this road'}
-                >✏️</button>
+                >
+                  ✏️
+                </button>
                 <button
                   className="temp-road-button small-button"
                   onClick={(e) => { e.stopPropagation(); handleToggle(); }}
                   disabled={editingRoadId !== null}
                   title={road.status ? 'Deactivate' : 'Activate'}
-                >{road.status ? '⏸️' : '▶️'}</button>
+                >
+                  {road.status ? '⏸️' : '▶️'}
+                </button>
                 <button
                   className="temp-road-button small-button"
                   onClick={(e) => { e.stopPropagation(); handleDelete(road.id); }}
                   disabled={editingRoadId !== null}
                   title="Delete"
-                >🗑️</button>
+                >
+                  🗑️
+                </button>
               </div>
             </div>
           </div>
@@ -209,7 +262,9 @@ function TempRoadItem({
               onClick={(e) => { e.stopPropagation(); handleShowOnMap(); }}
               disabled={editingRoadId !== null}
               title="Show this road on the map and fly to it"
-            >Show on map</button>
+            >
+              Show on map
+            </button>
           </div>
 
           {showCoordinatesForRoad === road.id && (() => {

@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useContext, useRef, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { 
-  addTempRoad, 
-  updateTempRoadAsync 
-} from '../features/temproads/TempRoadsSlice';
+import { addTempRoad, updateTempRoadAsync } from '../features/temproads/TempRoadsSlice';
+import { fetchRouteLine } from "../features/routes/routeSlice";
+import { ProfileContext } from './CoordinatesContext';
 import './comp_styles.scss';
 
 function TempRoadForm({ 
@@ -17,6 +16,12 @@ function TempRoadForm({
   onFormClose
 }) {
   const dispatch = useDispatch();
+  const { selectedProfile } = useContext(ProfileContext);
+  const profileRef = useRef(selectedProfile);
+
+  useEffect(() => {
+    profileRef.current = selectedProfile;
+  }, [selectedProfile]);
 
   const directionOptions = [
     { value: 2, label: 'Bidirectional', icon: '↔️'},
@@ -47,10 +52,10 @@ function TempRoadForm({
     }
   };
 
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
+    console.log('Form submit started', { mode });
 
-    // Round to one decimal for speed, three decimals for length
     const rawSpeed = parseFloat(formData.speed) || defaultSpeed;
     const rawLength = parseFloat(formData.length) || 0;
     const speed = Math.round(rawSpeed * 10) / 10;
@@ -69,27 +74,40 @@ function TempRoadForm({
       speed,
       length,
       direction: formData.direction || 2,
-      start_coordinates: {
-        lat: parseFloat(formData.start_coordinates.lat),
-        lng: parseFloat(formData.start_coordinates.lng)
-      },
-      end_coordinates: {
-        lat: parseFloat(formData.end_coordinates.lat),
-        lng: parseFloat(formData.end_coordinates.lng)
-      },
       geom
     };
 
-    if (mode === 'add') {
-      dispatch(addTempRoad({ ...dataToSubmit, status: true, tags: [] }));
-    } else {
-      dispatch(updateTempRoadAsync({ id: road.id, updates: { ...dataToSubmit, updated_at: road.updated_at } }));
+    try {
+      if (mode === 'add') {
+        console.log('Adding temp road…');
+        await dispatch(addTempRoad({ ...dataToSubmit, status: true, tags: [] }));
+        console.log('Temp road added successfully ✅'); 
+        
+        console.log('Start recalculating route line…');
+        await dispatch(fetchRouteLine(undefined, profileRef.current));
+        console.log('Route recalculated successfully ✅');
+      } else {
+        console.log('Update temp road…', road.id);
+        await dispatch(updateTempRoadAsync({ 
+          id: road.id, 
+          updates: { ...dataToSubmit, updated_at: road.updated_at } 
+        }));
+        console.log('Road update dispatched ✅');
+        
+        console.log('Start recalculating route line…');
+        await dispatch(fetchRouteLine(undefined, profileRef.current));
+        console.log('Route recalculated successfully ✅');
+      }
+    } catch (error) {
+      console.error('❌ Failed:', error);
+    } finally {
+      onFormClose();
     }
-
-    onFormClose();
   };
 
-  const handleCancel = () => onFormClose();
+  const handleCancel = () => {
+    onFormClose();
+  };
 
   const startNodeSelection = nodeType => {
     setNodeSelectionMode({ active: true, selecting: nodeType, isEditMode: mode === 'edit' });
